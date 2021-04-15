@@ -168,7 +168,7 @@ def translate_coord_to_world(coord, new_origin_coord, new_x_axis_coord, new_y_ax
     M2 = np.column_stack((new_X, new_Y, new_Z))
 
     p2 = np.dot(np.linalg.inv(M2), ((O1 - O2) + np.dot(M1, p1)))  # p2 = M2' * (O1 - O2 + M1 * p1)
-    return p2
+    return p2 * scale
 
 
 def compute_z_axis(x_axis, y_axis):
