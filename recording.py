@@ -167,12 +167,15 @@ if __name__ == "__main__":
                                 '\nAvoid saving on removable devices to increase the bitrate')
     parser.add_argument('--record', dest='recording', help='Record and save the sequence', action='store_true')
     parser.add_argument('--play', dest='play', help='Play the sequence', action='store_true')
+    parser.add_argument('--duration', dest='duration', type=int,
+                        help='Set the recording for a certain amount of time (in seconds)')
 
     args = parser.parse_args()
     filename = args.filename
     directory = args.directory
     recording = args.recording
     just_show = args.just_show
+    duration = args.duration
 
     if filename is not None:
         if os.path.pathsep * 2 in filename:  # path contains "\\"
@@ -239,6 +242,8 @@ if __name__ == "__main__":
                     currently_playing = not currently_playing
         except Exception as e:
             print(e)
+            break
+        if time.time() > start_time + duration:
             break
 
     sequence_duration = time.time() - start_time

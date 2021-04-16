@@ -22,6 +22,8 @@ import glob
 import math
 from cv2 import aruco
 
+import realsense_filters as filters
+
 def save_data(bag_filename, client = None, skeletrack = None, device = 'realsense1', use_aruco_coord = True):
 	if client is None:
 		client = InfluxDB_connection.ListicClientDB(server_side = False) # Connect locally if no InfluxDB client is given
@@ -39,8 +41,16 @@ def save_data(bag_filename, client = None, skeletrack = None, device = 'realsens
 				frames = pipeline.wait_for_frames(200)
 			except:
 				break
-			color_frame = np.array(frames.get_color_frame().get_data())
-			depth_frame = frames.get_depth_frame()
+
+			try:
+				color_frame = np.array(frames.get_color_frame().get_data())
+				depth_frame = frames.get_depth_frame()
+				depth_frame = filters.l515_filter(depth_frame).as_depth_frame()
+			except Exception as e:
+				print(f"Error on the file {bag_filename}:", e)
+				recording.stop_playback(pipeline)
+				return
+
 			try:
 				median_center, median_x, median_y, median_z = coord_converter.calibrate_aruco_cube(color_frame, aruco.Dictionary_get(aruco.DICT_6X6_250), depth_frame, pipeline)
 			except Exception as e:
@@ -49,6 +59,11 @@ def save_data(bag_filename, client = None, skeletrack = None, device = 'realsens
 				return
 		recording.stop_playback(pipeline)
 	pipeline = rs.pipeline()
+
+	# TODO: Compute the velocities and use feet_analysis.py to extract features
+	# previous_keypoints_coord = {}
+	# for keypoint in human_skeleton.BodyParts:
+	# 	previous_keypoints_coord[keypoint.name] = {'coord': None, 'last_seen': None}
 
 	if skeletrack is None:
 		skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline = pipeline)
@@ -72,6 +87,7 @@ def save_data(bag_filename, client = None, skeletrack = None, device = 'realsens
 			break
 		color_frame = frames.get_color_frame()
 		depth_frame = frames.get_depth_frame()
+		depth_frame = filters.l515_filter(depth_frame).as_depth_frame()
 
 		color_frame = np.asanyarray(color_frame.get_data()).copy()
 		timestamp = depth_frame.get_frame_metadata(rs.frame_metadata_value.time_of_arrival)
@@ -83,7 +99,10 @@ def save_data(bag_filename, client = None, skeletrack = None, device = 'realsens
 				human = human_skeleton.HumanSkeleton()
 				human.from_tracker(skeletrack, i, depth_frame)
 
-				coord2D, coord3D = human.to_json(median_center, median_center+median_x, median_center+median_y, median_center+median_z)
+				if median_center is not None:
+					coord2D, coord3D = human.to_json(median_center, median_center+median_x, median_center+median_y, median_center+median_z)
+				else:
+					coord2D, coord3D = human.to_json() # If there is no Aruco box
 
 				client.insert_skeleton_keypoints(coord2D = coord2D, coord3D = coord3D, skeleton_id = i,
 				                                 timestamp = timestamp,

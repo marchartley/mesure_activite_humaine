@@ -68,7 +68,7 @@ if __name__ == "__main__":
 	faces_distances = np.array([])
 	number_of_faces_detection = {}
 
-	filename = "recordings/2021-04-14_15_48_37_798.bag"
+	filename = "recordings/20210416_140741.bag"
 	skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline = pipeline)
 
 	pipeline = recording.start_playback(filename, pipeline = pipeline, repeat_playback = True, realtime = False)
@@ -189,8 +189,8 @@ if __name__ == "__main__":
 				print(e)
 				raise e
 
-			# cv2.imshow("Camera", cv2.cvtColor(color_frame, cv2.COLOR_BGR2RGB))
-			cv2.imshow("Camera", cv2.resize(cv2.cvtColor(depth_image, cv2.COLOR_BGR2RGB), (800, 600)))
+			cv2.imshow("Camera", cv2.cvtColor(color_frame, cv2.COLOR_BGR2RGB))
+			# cv2.imshow("Camera", cv2.resize(cv2.cvtColor(depth_image, cv2.COLOR_BGR2RGB), (800, 600)))
 
 		k = cv2.waitKey(1) & 0xFF
 		if k == ord('q'):

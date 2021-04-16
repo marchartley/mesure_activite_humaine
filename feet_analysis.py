@@ -46,6 +46,8 @@ def save_data(bag_filename, saving_filename, visual = False, needed_keypoints = 
 			depth_frame = filters.l515_filter(depth_frame).as_depth_frame()
 
 			current_timestamp = recording.get_frame_timestamp(frames)
+			if previous_timestamp == current_timestamp:
+				continue
 
 			# if not color_frame or not depth_frame: continue
 
@@ -60,11 +62,42 @@ def save_data(bag_filename, saving_filename, visual = False, needed_keypoints = 
 				coord2D, coord3D = human.to_json()
 
 				all_keypoints_valid = True
-				for keypoint in needed_keypoints:
-					if keypoint not in coord3D:
-						all_keypoints_valid = False
+				# for keypoint in needed_keypoints:
+				# 	if keypoint not in coord3D:
+				# 		all_keypoints_valid = False
 				if all_keypoints_valid:
 
+					for key in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
+						if key not in coordinates:
+							coordinates[key] = []
+							velocities[key] = []
+							for key2 in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
+								distances[key + "-" + key2] = []
+
+						if key not in coord2D or np.any(coord2D[key] == -1) or np.any(coord2D[key] is None): # Coord not found
+							coordinates[key].append(np.array([None, None, None]))
+							velocities[key].append(None)
+							for key2 in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
+								distances[key + "-" + key2].append(None)
+							continue
+
+						# If coord is found
+						coordinates[key].append(coord3D[key])
+						if len(coordinates[key]) == 1: # Not sure this can happen
+							velocities[key].append(0)
+						else:
+							if np.any(coordinates[key][-2] == None) or np.any(coordinates[key][-1] == None):
+								velocities[key].append(None)
+							else:
+								velocities[key].append((np.linalg.norm((coordinates[key][-2] - coordinates[key][-1]) / (
+											current_timestamp - previous_timestamp))) * 1000)
+
+						for key2 in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
+							distances[key + "-" + key2].append(None) # By default, set all to None
+						for key2 in coord3D: # Change the values we can
+							distances[key + "-" + key2][-1] = np.linalg.norm(coord3D[key2] - coord3D[key])
+
+					"""
 					for key in coord3D:
 						if key not in coordinates:
 							coordinates[key] = []
@@ -93,6 +126,7 @@ def save_data(bag_filename, saving_filename, visual = False, needed_keypoints = 
 
 						for key2 in coord3D:
 							distances[key + "-" + key2].append(np.linalg.norm(coord3D[key2] - coord3D[key]))
+					"""
 
 					timestamps.append(current_timestamp)
 					frame_indexes.append(num_frame)
@@ -183,7 +217,14 @@ def estimate_footsteps_by_distance(data, distance_range = 2):
 	return number_of_steps, {'timestamps': np.array(estimated_timestamps), 'frames': np.array(estimated_frames)}
 
 def estimate_footsteps_width(data, smoothed_data):
-	nb_steps, steps_instant = estimate_footsteps(smoothed_data, 0)
+	# nb_steps, steps_instant = estimate_footsteps(smoothed_data, 0)
+	frames = []
+	for i, (left_vel, right_vel) in enumerate(zip(data['velocities']['LEFT_ANKLE'], data['velocities']['RIGHT_ANKLE'])):
+		if left_vel is not None and right_vel is not None:
+			if left_vel < 0.01 and right_vel < 0.01:
+				frames.append(data['frames'][i])
+	steps_instant = {'frames': frames}
+	print(frames)
 	previous_positions = None
 	widths = []
 	number_of_measurments = 0
@@ -198,22 +239,30 @@ def estimate_footsteps_width(data, smoothed_data):
 			previous_positions = {'right': current_right_pos,
 			                      'left': current_left_pos}
 		else:
-			left_move = current_left_pos - previous_positions['left']
-			right_move = current_right_pos - previous_positions['right']
-			if np.linalg.norm(left_move) > np.linalg.norm(right_move): # Left foot is the one at the front
-				right_pos = np.mean([previous_positions['right'], current_right_pos], axis = 0) # DO the mean because the foot might have moved a little bit
-				current_width = np.linalg.norm(np.cross(left_move, current_left_pos - right_pos)) / np.linalg.norm(left_move)
-			else: # Right foot is the one at the front
-				left_pos = np.mean([previous_positions['left'], current_left_pos], axis = 0) # DO the mean because the foot might have moved a little bit
-				current_width = np.linalg.norm(np.cross(right_move, current_right_pos - left_pos)) / np.linalg.norm(right_move)
+			try:
+				left_move = current_left_pos - previous_positions['left']
+				right_move = current_right_pos - previous_positions['right']
 
-			if current_width > 0.8 or np.isnan(current_width):
-				number_of_measurments -= 1
-			else:
-				widths.append(current_width)
-			previous_positions = {'right': current_right_pos,
-			                      'left': current_left_pos}
+				if np.linalg.norm(left_move) > np.linalg.norm(right_move): # Left foot is the one at the front
+					right_pos = np.mean([previous_positions['right'], current_right_pos], axis = 0) # Do the mean because the foot might have moved a little bit
+					current_width = np.linalg.norm(np.cross(left_move, current_left_pos - right_pos)) / np.linalg.norm(left_move)
+				else: # Right foot is the one at the front
+					left_pos = np.mean([previous_positions['left'], current_left_pos], axis = 0) # Do the mean because the foot might have moved a little bit
+					current_width = np.linalg.norm(np.cross(right_move, current_right_pos - left_pos)) / np.linalg.norm(right_move)
 
+				if current_width > 0.8 or np.isnan(current_width):
+					number_of_measurments -= 1
+				else:
+					widths.append(current_width)
+			except TypeError as e:
+				pass
+
+			if current_right_pos is not None:
+				previous_positions['right'] = current_right_pos
+			if current_left_pos is not None:
+				previous_positions['left'] = current_left_pos
+
+	print(widths)
 	return np.median(widths) # Ignore the first frame
 
 def get_data(json_filename):
@@ -242,10 +291,11 @@ def mean_smooth_data(values, delta):
 		low_bound = max(0, i - delta)
 		high_bound = min(len(values) - 1, i + delta + 1)
 		try:
-			bounded_values = values[low_bound:high_bound]
+			bounded_values = values[low_bound:high_bound].astype(np.float)
 			bounded_values = bounded_values[np.logical_and(~np.isnan(bounded_values), np.isfinite(bounded_values))]
 			smoothed.append(np.mean(bounded_values))
-		except:
+		except Exception as e:
+			print(e)
 			smoothed.append(0)
 	return np.array(smoothed)
 
@@ -281,7 +331,7 @@ def visualize_data(data, time_in_seconds = True):
 
 	timestamps = data['timestamps']
 	frames = data['frames']
-	timestamps = ((timestamps - timestamps[0]) / 1000)
+	timestamps = ((timestamps - timestamps[0]))# / 1000)
 
 	if time_in_seconds:
 		x_axis = timestamps
@@ -320,16 +370,18 @@ if __name__ == "__main__":
 	# save_data("recordings/walking_slow.bag", "data_2021_03_03_slow.json", visual=True)
 	# data = get_data("data_2021_03_03_normal.json")
 
-	motion_threshold = 0.0
-	# save_data("recordings/20210415_162101.bag",
-	#           "data_20210415_162101.json",
+	motion_threshold = 0.01
+	# save_data("recordings_archive/20210415_150731.bag", "data_big_steps.json",
+	# save_data("recordings_archive/20210415_150752.bag", "data_small_steps.json",
 	#           visual = True,
 	#           needed_keypoints = ['RIGHT_ANKLE', 'LEFT_ANKLE'])
-	data = get_data("data_20210415_162101.json")
+	data = get_data("data_big_steps.json")
+	# data = get_data("data_small_steps.json")
 
 	left = np.array(data['velocities']['LEFT_ANKLE'])
 	right = np.array(data['velocities']['RIGHT_ANKLE'])
 	distance = np.array(data['distances']['RIGHT_ANKLE-LEFT_ANKLE'])
+
 
 	left = remove_None_by_interpolation(left)
 	right = remove_None_by_interpolation(right)
@@ -379,13 +431,12 @@ if __name__ == "__main__":
 	print("Stance/Swing ratio (Left)  = ", (len(diff_left) / len(diff_left[diff_left <= motion_threshold])))
 	print("Double support time        = ",
 	      len(diff_right[abs(diff_right - diff_left) < motion_threshold] < motion_threshold) / len(diff_right))
-
+	print("Width of footsteps         = ", estimate_footsteps_width(data, smoothed_data))
 	# dist_hip_right = (right_hip.mean() * (timestamps[-1] - timestamps[0]))/1000
 	# dist_hip_left = (left_hip.mean() * (timestamps[-1] - timestamps[0]))/1000
 	# print("Distance walked            = ", (dist_hip_left + dist_hip_right)/2, "m")
 	# print("Distance by footstep       = ", ((dist_hip_left + dist_hip_right)/2) / footsteps_motion, "m/footstep")
 
-	print(estimate_footsteps_width(data, smoothed_data))
-	# visualize_data(smoothed_data, time_in_seconds = False)
 
-	# print(diff_right)
+	visualize_data(smoothed_data, time_in_seconds = True)
+
