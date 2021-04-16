@@ -97,7 +97,7 @@ if __name__ == "__main__":
 			# frames = align.process(frames)
 			color_frame = frames.get_color_frame()
 			depth_frame = filters.l515_filter(frames.get_depth_frame()).as_depth_frame()
-			current_timestamp = frames.timestamp
+			current_timestamp = recording.get_frame_timestamp(frames)
 
 			color_frame = np.asanyarray(color_frame.get_data()).copy()
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 						if human.get_keypoint3D(keypoint) is not None:
 							positions.append(human.get_keypoint3D(keypoint))
 					position = np.median(positions, axis = 0)
-					print(position.round(2))
+					# print(position.round(2))
 					# human.from_json(data2D = skeleton_db2D[skeleton_id], data3D = skeleton_db3D[skeleton_id],
 					#                 specific_timestamp = current_timestamp/1000)
 

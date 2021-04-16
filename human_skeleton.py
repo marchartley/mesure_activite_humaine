@@ -145,7 +145,6 @@ class HumanSkeleton():
                    self.get_keypoint2D(key) is not self.POSITION_NOT_FOUND2D}
         coord3D = {key.name: np.array(coord_conversion.translate_coord_to_world(self.get_keypoint3D(key), ref_center, ref_x, ref_y, ref_z, 0.21).flatten().tolist()[0])
                    for key in BodyParts if self.get_keypoint3D(key) is not self.POSITION_NOT_FOUND3D}
-        print(coord3D)
         return coord2D, coord3D
 
     def _get_line_intersection(self, start1, end1, start2, end2):  # Coords in 2D

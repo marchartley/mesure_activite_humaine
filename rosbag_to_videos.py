@@ -68,8 +68,8 @@ def create_video_from_rosbag(original_filename:str, color_video_destination:str,
 		try:
 			frames = pipeline.wait_for_frames(timeout_ms = 500)
 			if start_timestamp is None:
-				start_timestamp = frames.timestamp
-			end_timestamp = frames.timestamp
+				start_timestamp = recording.get_frame_timestamp(frames)
+			end_timestamp = recording.get_frame_timestamp(frames)
 			frames.keep()
 		except Exception as e:
 			break
@@ -127,7 +127,7 @@ def create_video_for_one_person(db_client:InfluxDB_connection.ListicClientDB, or
 		try:
 			frames = pipeline.wait_for_frames(timeout_ms = 500)
 			frames = align.process(frames)
-			current_timestamp = frames.timestamp
+			current_timestamp = recording.get_frame_timestamp(frames)
 			frames.keep()
 		except Exception as e:
 			break
@@ -144,8 +144,8 @@ def create_video_for_one_person(db_client:InfluxDB_connection.ListicClientDB, or
 				bbox = human.get_bounding_box_2d(expand = 1.2)
 				if bbox: # The person is here
 					if not body_has_been_seen: # First frame where we see the person
-						start_timestamp = frames.timestamp
-					end_timestamp = frames.timestamp
+						start_timestamp = recording.get_frame_timestamp(frames)
+					end_timestamp = recording.get_frame_timestamp(frames)
 					body_has_been_seen = True
 
 					color_frame = cv2.line(color_frame, tuple(map(int, bbox[0])), tuple(map(int, bbox[1])), (0, 255, 255), 2)

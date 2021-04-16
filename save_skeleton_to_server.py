@@ -41,7 +41,12 @@ def save_data(bag_filename, client = None, skeletrack = None, device = 'realsens
 				break
 			color_frame = np.array(frames.get_color_frame().get_data())
 			depth_frame = frames.get_depth_frame()
-			median_center, median_x, median_y, median_z = coord_converter.calibrate_aruco_cube(color_frame, aruco.Dictionary_get(aruco.DICT_6X6_250), depth_frame, pipeline)
+			try:
+				median_center, median_x, median_y, median_z = coord_converter.calibrate_aruco_cube(color_frame, aruco.Dictionary_get(aruco.DICT_6X6_250), depth_frame, pipeline)
+			except Exception as e:
+				print(f"Error on the file {bag_filename}, it might have been recorded with USB2.0 or USB1.0...")
+				recording.stop_playback(pipeline)
+				return
 		recording.stop_playback(pipeline)
 	pipeline = rs.pipeline()
 

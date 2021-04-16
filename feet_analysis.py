@@ -45,7 +45,7 @@ def save_data(bag_filename, saving_filename, visual = False, needed_keypoints = 
 			depth_frame = frames.get_depth_frame()
 			depth_frame = filters.l515_filter(depth_frame).as_depth_frame()
 
-			current_timestamp = frames.timestamp
+			current_timestamp = recording.get_frame_timestamp(frames)
 
 			# if not color_frame or not depth_frame: continue
 
@@ -321,11 +321,11 @@ if __name__ == "__main__":
 	# data = get_data("data_2021_03_03_normal.json")
 
 	motion_threshold = 0.0
-	# save_data("A:/Code Perso/NVIDIA_realsense/test_project/recordings/20210415_150752.bag",
-	#           "data_small_walk.json",
+	# save_data("recordings/20210415_162101.bag",
+	#           "data_20210415_162101.json",
 	#           visual = True,
 	#           needed_keypoints = ['RIGHT_ANKLE', 'LEFT_ANKLE'])
-	data = get_data("data_small_walk.json")
+	data = get_data("data_20210415_162101.json")
 
 	left = np.array(data['velocities']['LEFT_ANKLE'])
 	right = np.array(data['velocities']['RIGHT_ANKLE'])

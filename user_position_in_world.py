@@ -107,7 +107,7 @@ class Map:
 			if depth_frame is None:
 				raise Exception("Provide a timestamp or at least a depth frame to add the position of a user")
 			else:
-				specific_timestamp = depth_frame.timestamp/1000
+				specific_timestamp = recording.get_frame_timestamp(depth_frame)/1000
 
 		# if marker_corners is not None:
 		# 	self.update_reference_coord(marker_corners, depth_frame, pipeline)
@@ -166,7 +166,7 @@ class Map:
 			if depth_frame is None:
 				raise Exception("Provide a timestamp or at least a depth frame to add the position of a user")
 			else:
-				specific_timestamp = depth_frame.timestamp/1000
+				specific_timestamp = recording.get_frame_timestamp(depth_frame)/1000
 		# if marker_corners is not None:
 		# 	self.update_reference_coord(marker_corners, depth_frame, pipeline)
 
@@ -296,7 +296,7 @@ class Map:
 			if depth_frame is None:
 				raise Exception("Provide a timestamp or at least a depth frame to add the position of a user")
 			else:
-				specific_timestamp = depth_frame.timestamp/1000
+				specific_timestamp = recording.get_frame_timestamp(depth_frame)/1000
 
 		human = human_skeleton.HumanSkeleton()
 		human.from_json(data2D = skeleton2D, data3D = skeleton3D, specific_timestamp = specific_timestamp)

@@ -177,7 +177,7 @@ if __name__ == "__main__":
 			color_frame = frames.get_color_frame()
 			depth_frame = frames.get_depth_frame()
 
-			current_timestamp = frames.timestamp
+			current_timestamp = recording.get_frame_timestamp(frames)
 
 			color_frame = np.asanyarray(color_frame.get_data()).copy()
 			color_frame = cv2.cvtColor(color_frame, cv2.COLOR_BGR2RGB)

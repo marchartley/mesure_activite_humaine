@@ -85,8 +85,7 @@ class ListicClientDB():
 			self.send_to_db()
 
 	def send_to_db(self, timestamp_unit = 'ms'):
-		print(self.stored_points[1])
-		# self.client.write_points(self.stored_points, time_precision = timestamp_unit)
+		self.client.write_points(self.stored_points, time_precision = timestamp_unit)
 		self.stored_points = []
 
 	def retrieve_skeleton_keypoints(self, sequence_filename = None, start_time = None, end_time = None):
@@ -95,7 +94,7 @@ class ListicClientDB():
 				pass
 			else:
 				pipeline = recording.start_playback(sequence_filename, realtime = False)
-				start_time = pipeline.wait_for_frames().timestamp
+				start_time = recording.get_frame_timestamp(pipeline.wait_for_frames())
 				duration = pipeline.get_active_profile().get_device().as_playback().get_duration()
 				pipeline = recording.stop_playback(pipeline)
 				duration = (duration / datetime.timedelta(microseconds = 1)) / 1e3
