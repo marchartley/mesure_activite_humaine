@@ -133,7 +133,7 @@ class HumanSkeleton():
 
                 self.body_parts_3D[BodyParts[key].name] = position
 
-    def to_json(self, ref_center=None, ref_x=None, ref_y=None, ref_z=None):
+    def to_json(self, ref_center=None, ref_x=None, ref_y=None, ref_z=None, scale = 1.0):
         if ref_center is None:
             ref_center = [0, 0, 0]
         if ref_x is None:
@@ -143,7 +143,7 @@ class HumanSkeleton():
 
         coord2D = {key.name: self.get_keypoint2D(key) for key in BodyParts if
                    self.get_keypoint2D(key) is not self.POSITION_NOT_FOUND2D}
-        coord3D = {key.name: np.array(coord_conversion.translate_coord_to_world(self.get_keypoint3D(key), ref_center, ref_x, ref_y, ref_z, 0.21).flatten().tolist()[0])
+        coord3D = {key.name: np.array(coord_conversion.translate_coord_to_world(self.get_keypoint3D(key), ref_center, ref_x, ref_y, ref_z, scale).flatten().tolist()[0])
                    for key in BodyParts if self.get_keypoint3D(key) is not self.POSITION_NOT_FOUND3D}
         return coord2D, coord3D
 
