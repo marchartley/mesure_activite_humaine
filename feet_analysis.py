@@ -55,81 +55,30 @@ def save_data(bag_filename, saving_filename, visual = False, needed_keypoints = 
 
 			skeletons = skeletrack.track_skeletons(color_frame, debug_time = False)
 
+			has_human_presence = False
 			if skeletrack.check_user_presence(color_image = color_frame):
 				human = human_skeleton.HumanSkeleton()
 				human.from_tracker(skeletrack, 0, depth_frame)
 
 				coord2D, coord3D = human.to_json()
+				has_human_presence = True
 
-				all_keypoints_valid = True
-				# for keypoint in needed_keypoints:
-				# 	if keypoint not in coord3D:
-				# 		all_keypoints_valid = False
-				if all_keypoints_valid:
+			for keypoint in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
+				if keypoint not in coordinates:
+					coordinates[keypoint] = []
 
-					for key in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
-						if key not in coordinates:
-							coordinates[key] = []
-							velocities[key] = []
-							for key2 in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
-								distances[key + "-" + key2] = []
+				# Coord not found
+				if not has_human_presence or keypoint not in coord2D or np.any(coord2D[keypoint] == -1) or np.any(coord2D[keypoint] is None):
+					coordinates[keypoint].append(np.array([None, None, None]))
+					continue
+				else: # If coord is found
+					coordinates[keypoint].append(coord3D[keypoint])
 
-						if key not in coord2D or np.any(coord2D[key] == -1) or np.any(coord2D[key] is None): # Coord not found
-							coordinates[key].append(np.array([None, None, None]))
-							velocities[key].append(None)
-							for key2 in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
-								distances[key + "-" + key2].append(None)
-							continue
+			timestamps.append(current_timestamp)
+			frame_indexes.append(num_frame)
 
-						# If coord is found
-						coordinates[key].append(coord3D[key])
-						if len(coordinates[key]) == 1: # Not sure this can happen
-							velocities[key].append(0)
-						else:
-							if np.any(coordinates[key][-2] == None) or np.any(coordinates[key][-1] == None):
-								velocities[key].append(None)
-							else:
-								velocities[key].append((np.linalg.norm((coordinates[key][-2] - coordinates[key][-1]) / (
-											current_timestamp - previous_timestamp))) * 1000)
-
-						for key2 in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
-							distances[key + "-" + key2].append(None) # By default, set all to None
-						for key2 in coord3D: # Change the values we can
-							distances[key + "-" + key2][-1] = np.linalg.norm(coord3D[key2] - coord3D[key])
-
-					"""
-					for key in coord3D:
-						if key not in coordinates:
-							coordinates[key] = []
-							velocities[key] = []
-
-							for key2 in human_skeleton.BodyParts:
-								distances[key + "-" + key2.name] = []
-
-						if np.any(coord2D[key] == -1):
-							coordinates[key].append(np.array([None, None, None]))
-							velocities[key].append(None)
-							for key2 in coord3D:
-								distances[key + "-" + key2].append(None)
-
-						# continue #coord3D[key] = np.array([None, None, None])
-
-						coordinates[key].append(coord3D[key])
-						if len(coordinates[key]) == 1:
-							velocities[key].append(0)
-						else:
-							if np.any(coordinates[key][-2] == None) or np.any(coordinates[key][-1] == None):
-								velocities[key].append(None)
-							else:
-								velocities[key].append(np.linalg.norm((coordinates[key][-2] - coordinates[key][-1]) / (
-											current_timestamp - previous_timestamp)))
-
-						for key2 in coord3D:
-							distances[key + "-" + key2].append(np.linalg.norm(coord3D[key2] - coord3D[key]))
-					"""
-
-					timestamps.append(current_timestamp)
-					frame_indexes.append(num_frame)
+			if abs(current_timestamp - 1618492055246) < 100:
+				print(np.linalg.norm(coordinates['LEFT_ANKLE'][-1] - coordinates['RIGHT_ANKLE'][-1]))
 
 			if visual:
 				# cv2.imshow("Camera", cv2.cvtColor(np.array(rs.colorizer().colorize(filters.l515_filter(depth_frame)).get_data()), cv2.COLOR_BGR2RGB))
@@ -140,28 +89,50 @@ def save_data(bag_filename, saving_filename, visual = False, needed_keypoints = 
 			# raise(e)
 			break
 
-	# velocities = {}
-	# for key in coordinates:
-	# 	for i in range(len(coordinates[key])):
-	# 		if coordinates[key][i] !=
+	# Compute velocities
+	for keypoint in coordinates:
+		previous_pos = np.array(coordinates[keypoint][:-1])
+		next_pos = np.array(coordinates[keypoint][1:]) # Shift the array by one
+		number_of_velocities = len(coordinates[keypoint]) - 1
+		movement = np.array([0] * number_of_velocities)
+		for i in range(number_of_velocities):
+			# if keypoint == "RIGHT_ANKLE":
+			# 	print(previous_pos[i], next_pos[i])
+			if None in previous_pos[i] or None in next_pos[i]:
+				continue
+			movement[i] = (np.linalg.norm(next_pos[i] - previous_pos[i]) / (timestamps[i] - timestamps[i-1])) * 1000
+		velocities[keypoint] = np.append([0], movement).tolist()
+		# print(velocities[keypoint])
 
-	non_ndarray_coord = {}
-	for key in coordinates:
-		non_ndarray_coord[key] = []
-		for coord in coordinates[key]:
-			non_ndarray_coord[key].append(coord.tolist())
+	# Compute distances
+	for keypoint1 in human_skeleton.BodyParts:
+		key1 = keypoint1.name
+		for keypoint2 in human_skeleton.BodyParts:
+			key2 = keypoint2.name
+
+			for i in range(len(coordinates[key1])):
+				distance = None
+				if None not in coordinates[key1][i] and None not in coordinates[key2][i]:
+					distance = np.linalg.norm(coordinates[key1][i] - coordinates[key2][i])
+				if f"{key1}-{key2}" not in distances:
+					distances[f"{key1}-{key2}"] = []
+				distances[f"{key1}-{key2}"].append(distance)
+
+
+	for keypoint in coordinates:
+		coordinates[keypoint] = np.array(coordinates[keypoint]).tolist()
 
 	data = {
 		# 'right' : right_foot_velocity_history,
 		# 'left' : left_foot_velocity_history,
 		# 'distance' : feet_distance_history,
-		'coordinates': non_ndarray_coord,
+		'coordinates': coordinates,
 		'velocities': velocities,
 		'distances': distances,
 		'timestamps': timestamps,
 		'frames': frame_indexes
 	}
-	# print(data)
+
 	with open(saving_filename, 'w+') as file:
 		json.dump(data, file)
 
@@ -206,10 +177,9 @@ def estimate_footsteps_by_distance(data, distance_range = 2):
 
 	for i in range(1, len(distance) - 1):
 		# If dist[i] is a peak, count as a step
-		# print(i, ':', np.all(distance[i - distance_range: i] < distance[i]), ' ', np.all(distance[i +1 : i + distance_range + 1] < distance[i]))
 		if distance[i] > 0 and not np.any(
 				distance[max(0, i - distance_range): min(len(distance), i + distance_range + 1)] > distance[
-					i]):  # distance[i - 1] < distance[i] and distance[i + 1] < distance[i]:
+					i]) and distance[i - 1] != distance[i]:  # distance[i - 1] < distance[i] and distance[i + 1] < distance[i]:
 			number_of_steps += 1
 			estimated_timestamps.append(timestamps[i])
 			estimated_frames.append(frames[i])
@@ -217,14 +187,13 @@ def estimate_footsteps_by_distance(data, distance_range = 2):
 	return number_of_steps, {'timestamps': np.array(estimated_timestamps), 'frames': np.array(estimated_frames)}
 
 def estimate_footsteps_width(data, smoothed_data):
-	# nb_steps, steps_instant = estimate_footsteps(smoothed_data, 0)
-	frames = []
-	for i, (left_vel, right_vel) in enumerate(zip(data['velocities']['LEFT_ANKLE'], data['velocities']['RIGHT_ANKLE'])):
-		if left_vel is not None and right_vel is not None:
-			if left_vel < 0.01 and right_vel < 0.01:
-				frames.append(data['frames'][i])
-	steps_instant = {'frames': frames}
-	print(frames)
+	nb_steps, steps_instant = estimate_footsteps_by_distance(smoothed_data, 3)
+	# frames = []
+	# for i, (left_vel, right_vel) in enumerate(zip(data['velocities']['LEFT_ANKLE'], data['velocities']['RIGHT_ANKLE'])):
+	# 	if left_vel is not None and right_vel is not None:
+	# 		if left_vel < 0.01 and right_vel < 0.01:
+	# 			frames.append(data['frames'][i])
+	# steps_instant = {'frames': frames}
 	previous_positions = None
 	widths = []
 	number_of_measurments = 0
@@ -262,7 +231,8 @@ def estimate_footsteps_width(data, smoothed_data):
 			if current_left_pos is not None:
 				previous_positions['left'] = current_left_pos
 
-	print(widths)
+	# for width in widths:
+	# 	print(width)
 	return np.median(widths) # Ignore the first frame
 
 def get_data(json_filename):
@@ -285,14 +255,18 @@ def replace_limit_values_with_previous(values, limit, convert_None_to = None):
 	return np.array(new_vals)
 
 
-def mean_smooth_data(values, delta):
+def mean_smooth_data(values, delta, v=False):
 	smoothed = []
+	if v:
+		print(len(values))
 	for i in range(len(values)):
 		low_bound = max(0, i - delta)
 		high_bound = min(len(values) - 1, i + delta + 1)
 		try:
 			bounded_values = values[low_bound:high_bound].astype(np.float)
 			bounded_values = bounded_values[np.logical_and(~np.isnan(bounded_values), np.isfinite(bounded_values))]
+			if v:
+				print(bounded_values, np.mean(bounded_values))
 			smoothed.append(np.mean(bounded_values))
 		except Exception as e:
 			print(e)
@@ -327,17 +301,17 @@ def remove_None_by_interpolation(values, extrem_values = 0):
 
 def visualize_data(data, time_in_seconds = True):
 	footsteps_motion = estimate_footsteps(data, motion_threshold = 0.2)[1]
-	footsteps_distance = estimate_footsteps_by_distance(data, 1)[1]
+	footsteps_distance = estimate_footsteps_by_distance(data, 10)[1]
 
 	timestamps = data['timestamps']
 	frames = data['frames']
-	timestamps = ((timestamps - timestamps[0]))# / 1000)
+	timestamps = ((timestamps - timestamps[0]) / 1000)
 
 	if time_in_seconds:
 		x_axis = timestamps
 		x_label = "Time (s)"
-		motion_detection_motion = footsteps_motion['timestamps']
-		motion_detection_distance = footsteps_distance['timestamps']
+		motion_detection_motion = footsteps_motion['timestamps'] / 1000
+		motion_detection_distance = footsteps_distance['timestamps'] / 1000
 	else:
 		x_axis = frames
 		x_label = "Time (frames)"
@@ -355,10 +329,10 @@ def visualize_data(data, time_in_seconds = True):
 	plt.legend()
 
 	plt.subplot(212)
-	plt.plot(x_axis, data['distance'] / 10, 'g-', label = 'Distance between feet')
+	plt.plot(x_axis, data['distance'], 'g-', label = 'Distance between feet')
 	for foot_estimation in motion_detection_distance:
 		plt.axvline(x = foot_estimation, color = (.0, .0, 1.0, .4))
-	plt.ylabel('Distance (cm)')
+	plt.ylabel('Distance (m)')
 	plt.title("Distance between feet in time")
 	plt.xlabel(x_label)
 	plt.legend()
@@ -370,9 +344,9 @@ if __name__ == "__main__":
 	# save_data("recordings/walking_slow.bag", "data_2021_03_03_slow.json", visual=True)
 	# data = get_data("data_2021_03_03_normal.json")
 
-	motion_threshold = 0.01
-	# save_data("recordings_archive/20210415_150731.bag", "data_big_steps.json",
-	# save_data("recordings_archive/20210415_150752.bag", "data_small_steps.json",
+	motion_threshold = 0.01 # 0.01 m/s ~= 0.5m/min
+	# save_data("recordings/20210415_150731.bag", "data_big_steps.json",
+	# save_data("recordings/20210415_150752.bag", "data_small_steps.json",
 	#           visual = True,
 	#           needed_keypoints = ['RIGHT_ANKLE', 'LEFT_ANKLE'])
 	data = get_data("data_big_steps.json")
@@ -382,23 +356,24 @@ if __name__ == "__main__":
 	right = np.array(data['velocities']['RIGHT_ANKLE'])
 	distance = np.array(data['distances']['RIGHT_ANKLE-LEFT_ANKLE'])
 
-
 	left = remove_None_by_interpolation(left)
 	right = remove_None_by_interpolation(right)
-	distance = remove_None_by_interpolation(distance)
+	# distance = remove_None_by_interpolation(distance)
+	# distance[distance == None] = -1
 
 	# left = truncate_values(left, 20)
 	# right = truncate_values(right, 20)
-	# distance = truncate_values(distance, 500)
+	# distance = truncate_values(distance, 2)
 	# left = replace_limit_values_with_previous(left, 20)
 	# right = replace_limit_values_with_previous(right, 20)
-	# distance = replace_limit_values_with_previous(distance, 2000)
+	distance = replace_limit_values_with_previous(distance, 2)
 	left = mean_smooth_data(left, 2)
 	right = mean_smooth_data(right, 2)
 	distance = mean_smooth_data(distance, 2)
 	left = mean_smooth_data(left, 2)
 	right = mean_smooth_data(right, 2)
 	distance = mean_smooth_data(distance, 2)
+	distance[np.isnan(distance)] = -0.0001 # Keep the None values in the plot, but replace them by a small negative
 
 	timestamps = np.array(data['timestamps']) - data['timestamps'][0]  # Begin timestamps at 0
 	frames = np.array(data['frames'])
@@ -420,7 +395,7 @@ if __name__ == "__main__":
 	# print(smoothed_data['right'])
 
 	footsteps_motion = estimate_footsteps(smoothed_data, motion_threshold = motion_threshold)[0]
-	footsteps_distance = estimate_footsteps_by_distance(smoothed_data, 1)[0]
+	footsteps_distance = estimate_footsteps_by_distance(smoothed_data, 3)[0]
 	print(footsteps_motion, "footsteps estimated with motion")
 	print(footsteps_distance, "footsteps estimated with distance")
 	# for i in range(20):
@@ -439,4 +414,3 @@ if __name__ == "__main__":
 
 
 	visualize_data(smoothed_data, time_in_seconds = True)
-
