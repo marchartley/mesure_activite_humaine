@@ -141,6 +141,7 @@ def get_coordinates_and_distances_from_rosbag(bag_filename, saving_filename, vis
 	print("Done.")
 
 	pipeline = stop_playback(pipeline)
+	return data
 
 
 # pipeline.stop()
@@ -413,6 +414,9 @@ def compute_double_support_time(data, motion_threshold = 0.01):
 	# Number of frames with each foot velocity < motion_threshold, divided by the length of the sequence
 	return len(diff_right[abs(diff_right - diff_left) < motion_threshold] < motion_threshold) / len(diff_right)
 
+def compute_walking_speed(data):
+	return np.mean([np.mean(data['velocities']['RIGHT_SHOULDER']), np.mean(data['velocities']['LEFT_SHOULDER']),
+					np.mean(data['velocities']['RIGHT_HIP']), np.mean(data['velocities']['LEFT_HIP'])])
 
 
 if __name__ == "__main__":

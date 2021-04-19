@@ -114,6 +114,7 @@ def start_playback(filename: str, pipeline=None, repeat_playback=False, realtime
     else:
         pipeline = rs.pipeline()
         config = rs.config()
+        configure_streams(config)
         config.enable_device_from_file(filename, repeat_playback=repeat_playback)
         pipeline.start(config)
     if not realtime:
@@ -169,6 +170,8 @@ if __name__ == "__main__":
     parser.add_argument('--play', dest='play', help='Play the sequence', action='store_true')
     parser.add_argument('--duration', dest='duration', type=int,
                         help='Set the recording for a certain amount of time (in seconds)')
+    parser.add_argument('--continuous', dest='continuous', action='store_true',
+                        help='Repeat recordings continuously')
 
     args = parser.parse_args()
     filename = args.filename
@@ -176,87 +179,99 @@ if __name__ == "__main__":
     recording = args.recording
     just_show = args.just_show
     duration = args.duration
+    continuous = args.continuous
 
     if filename is not None:
         if os.path.pathsep * 2 in filename:  # path contains "\\"
             if not server.grant_access_server():  # Create connection with the server
                 print("No connection with the server, maybe turn on the VPN?")
 
-    if filename is None and directory is not None:
-        filename = directory + "/" + time.strftime(
-            "%Y-%m-%d_%H_%M_%S_" + str(int((time.time() - int(time.time())) * 1000)) + ".bag")
+    repeat_recording = True
 
-    if just_show:
-        pipeline = rs.pipeline()
-        config = rs.config()
-        configure_streams(config)
-        pipeline.start(config)
-        print("Start playing")
-    elif recording:
-        pipeline = start_recording(filename, realtime=True)
-        print("Recording started")
-    else:
-        pipeline = start_playback(filename, realtime=True)
-        print("Playback started")
+    pipeline = rs.pipeline()
+    pipeline.start()
 
-    frame_count = 0
+    while repeat_recording:
+        if (filename is None and directory is not None) or continuous:
+            filename = directory + "/" + time.strftime(
+                "%Y-%m-%d_%H_%M_%S_" + str(int((time.time() - int(time.time())) * 1000)) + ".bag")
 
-    start_time = time.time()
+        if just_show:
+            pipeline = rs.pipeline()
+            config = rs.config()
+            configure_streams(config)
+            pipeline.start(config)
+            print("Start playing")
+        elif recording:
+            pipeline = start_recording(filename, realtime=True, pipeline=pipeline)
+            print("Recording started")
+        else:
+            pipeline = start_playback(filename, realtime=True)
+            print("Playback started")
 
-    align = rs.align(rs.stream.color)
+        frame_count = 0
 
-    currently_playing = True
-    while True:
-        try:
-            # This call waits until a new coherent set of frames is available on a device
-            # Calls to get_frame_data(...) and get_frame_timestamp(...) on a device will return stable values until wait_for_frames(...) is called
-            if currently_playing:
-                frames = pipeline.wait_for_frames()
-                frames.keep()
-                frame_count += 1
-            frames = align.process(frames)
-            color_frame = frames.get_color_frame()
-            depth_frame = frames.get_depth_frame()
-            depth_frame = rs.colorizer().colorize(
-                # frames.get_depth_frame()).get_data()
-                # filters.aruco_detection_filters(frames.get_depth_frame())).get_data()
-                filters.l515_filter(frames.get_depth_frame())).get_data()
-            cv2.imshow('depth', cv2.resize(np.array(depth_frame), (800, 600)))
-            # cv2.imshow('depth', cv2.cvtColor(np.asanyarray(color_frame.get_data()).copy(), cv2.COLOR_BGR2RGB))
+        start_time = time.time()
 
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q') or key == 27:
+        align = rs.align(rs.stream.color)
+
+        currently_playing = True
+        while True:
+            try:
+                # This call waits until a new coherent set of frames is available on a device
+                # Calls to get_frame_data(...) and get_frame_timestamp(...) on a device will return stable values until wait_for_frames(...) is called
+                if currently_playing:
+                    frames = pipeline.wait_for_frames()
+                    frames.keep()
+                    frame_count += 1
+                frames = align.process(frames)
+                color_frame = frames.get_color_frame()
+                depth_frame = frames.get_depth_frame()
+                depth_frame = rs.colorizer().colorize(
+                    # frames.get_depth_frame()).get_data()
+                    # filters.aruco_detection_filters(frames.get_depth_frame())).get_data()
+                    filters.l515_filter(frames.get_depth_frame())).get_data()
+                cv2.imshow('depth', cv2.resize(np.array(depth_frame), (800, 600)))
+                # cv2.imshow('depth', cv2.cvtColor(np.asanyarray(color_frame.get_data()).copy(), cv2.COLOR_BGR2RGB))
+
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord('q') or key == 27:
+                    break
+                if key == ord('p'):
+                    if not just_show:
+                        if currently_playing:
+                            if recording:
+                                pipeline = pause_recording(pipeline)
+                            else:
+                                pipeline = pause_playback(pipeline)
+                        else:
+                            if recording:
+                                pipeline = resume_recording(pipeline)
+                            else:
+                                pipeline = resume_playback(pipeline)
+                        currently_playing = not currently_playing
+            except Exception as e:
+                print(e)
                 break
-            if key == ord('p'):
-                if not just_show:
-                    if currently_playing:
-                        if recording:
-                            pipeline = pause_recording(pipeline)
-                        else:
-                            pipeline = pause_playback(pipeline)
-                    else:
-                        if recording:
-                            pipeline = resume_recording(pipeline)
-                        else:
-                            pipeline = resume_playback(pipeline)
-                    currently_playing = not currently_playing
-        except Exception as e:
-            print(e)
-            break
-        if time.time() > start_time + duration:
-            break
+            if duration is not None and time.time() > start_time + duration:
+                break
 
-    sequence_duration = time.time() - start_time
-    start_time = time.time()
-    if just_show:
-        pipeline.stop()
-    elif recording:
-        print("Recording ended, saving file")
-        pipeline = stop_recording(pipeline)
-        saving_duration = time.time() - start_time
-        print(f"Video duration : {round(sequence_duration, 3)}s")
-        print(f"Saving duration: {round(saving_duration, 3)}s")
-    else:
-        pipeline = stop_playback(pipeline)
+        sequence_duration = time.time() - start_time
+        start_time = time.time()
+        if just_show:
+            pipeline.stop()
+        elif recording:
+            print("Recording ended, saving file")
+            pipeline = stop_recording(pipeline)
+            saving_duration = time.time() - start_time
+            print(f"Video duration : {round(sequence_duration, 3)}s")
+            print(f"Saving duration: {round(saving_duration, 3)}s")
+        else:
+            pipeline = stop_playback(pipeline)
+
+        if continuous:
+            repeat_recording = True
+        else:
+            repeat_recording = False
 
     print(" --- End ---")

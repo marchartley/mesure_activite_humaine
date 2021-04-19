@@ -34,9 +34,9 @@ def detect_face_async(human, probabilities_good_face, number_of_faces_detection,
 if __name__ == "__main__":
 
 	pipeline = rs.pipeline()
-	# config = rs.config()
-	# recording.configure_streams(config)
-	# pipeline.start(config)
+	config = rs.config()
+	recording.configure_streams(config)
+	pipeline.start(config)
 
 	align_to = rs.stream.depth
 	align = rs.align(align_to)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 	filename = "recordings/20210416_140741.bag"
 	skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline = pipeline)
 
-	pipeline = recording.start_playback(filename, pipeline = pipeline, repeat_playback = True, realtime = False)
+	# pipeline = recording.start_playback(filename, pipeline = pipeline, repeat_playback = True, realtime = False)
 	# skeleton_db2D, skeleton_db3D = InfluxDB_connection.ListicClientDB(server_side = False).retrieve_skeleton_keypoints(filename)
 	joint_confidence = 0.4
 
@@ -100,6 +100,7 @@ if __name__ == "__main__":
 			current_timestamp = recording.get_frame_timestamp(frames)
 
 			color_frame = np.asanyarray(color_frame.get_data()).copy()
+			color_frame = cv2.flip(color_frame, 0)
 
 			if num_frames == 1:
 				for i in range(100):
@@ -110,8 +111,8 @@ if __name__ == "__main__":
 			depth_image = np.array(rs.colorizer().colorize(
 				# frames.get_depth_frame()).get_data())
 			  filters.l515_filter(frames.get_depth_frame())).get_data())
-
 			try:
+
 				skeletons = skeletrack.track_skeletons(original)
 				number_of_persons = skeletrack.get_number_of_skeletons(original)
 				# number_of_persons = len(skeleton_db2D)
@@ -185,6 +186,7 @@ if __name__ == "__main__":
 						                          text,
 						                          (int(text_position[0] - text_width/2), int(text_position[1] - text_height/2)),
 						                          font, font_size, (255, 255, 0), text_thickness)
+				color_frame = skeletrack.draw_skeleton(color_frame)
 			except Exception as e:
 				print(e)
 				raise e

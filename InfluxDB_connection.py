@@ -8,6 +8,7 @@ import math
 class ListicClientDB():
     def __init__(self, server_side=None, host=None, port=None, login=None, pwd=None, database=None):
         self.stored_points = []
+        self.walking_metrics = []
         self.client = None
 
         if server_side:
@@ -50,16 +51,16 @@ class ListicClientDB():
             raise Exception(f"Client of {self.__class__.__name__} wasn't configure correctly")
 
         additionnal_fields = {}
-        if walking_speed is not None:
-            additionnal_fields['walking_speed'] = walking_speed
-        if footsteps_width is not None:
-            additionnal_fields['footsteps_width'] = footsteps_width
-        if number_of_footsteps is not None:
-            additionnal_fields['number_of_footsteps'] = number_of_footsteps
-        if stride_length is not None:
-            additionnal_fields['stride_length'] = stride_length
-        if step_length is not None:
-            additionnal_fields['step_length'] = step_length
+        if walking_speed is not None and walking_speed is not np.nan:
+            additionnal_fields['walking_speed'] = float(walking_speed)
+        # if footsteps_width is not None and footsteps_width is not np.nan:
+        #     additionnal_fields['footsteps_width'] = float(footsteps_width)
+        if number_of_footsteps is not None and number_of_footsteps is not np.nan:
+            additionnal_fields['number_of_footsteps'] = float(number_of_footsteps)
+        if stride_length is not None and stride_length is not np.nan:
+            additionnal_fields['stride_length'] = float(stride_length)
+        if step_length is not None and step_length is not np.nan:
+            additionnal_fields['step_length'] = float(step_length)
 
         if coord2D is not None:
             for i, key in enumerate(coord2D):
@@ -75,7 +76,6 @@ class ListicClientDB():
                         'fields': {
                             'x': coord2D[key][0],
                             'y': coord2D[key][1],
-                            **additionnal_fields
                         }
                     })
         if coord3D is not None:
@@ -93,8 +93,18 @@ class ListicClientDB():
                             'x': coord3D[key][0],
                             'y': coord3D[key][1],
                             'z': coord3D[key][2],
-                            **additionnal_fields
                         }
+                    })
+        if len(additionnal_fields) > 0:
+            # print(additionnal_fields)
+            self.walking_metrics.append({
+                        'measurement': 'walking_metrics',
+                        'time': round(timestamp),
+                        'tags': {
+                            'device': device,
+                            'skeleton_id': skeleton_id,
+                        },
+                        'fields': additionnal_fields,
                     })
 
         if send_immediatly:
@@ -102,7 +112,9 @@ class ListicClientDB():
 
     def send_to_db(self, timestamp_unit='ms'):
         self.client.write_points(self.stored_points, time_precision=timestamp_unit)
+        self.client.write_points(self.walking_metrics, time_precision=timestamp_unit)
         self.stored_points = []
+        self.walking_metrics = []
 
     def retrieve_skeleton_keypoints(self, sequence_filename=None, start_time=None, end_time=None):
         if start_time is None and end_time is None:
