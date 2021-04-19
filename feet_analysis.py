@@ -1,3 +1,5 @@
+import copy
+
 import cv2
 import skeleton_tracker as st
 import pyrealsense2 as rs
@@ -13,7 +15,7 @@ from convert_realsense_to_real_world import *
 import human_skeleton
 
 
-def save_data(bag_filename, saving_filename, visual = False, needed_keypoints = []):
+def get_coordinates_and_distances_from_rosbag(bag_filename, saving_filename, visual = False):
 	pipeline = rs.pipeline()
 
 	skeletrack = st.SkeletonTracker(choose_best_module = True, pipeline = pipeline)
@@ -143,17 +145,22 @@ def save_data(bag_filename, saving_filename, visual = False, needed_keypoints = 
 
 # pipeline.stop()
 
-def estimate_footsteps(data, motion_threshold = 10.0):
-	left_data = data['left']
-	right_data = data['right']
+def estimate_footsteps(data, motion_threshold = 0.01):
+
+	diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
+	diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
+	diff_right[diff_right < 0] = 0
+	diff_left[diff_left < 0] = 0
+
 	timestamps = data['timestamps']
 	frames = data['frames']
+
 	estimated_timestamps = []
 	estimated_frames = []
 
 	number_of_steps = 0
 	current_foot_walking = None
-	for (left, right, timestamp, frame) in zip(left_data, right_data, timestamps, frames):
+	for (left, right, timestamp, frame) in zip(diff_left, diff_right, timestamps, frames):
 		if left > motion_threshold and current_foot_walking != "left":
 			current_foot_walking = "left"
 			number_of_steps += 1
@@ -164,30 +171,35 @@ def estimate_footsteps(data, motion_threshold = 10.0):
 			number_of_steps += 1
 			estimated_timestamps.append(timestamp)
 			estimated_frames.append(frame)
-	return number_of_steps, {'timestamps': np.array(estimated_timestamps), 'frames': np.array(estimated_frames)}
+	return number_of_steps, {'timestamps': np.array(estimated_timestamps) - timestamps[0], 'frames': np.array(estimated_frames)}
 
 
 def estimate_footsteps_by_distance(data, distance_range = 2):
-	distance = data['distance']
+	distance = data['distances']['RIGHT_ANKLE-LEFT_ANKLE']
 	timestamps = data['timestamps']
 	frames = data['frames']
+
 	estimated_timestamps = []
 	estimated_frames = []
 	number_of_steps = 0
 
 	for i in range(1, len(distance) - 1):
 		# If dist[i] is a peak, count as a step
-		if distance[i] > 0 and not np.any(
+		if 0 < distance[i] != distance[i - 1] and not np.any(
 				distance[max(0, i - distance_range): min(len(distance), i + distance_range + 1)] > distance[
-					i]) and distance[i - 1] != distance[i]:  # distance[i - 1] < distance[i] and distance[i + 1] < distance[i]:
+					i]):
 			number_of_steps += 1
 			estimated_timestamps.append(timestamps[i])
 			estimated_frames.append(frames[i])
 
-	return number_of_steps, {'timestamps': np.array(estimated_timestamps), 'frames': np.array(estimated_frames)}
+	return number_of_steps, {'timestamps': np.array(estimated_timestamps) - timestamps[0], 'frames': np.array(estimated_frames)}
 
-def estimate_footsteps_width(data, smoothed_data):
-	nb_steps, steps_instant = estimate_footsteps_by_distance(smoothed_data, 3)
+def estimate_footsteps_width(data):
+	frames = []
+	_, steps_instant = estimate_footsteps_by_distance(data, 3)
+	frames += steps_instant['frames'].tolist()
+	_, steps_instant = estimate_footsteps(data, motion_threshold = 0.01)
+	frames += steps_instant['frames'].tolist()
 	# frames = []
 	# for i, (left_vel, right_vel) in enumerate(zip(data['velocities']['LEFT_ANKLE'], data['velocities']['RIGHT_ANKLE'])):
 	# 	if left_vel is not None and right_vel is not None:
@@ -197,7 +209,7 @@ def estimate_footsteps_width(data, smoothed_data):
 	previous_positions = None
 	widths = []
 	number_of_measurments = 0
-	for i, frame in enumerate(steps_instant['frames']):
+	for i, frame in enumerate(frames):
 		# if i < 4 or i > len(steps_instant['frames']) - 3:
 		# 	continue
 		number_of_measurments += 1
@@ -231,9 +243,8 @@ def estimate_footsteps_width(data, smoothed_data):
 			if current_left_pos is not None:
 				previous_positions['left'] = current_left_pos
 
-	# for width in widths:
-	# 	print(width)
-	return np.median(widths) # Ignore the first frame
+	return np.median(widths)
+
 
 def get_data(json_filename):
 	with open(json_filename, 'r') as file:
@@ -241,7 +252,7 @@ def get_data(json_filename):
 
 
 def truncate_values(values, limit, convert_None_to = None):
-	return np.array([convert_None_to if val is None else val if val < limit else limit for val in values])
+	return np.array([convert_None_to if np.isnan(val) else val if val < limit else limit for val in values])
 
 
 def replace_limit_values_with_previous(values, limit, convert_None_to = None):
@@ -300,12 +311,17 @@ def remove_None_by_interpolation(values, extrem_values = 0):
 
 
 def visualize_data(data, time_in_seconds = True):
-	footsteps_motion = estimate_footsteps(data, motion_threshold = 0.2)[1]
-	footsteps_distance = estimate_footsteps_by_distance(data, 10)[1]
+	footsteps_motion = estimate_footsteps(data, motion_threshold = 0.01)[1]
+	footsteps_distance = estimate_footsteps_by_distance(data, 3)[1]
 
-	timestamps = data['timestamps']
+	timestamps = np.array(data['timestamps'])
 	frames = data['frames']
 	timestamps = ((timestamps - timestamps[0]) / 1000)
+
+	diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
+	diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
+	diff_right[diff_right < 0] = 0
+	diff_left[diff_left < 0] = 0
 
 	if time_in_seconds:
 		x_axis = timestamps
@@ -319,8 +335,8 @@ def visualize_data(data, time_in_seconds = True):
 		motion_detection_distance = footsteps_distance['frames']
 
 	plt.subplot(211)
-	plt.plot(x_axis, data['left'], 'r-', label = 'Left foot')
-	plt.plot(x_axis, data['right'], 'b-', label = 'Right foot')
+	plt.plot(x_axis, diff_left, 'r-', label = 'Left foot')
+	plt.plot(x_axis, diff_right, 'b-', label = 'Right foot')
 	for foot_estimation in motion_detection_motion:
 		plt.axvline(x = foot_estimation, color = (.0, .0, 1.0, .4))
 	plt.title("Difference of velocity per foot in time")
@@ -329,7 +345,7 @@ def visualize_data(data, time_in_seconds = True):
 	plt.legend()
 
 	plt.subplot(212)
-	plt.plot(x_axis, data['distance'], 'g-', label = 'Distance between feet')
+	plt.plot(x_axis, data['distances']['RIGHT_ANKLE-LEFT_ANKLE'], 'g-', label = 'Distance between feet')
 	for foot_estimation in motion_detection_distance:
 		plt.axvline(x = foot_estimation, color = (.0, .0, 1.0, .4))
 	plt.ylabel('Distance (m)')
@@ -339,78 +355,116 @@ def visualize_data(data, time_in_seconds = True):
 
 	plt.show()
 
+def preprocess_data_for_walk_analysis(original_data):
+	data = copy.deepcopy(original_data)
+	for keypoint in data['velocities']:
+		vel = np.array(data['velocities'][keypoint])
+		vel = remove_None_by_interpolation(vel)
+		vel = mean_smooth_data(vel, 2)
+		vel = mean_smooth_data(vel, 2)
+		data['velocities'][keypoint] = vel
+
+	for key_couple in data['distances']:
+		distance = np.array(data['distances'][key_couple])
+		distance = mean_smooth_data(distance, 2)
+		distance = mean_smooth_data(distance, 2)
+		distance = truncate_values(distance, 3.00, convert_None_to = -0.00001) # Consider distances >3m invalid
+		data['distances'][key_couple] = distance
+
+	return data
+
+def reduce_walking_data_size(original_data, new_size:int):
+	data = copy.deepcopy(original_data)
+	for keypoint in data['velocities']:
+		data['velocities'][keypoint] = data['velocities'][keypoint][:new_size]
+		data['coordinates'][keypoint] = data['coordinates'][keypoint][:new_size]
+		for keypoint2 in data['velocities']:
+			data['distances'][f'{keypoint}-{keypoint2}'] = data['distances'][f'{keypoint}-{keypoint2}'][:new_size]
+	data['frames'] = data['frames'][:new_size]
+	data['timestamps'] = data['timestamps'][:new_size]
+
+	return data
+
+def compute_cycle_time(data, motion_threshold = 0.01):
+	number_of_steps = estimate_footsteps(data, motion_threshold = motion_threshold)[0]
+	sequence_duration = (data['timestamps'][-1] - data['timestamps'][0]) / 1000
+	return number_of_steps / sequence_duration
+
+def compute_stance_swing_ratio(data, motion_threshold = 0.01, concerned_foot = None):
+	diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
+	diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
+	diff_right[diff_right < 0] = 0
+	diff_left[diff_left < 0] = 0
+	if concerned_foot is None:
+		return ((len(diff_right) / len(diff_right[diff_right <= motion_threshold])) +
+		        (len(diff_left) / len(diff_left[diff_right <= motion_threshold]))) / 2
+	elif "left" in concerned_foot.lower():
+		return len(diff_left) / len(diff_left[diff_left <= motion_threshold])
+	elif "right" in concerned_foot.lower():
+		return len(diff_right) / len(diff_right[diff_right <= motion_threshold])
+	else:
+		raise Exception("Invalid foot selected to compute swing/stance ratio, use 'LEFT_ANKLE', 'RIGHT_ANKLE' or None")
+
+def compute_double_support_time(data, motion_threshold = 0.01):
+	diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
+	diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
+	diff_right[diff_right < 0] = 0
+	diff_left[diff_left < 0] = 0
+	# Number of frames with each foot velocity < motion_threshold, divided by the length of the sequence
+	return len(diff_right[abs(diff_right - diff_left) < motion_threshold] < motion_threshold) / len(diff_right)
+
+
 
 if __name__ == "__main__":
-	# save_data("recordings/walking_slow.bag", "data_2021_03_03_slow.json", visual=True)
-	# data = get_data("data_2021_03_03_normal.json")
-
 	motion_threshold = 0.01 # 0.01 m/s ~= 0.5m/min
 	# save_data("recordings/20210415_150731.bag", "data_big_steps.json",
 	# save_data("recordings/20210415_150752.bag", "data_small_steps.json",
 	#           visual = True,
 	#           needed_keypoints = ['RIGHT_ANKLE', 'LEFT_ANKLE'])
-	data = get_data("data_big_steps.json")
-	# data = get_data("data_small_steps.json")
+	# data = get_data("data_big_steps.json")
+	data = get_data("data_small_steps.json")
 
-	left = np.array(data['velocities']['LEFT_ANKLE'])
-	right = np.array(data['velocities']['RIGHT_ANKLE'])
-	distance = np.array(data['distances']['RIGHT_ANKLE-LEFT_ANKLE'])
+	original_data = preprocess_data_for_walk_analysis(data)
 
-	left = remove_None_by_interpolation(left)
-	right = remove_None_by_interpolation(right)
-	# distance = remove_None_by_interpolation(distance)
-	# distance[distance == None] = -1
+	footsteps_per_velo = []
+	footsteps_per_dist = []
+	cycle_times = []
+	stance_swings = {'left': [], 'right': [], 'mean': []}
+	double_supports = []
+	widths = []
+	x_axis = []
+	for i in range(2, len(data['timestamps'])): # From all data, to only 2 frames
+		data = reduce_walking_data_size(original_data, i)
+		footsteps_per_velo.append(estimate_footsteps(data, motion_threshold = motion_threshold)[0])
+		footsteps_per_dist.append(estimate_footsteps_by_distance(data)[0])
+		cycle_times.append(compute_cycle_time(data, motion_threshold = motion_threshold))
+		stance_swings['left'].append(compute_stance_swing_ratio(data, concerned_foot = 'left', motion_threshold = motion_threshold))
+		stance_swings['right'].append(compute_stance_swing_ratio(data, concerned_foot = 'right', motion_threshold = motion_threshold))
+		stance_swings['mean'].append(compute_stance_swing_ratio(data, motion_threshold = motion_threshold))
+		double_supports.append(compute_double_support_time(data, motion_threshold = motion_threshold))
+		widths.append(estimate_footsteps_width(data))
+		x_axis.append(i)
 
-	# left = truncate_values(left, 20)
-	# right = truncate_values(right, 20)
-	# distance = truncate_values(distance, 2)
-	# left = replace_limit_values_with_previous(left, 20)
-	# right = replace_limit_values_with_previous(right, 20)
-	distance = replace_limit_values_with_previous(distance, 2)
-	left = mean_smooth_data(left, 2)
-	right = mean_smooth_data(right, 2)
-	distance = mean_smooth_data(distance, 2)
-	left = mean_smooth_data(left, 2)
-	right = mean_smooth_data(right, 2)
-	distance = mean_smooth_data(distance, 2)
-	distance[np.isnan(distance)] = -0.0001 # Keep the None values in the plot, but replace them by a small negative
-
-	timestamps = np.array(data['timestamps']) - data['timestamps'][0]  # Begin timestamps at 0
-	frames = np.array(data['frames'])
-
-	diff_right = right - left
-	diff_left = left - right
-
-	diff_right[diff_right < 0] = 0
-	diff_left[diff_left < 0] = 0
-
-	smoothed_data = {
-		'right': diff_right,
-		'left': diff_left,
-		'distance': distance,
-		'timestamps': timestamps,
-		'frames': frames
-	}
-
-	# print(smoothed_data['right'])
-
-	footsteps_motion = estimate_footsteps(smoothed_data, motion_threshold = motion_threshold)[0]
-	footsteps_distance = estimate_footsteps_by_distance(smoothed_data, 3)[0]
-	print(footsteps_motion, "footsteps estimated with motion")
-	print(footsteps_distance, "footsteps estimated with distance")
-	# for i in range(20):
-	# 	print(estimate_footsteps_by_distance(smoothed_data, i)[0], "footsteps estimated with distance [i = ", i, "]")
-
-	print("Cycle Time                 = ", footsteps_motion / ((timestamps[-1] - timestamps[0]) / 1000))
-	print("Stance/Swing ratio (Right) = ", (len(diff_right) / len(diff_right[diff_right <= motion_threshold])))
-	print("Stance/Swing ratio (Left)  = ", (len(diff_left) / len(diff_left[diff_left <= motion_threshold])))
-	print("Double support time        = ",
-	      len(diff_right[abs(diff_right - diff_left) < motion_threshold] < motion_threshold) / len(diff_right))
-	print("Width of footsteps         = ", estimate_footsteps_width(data, smoothed_data))
-	# dist_hip_right = (right_hip.mean() * (timestamps[-1] - timestamps[0]))/1000
-	# dist_hip_left = (left_hip.mean() * (timestamps[-1] - timestamps[0]))/1000
-	# print("Distance walked            = ", (dist_hip_left + dist_hip_right)/2, "m")
-	# print("Distance by footstep       = ", ((dist_hip_left + dist_hip_right)/2) / footsteps_motion, "m/footstep")
+	plt.plot(x_axis, footsteps_per_velo)
+	plt.show()
 
 
-	visualize_data(smoothed_data, time_in_seconds = True)
+
+	# footsteps_motion = estimate_footsteps(original_data, motion_threshold = motion_threshold)[0]
+	# print(footsteps_motion, "footsteps estimated with motion")
+	#
+	# footsteps_distance = estimate_footsteps_by_distance(original_data, 3)[0]
+	# print(footsteps_distance, "footsteps estimated with distance")
+	#
+	# print("Cycle Time                 = ", compute_cycle_time(original_data))
+	# print("Stance/Swing ratio (Right) = ", compute_stance_swing_ratio(original_data, motion_threshold = motion_threshold,
+	#                                                                   concerned_foot = "RIGHT_ANKLE"))
+	# print("Stance/Swing ratio (Left)  = ", compute_stance_swing_ratio(original_data, motion_threshold = motion_threshold,
+	#                                                                   concerned_foot = "LEFT_ANKLE"))
+	# print("Double support time        = ", compute_double_support_time(original_data, motion_threshold = motion_threshold))
+	# print("Width of footsteps         = ", estimate_footsteps_width(original_data))
+	#
+	#
+	#
+	#
+	# visualize_data(original_data, time_in_seconds = True)
