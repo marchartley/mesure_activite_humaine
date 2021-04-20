@@ -82,6 +82,14 @@ class HumanSkeleton():
         return ((self.body_parts_3D['LEFT_SHOULDER'] + self.body_parts_3D['RIGHT_SHOULDER']) * 1 + (
                     self.body_parts_3D['LEFT_HIP'] + self.body_parts_3D['RIGHT_HIP']) * 3) / 8
 
+    def from_feet_analitics(self, coordinates, index):
+        for key in coordinates:
+            self.body_parts_2D[key] = self.POSITION_NOT_FOUND2D
+            if np.any(coordinates[key][index] == -1) or np.all(coordinates[key][index] == 0) or None in coordinates[key][index]:
+                self.body_parts_3D[key] = self.POSITION_NOT_FOUND3D
+            else:
+                self.body_parts_3D[key] = coordinates[key][index]
+
     def from_tracker(self, tracker, id, depth_map=None):
         for key in self.body_parts_2D:
             if np.any(tracker.get_keypoint(key, person_id=id) == -1) or np.all(

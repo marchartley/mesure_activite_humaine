@@ -1,3 +1,5 @@
+import os
+
 import cv2
 
 import feet_analysis
@@ -26,21 +28,53 @@ from cv2 import aruco
 import realsense_filters as filters
 
 
-def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', use_aruco_coord=True):
+def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', use_aruco_coord=True, compute_from_tmp_data=False):
     if client is None:
         client = InfluxDB_connection.ListicClientDB(server_side=False)  # Connect locally if no InfluxDB client is given
         print("No specific InfluxDB client is given, continuing with local client")
 
+    coordinates = {}
+    distances = {}
+    velocities = {}
+    timestamps = []
+    frame_indexes = []
     median_center = [0, 0, 0]
     median_x = [1, 0, 0]
     median_y = [0, 1, 0]
     median_z = [0, 0, 1]
-    if use_aruco_coord:
-        print("Calibrating camera...")
+    motion_threshold = 0.01
+
+    if not compute_from_tmp_data:
+        num_frame = 0
+
+        start_time = time.time()
+        human = None
+
+        current_timestamp = 0
+        previous_timestamp = 0
+
+        number_of_frames = 0
+
+        start_timestamp = None
+
+        if use_aruco_coord:
+            print("Calibrating camera...")
         pipeline = recording.start_playback(bag_filename, pipeline=rs.pipeline(), realtime=False)
+
+        if skeletrack is None:
+            skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline=pipeline, image_is_upside_down=True)
+        else:
+            skeletrack.set_pipeline(pipeline)
+
         while True:
             try:
                 frames = pipeline.wait_for_frames(200)
+                current_timestamp = recording.get_frame_timestamp(frames)
+                timestamp = current_timestamp
+                if start_timestamp is None:
+                    start_timestamp = timestamp
+                if previous_timestamp == current_timestamp:
+                    continue
             except:
                 break
 
@@ -59,96 +93,151 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                                                                                                        aruco.DICT_6X6_250),
                                                                                                    depth_frame,
                                                                                                    pipeline)
+
+                skeletons = skeletrack.track_skeletons(color_frame, debug_time=False)
+
+                has_human_presence = False
+                if skeletrack.check_user_presence(color_image=color_frame):
+                    human = human_skeleton.HumanSkeleton()
+                    try:
+                        human.from_tracker(skeletrack, 0, depth_frame)
+
+                        coord2D, coord3D = human.to_json()
+                        has_human_presence = True
+                    except:
+                        pass
+
+                for keypoint in map(lambda keypoint: keypoint.name, human_skeleton.BodyParts):
+                    if keypoint not in coordinates:
+                        coordinates[keypoint] = []
+
+                    # Coord not found
+                    if not has_human_presence or keypoint not in coord2D or np.any(coord2D[keypoint] == -1) or np.any(
+                            coord2D[keypoint] is None):
+                        coordinates[keypoint].append(np.array([None, None, None]))
+                        continue
+                    else:  # If coord is found
+                        coordinates[keypoint].append(coord3D[keypoint])
+
+                timestamps.append(current_timestamp)
+                frame_indexes.append(num_frame)
+
             except Exception as e:
                 print(f"Error on the file {bag_filename}, it might have been recorded with USB2.0 or USB1.0...")
                 recording.stop_playback(pipeline)
+                raise e
                 return
-        recording.stop_playback(pipeline)
-
-    pipeline = rs.pipeline()
-    if skeletrack is None:
-        skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline=pipeline)
-    else:
-        skeletrack.set_pipeline(pipeline)
-
-    walking_data = feet_analysis.get_coordinates_and_distances_from_rosbag(bag_filename, "tmp_data_file.json",
-                                                                           visual=True, skeletrack=skeletrack)
-    walking_data = feet_analysis.preprocess_data_for_walk_analysis(walking_data)
-
-    pipeline = recording.start_playback(bag_filename, pipeline=pipeline, realtime=False)
-    joint_confidence = 0.4
-
-    start_time = time.time()
-    human = None
-
-    print("Starting...")
-
-    points = []
-    number_of_frames = 0
-
-    motion_threshold = 0.01
-
-    start_timestamp = None
-
-    while True:
         try:
-            frames = pipeline.wait_for_frames(timeout_ms=500)
+            pipeline.stop()
         except:
-            break
-        color_frame = frames.get_color_frame()
-        depth_frame = frames.get_depth_frame()
-        depth_frame = filters.l515_filter(depth_frame).as_depth_frame()
+            pass
+        print("Video parsed")
+        # Compute velocities
+        for keypoint in coordinates:
+            previous_pos = np.array(coordinates[keypoint][:-1])
+            next_pos = np.array(coordinates[keypoint][1:])  # Shift the array by one
+            number_of_velocities = len(coordinates[keypoint]) - 1
+            movement = np.array([0] * number_of_velocities)
+            for i in range(number_of_velocities):
+                # if keypoint == "RIGHT_ANKLE":
+                # 	print(previous_pos[i], next_pos[i])
+                if None in previous_pos[i] or None in next_pos[i]:
+                    continue
+                try:
+                    movement[i] = (np.linalg.norm(next_pos[i] - previous_pos[i]) / (timestamps[i] - timestamps[i - 1])) * 1000
+                except:
+                    # print(np.linalg.norm(next_pos[i] - previous_pos[i]), timestamps[i] - timestamps[i - 1], timestamps[i], timestamps[i-1])
+                    continue
+            velocities[keypoint] = np.append([0], movement).tolist()
+        # print(velocities[keypoint])
 
-        color_frame = np.asanyarray(color_frame.get_data()).copy()
-        timestamp = depth_frame.get_frame_metadata(rs.frame_metadata_value.time_of_arrival)
-        if start_timestamp is None:
-            start_timestamp = timestamp
+        max_range = 0
+        for key in coordinates:
+            max_range = max(max_range, len(coordinates[key]))
+        # Compute distances
+        for keypoint1 in human_skeleton.BodyParts:
+            key1 = keypoint1.name
+            for keypoint2 in human_skeleton.BodyParts:
+                key2 = keypoint2.name
 
-        skeletons = skeletrack.track_skeletons(color_frame, debug_time=False)
+                for i in range(max_range):
+                    if f"{key1}-{key2}" not in distances:
+                        distances[f"{key1}-{key2}"] = []
+                    distance = None
+                    if key1 not in coordinates:
+                        pass
+                    elif None not in coordinates[key1][i] and None not in coordinates[key2][i]:
+                        distance = np.linalg.norm(coordinates[key1][i] - coordinates[key2][i])
+                    distances[f"{key1}-{key2}"].append(distance)
+
+        for keypoint in coordinates:
+            coordinates[keypoint] = np.array(coordinates[keypoint]).tolist()
+
+        data = {
+            'coordinates': coordinates,
+            'velocities': velocities,
+            'distances': distances,
+            'timestamps': timestamps,
+            'frames': frame_indexes
+        }
+
+        with open(f"tmp_data_{bag_filename.replace('/', '_')}.json", 'w+') as file:
+            json.dump(data, file)
+    else:
+        data = feet_analysis.get_data("tmp_data" + bag_filename.replace('/', '_') + '.json')
+        coordinates = data['coordinates']
+        distances = data['distances']
+        velocities = data['velocities']
+        timestamps = data['timestamps']
+        frame_indexes = data['frames']
+        start_timestamp = timestamps[0]
+
+    walking_data = feet_analysis.preprocess_data_for_walk_analysis(data)
+    number_of_frames = 0
+    for i in range(len(walking_data['coordinates']['NOSE'])):
         number_of_frames += 1
+        human = human_skeleton.HumanSkeleton()
+        human.from_feet_analitics(walking_data['coordinates'], i)
 
-        if skeletrack.check_user_presence(color_image=color_frame):
-            for i in range(skeletrack.get_number_of_skeletons()):
-                human = human_skeleton.HumanSkeleton()
-                human.from_tracker(skeletrack, i, depth_frame)
+        if median_center is not None:
+            coord2D, coord3D = human.to_json(median_center, median_center + median_x,
+                                             median_center + median_y,
+                                             median_center + median_z,
+                                             scale=0.21)
+        else:
+            coord2D, coord3D = human.to_json()  # If there is no Aruco box
 
-                if median_center is not None:
-                    coord2D, coord3D = human.to_json(median_center, median_center + median_x, median_center + median_y,
-                                                     median_center + median_z)
-                else:
-                    coord2D, coord3D = human.to_json()  # If there is no Aruco box
+        footsteps_per_velocity = 0
+        stance_swing_ratio = None
+        double_support_ratio = None
+        walking_width = None
+        walking_speed = 0.0
+        footstep_length = 0.0
 
-                footsteps_per_velocity = 0
-                stance_swing_ratio = None
-                double_support_ratio = None
-                walking_width = None
-                walking_speed = 0.0
-                footstep_length = 0.0
+        if number_of_frames > 1:
+            reduced_walking_data = feet_analysis.reduce_walking_data_size(walking_data, number_of_frames)
+            footsteps_per_velocity = \
+                feet_analysis.estimate_footsteps(reduced_walking_data, motion_threshold=motion_threshold)[0]
+            stance_swing_ratio = feet_analysis.compute_stance_swing_ratio(reduced_walking_data,
+                                                                          motion_threshold=motion_threshold)
+            double_support_ratio = feet_analysis.compute_double_support_time(reduced_walking_data,
+                                                                             motion_threshold=motion_threshold)
+            walking_width = feet_analysis.estimate_footsteps_width(reduced_walking_data)
+            walking_speed = feet_analysis.compute_walking_speed(reduced_walking_data)
+            distance_walked = (walking_speed * (timestamps[i] - start_timestamp)) / 1000
+            if footsteps_per_velocity > 0:
+                footstep_length = distance_walked / footsteps_per_velocity
 
-                if number_of_frames > 1:
-                    reduced_walking_data = feet_analysis.reduce_walking_data_size(walking_data, number_of_frames)
-                    footsteps_per_velocity = \
-                        feet_analysis.estimate_footsteps(reduced_walking_data, motion_threshold=motion_threshold)[0]
-                    stance_swing_ratio = feet_analysis.compute_stance_swing_ratio(reduced_walking_data,
-                                                                                  motion_threshold=motion_threshold)
-                    double_support_ratio = feet_analysis.compute_double_support_time(reduced_walking_data,
-                                                                                     motion_threshold=motion_threshold)
-                    walking_width = feet_analysis.estimate_footsteps_width(reduced_walking_data)
-                    walking_speed = feet_analysis.compute_walking_speed(reduced_walking_data)
-                    distance_walked = (walking_speed * (timestamp - start_timestamp)) / 1000
-                    if footsteps_per_velocity > 0:
-                        footstep_length = distance_walked / footsteps_per_velocity
-
-                client.insert_skeleton_keypoints(coord2D=coord2D, coord3D=coord3D, skeleton_id=i,
-                                                 timestamp=timestamp,
-                                                 walking_speed=walking_speed, footsteps_width=walking_width,
-                                                 number_of_footsteps=footsteps_per_velocity,
-                                                 stride_length=footstep_length*2, step_length=footstep_length,
-                                                 device=device, send_immediatly=False)
+            client.insert_skeleton_keypoints(coord2D=coord2D, coord3D=coord3D, skeleton_id=i,
+                                             timestamp=walking_data['timestamps'][i],
+                                             walking_speed=walking_speed, footsteps_width=walking_width,
+                                             number_of_footsteps=footsteps_per_velocity,
+                                             stride_length=footstep_length * 2, step_length=footstep_length,
+                                             device=device, send_immediatly=False)
     client.send_to_db()
-    print("Parsing video in ", round(time.time() - start_time, 2), "s")
 
-    pipeline = recording.stop_playback(pipeline)
+
+    print("Done.")
 
 
 def retrieve_data(bag_filename, client=None, verbose=False):
@@ -213,7 +302,7 @@ if __name__ == "__main__":
         if local:
             adress = 'localhost'
         elif remote:
-            parser.error('--adress is required if --remote is chosen')
+            adress = '192.168.143.29' #parser.error('--adress is required if --remote is chosen')
     if login is not None and password is None:
         parser.error('--password is required with --login')
 
@@ -232,7 +321,7 @@ if __name__ == "__main__":
     skeletrack = st.SkeletonTracker(choose_best_module=True, image_is_upside_down = True)
     for i, file in enumerate(files_list):
         print(f"{round((i / len(files_list)) * 100)}% ... {file}")
-        save_data(file, client=db_client, skeletrack=skeletrack, use_aruco_coord = False)
+        save_data(file, client=db_client, skeletrack=skeletrack, use_aruco_coord = True)
     # retrieve_data(file, client = db_client)
     print("100%")
 # for i, file in enumerate(glob.glob(recordings_folder + "/*.bag"), 1):
