@@ -65,16 +65,16 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                 return
         recording.stop_playback(pipeline)
 
-    walking_data = feet_analysis.get_coordinates_and_distances_from_rosbag(bag_filename, "tmp_data_file.json",
-                                                                           visual=False)
-    walking_data = feet_analysis.preprocess_data_for_walk_analysis(walking_data)
-
     pipeline = rs.pipeline()
-
     if skeletrack is None:
         skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline=pipeline)
     else:
         skeletrack.set_pipeline(pipeline)
+
+    walking_data = feet_analysis.get_coordinates_and_distances_from_rosbag(bag_filename, "tmp_data_file.json",
+                                                                           visual=True, skeletrack=skeletrack)
+    walking_data = feet_analysis.preprocess_data_for_walk_analysis(walking_data)
+
     pipeline = recording.start_playback(bag_filename, pipeline=pipeline, realtime=False)
     joint_confidence = 0.4
 
@@ -128,7 +128,7 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                 if number_of_frames > 1:
                     reduced_walking_data = feet_analysis.reduce_walking_data_size(walking_data, number_of_frames)
                     footsteps_per_velocity = \
-                    feet_analysis.estimate_footsteps(reduced_walking_data, motion_threshold=motion_threshold)[0]
+                        feet_analysis.estimate_footsteps(reduced_walking_data, motion_threshold=motion_threshold)[0]
                     stance_swing_ratio = feet_analysis.compute_stance_swing_ratio(reduced_walking_data,
                                                                                   motion_threshold=motion_threshold)
                     double_support_ratio = feet_analysis.compute_double_support_time(reduced_walking_data,
@@ -138,18 +138,6 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                     distance_walked = (walking_speed * (timestamp - start_timestamp)) / 1000
                     if footsteps_per_velocity > 0:
                         footstep_length = distance_walked / footsteps_per_velocity
-                # if footsteps_per_velocity is not None:
-                #     footsteps_per_velocity = float(footsteps_per_velocity)
-                # if stance_swing_ratio is not None:
-                #     stance_swing_ratio = float(stance_swing_ratio)
-                # if double_support_ratio is not None:
-                #     double_support_ratio = float(double_support_ratio)
-                # if walking_width is not None:
-                #     walking_width = float(walking_width)
-                # if walking_speed is not None:
-                #     walking_speed = float(walking_speed)
-                # if footstep_length is not None:
-                #     footstep_length = float(footstep_length)
 
                 client.insert_skeleton_keypoints(coord2D=coord2D, coord3D=coord3D, skeleton_id=i,
                                                  timestamp=timestamp,
@@ -241,10 +229,10 @@ if __name__ == "__main__":
     for file in files_list:
         print(" -", file)
 
-    skeletrack = st.SkeletonTracker(choose_best_module=True)
+    skeletrack = st.SkeletonTracker(choose_best_module=True, image_is_upside_down = True)
     for i, file in enumerate(files_list):
         print(f"{round((i / len(files_list)) * 100)}% ... {file}")
-        save_data(file, client=db_client, skeletrack=skeletrack)
+        save_data(file, client=db_client, skeletrack=skeletrack, use_aruco_coord = False)
     # retrieve_data(file, client = db_client)
     print("100%")
 # for i, file in enumerate(glob.glob(recordings_folder + "/*.bag"), 1):

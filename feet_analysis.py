@@ -15,10 +15,14 @@ from convert_realsense_to_real_world import *
 import human_skeleton
 
 
-def get_coordinates_and_distances_from_rosbag(bag_filename, saving_filename, visual = False):
+def get_coordinates_and_distances_from_rosbag(bag_filename, saving_filename, skeletrack=None, visual = False):
 	pipeline = rs.pipeline()
 
-	skeletrack = st.SkeletonTracker(choose_best_module = True, pipeline = pipeline)
+	if skeletrack is None:
+		skeletrack = st.SkeletonTracker(choose_best_module = True, pipeline = pipeline)
+	else:
+		skeletrack.set_pipeline(pipeline)
+
 	pipeline = start_playback(bag_filename, pipeline = pipeline, realtime = False)
 	joint_confidence = 0.4
 
@@ -88,7 +92,7 @@ def get_coordinates_and_distances_from_rosbag(bag_filename, saving_filename, vis
 				key = cv2.waitKey(1)
 
 		except Exception as e:
-			# raise(e)
+			raise(e)
 			break
 
 	# Compute velocities
