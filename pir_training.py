@@ -7,7 +7,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 class Dataset(torch.utils.data.Dataset):
     'Characterizes a dataset for PyTorch'
     def __init__(self, PIR_values, labels):

@@ -280,7 +280,7 @@ class HumanSkeleton():
             return self.POSITION_NOT_FOUND3D
 
         else:
-            return np.mean(np.array(body), axis=0)
+            return np.median(np.array(body), axis=0)
 
     def get_center_of_gravity_2d(self):
         body = []
@@ -468,5 +468,12 @@ class HumanSkeleton():
             names = [names]
         for name in names:
             if self.get_keypoint2D(name) is self.POSITION_NOT_FOUND2D:
+                return False
+        return True
+    def check_keypoints3D(self, names):
+        if isinstance(names, str):
+            names = [names]
+        for name in names:
+            if self.get_keypoint3D(name) is self.POSITION_NOT_FOUND3D:
                 return False
         return True
