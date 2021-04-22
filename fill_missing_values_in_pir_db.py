@@ -30,13 +30,23 @@ slow_speed = 0.70
 normal_speed = 1.1
 fast_speed = 2.3
 
+
+# 1619010068159.0 1619009944864.0
+
+
 all_speeds = speed_values.get_all_speeds_recorded()
 def get_my_speed(start, end):
+    if start > end:
+        tmp = start
+        start = end
+        end = tmp
     for i in range(len(all_speeds)):
-        if start <= all_speeds[i][0][0] <= end or start <= all_speeds[i][0][1] <= end:
+        if start <= all_speeds[i][0][0] <= end or start <= all_speeds[i][0][1] <= end\
+                or all_speeds[i][0][0] <= start <= all_speeds[i][0][1]\
+                or all_speeds[i][0][0] <= end <= all_speeds[i][0][1]:
             return all_speeds[i][1]
-    print(start, end)
-    exit()
+    else:
+        print("Nothing found")
     return None
 print(len(all_speeds))
 

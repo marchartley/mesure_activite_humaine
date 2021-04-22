@@ -60,7 +60,6 @@ def get_all_speeds_recorded():
             smoothed_speed = sequences[i - 1]*.1 + sequences[i]*.8 + sequences[i + 1]*.1
 
         smoothed_sequences.append([times[i], smoothed_speed])
-        print(times[i][0])
 
     smoothed_sequences.sort(key = lambda seq: seq[0][0])
     return smoothed_sequences
