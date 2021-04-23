@@ -69,13 +69,16 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
         while True:
             try:
                 frames = pipeline.wait_for_frames(200)
+                number_of_frames += 1
                 current_timestamp = recording.get_frame_timestamp(frames)
+                print(f"{number_of_frames}: {current_timestamp}")
                 timestamp = current_timestamp
                 if start_timestamp is None:
                     start_timestamp = timestamp
                 if previous_timestamp == current_timestamp:
                     continue
-            except:
+            except Exception as e:
+                print(e)
                 break
 
             try:
@@ -98,6 +101,7 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
 
                 has_human_presence = False
                 if skeletrack.check_user_presence(color_image=color_frame):
+                    print("human")
                     human = human_skeleton.HumanSkeleton()
                     try:
                         human.from_tracker(skeletrack, 0, depth_frame)
@@ -128,6 +132,7 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                 raise e
                 return
         try:
+            print("Stoping...")
             pipeline.stop()
         except:
             pass

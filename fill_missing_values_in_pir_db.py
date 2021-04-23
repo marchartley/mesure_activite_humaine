@@ -34,21 +34,20 @@ fast_speed = 2.3
 # 1619010068159.0 1619009944864.0
 
 
-all_speeds = speed_values.get_all_speeds_recorded()
 def get_my_speed(start, end):
+    all_speeds = speed_values.get_all_speeds_recorded()
     if start > end:
         tmp = start
         start = end
         end = tmp
     for i in range(len(all_speeds)):
-        if start <= all_speeds[i][0][0] <= end or start <= all_speeds[i][0][1] <= end\
-                or all_speeds[i][0][0] <= start <= all_speeds[i][0][1]\
+        if start <= all_speeds[i][0][0] <= end or start <= all_speeds[i][0][1] <= end \
+                or all_speeds[i][0][0] <= start <= all_speeds[i][0][1] \
                 or all_speeds[i][0][0] <= end <= all_speeds[i][0][1]:
             return all_speeds[i][1]
     else:
         print("Nothing found")
     return None
-print(len(all_speeds))
 
 def join_pir_and_params(all_queries):
     delay_limit_for_sequence = 1000
@@ -137,7 +136,7 @@ def join_pir_and_params(all_queries):
 def split_sequences(pir_df: pd.DataFrame):
     all_sequences = []
     for seq_id in pir_df['sequence_id'].unique():
-        all_sequences.append(df[df['sequence_id'] == seq_id])
+        all_sequences.append(pir_df[pir_df['sequence_id'] == seq_id])
     return all_sequences
 
 def get_signal_features(signal, number_of_peaks = 3):
@@ -175,77 +174,80 @@ def get_sequence_features(sequence):
     speed_as_km_per_hour = speed * 3.6 # * direction
     return speed_as_km_per_hour, [direction, corridor, *pir0, *pir1, *pir2, *pir3]
 
-client = db.ListicClientDB(server_side=True)
-all_queries = client.get_all_pir_values()
-df = pd.DataFrame(join_pir_and_params(all_queries))
-for seq_id in df['sequence_id'].unique():
-    if len(df[df['sequence_id'] == seq_id]) <= 1:
-        df = df[df['sequence_id'] != seq_id]
-# # print(df[df['sequence_id'] == 1])
-# # exit()
-df.to_csv("all_pir_values.csv")
 
-df = pd.read_csv("all_pir_values.csv")
-all_sequences = split_sequences(df)
-X = []
-Y = []
-for sequence in all_sequences:
-    features = get_sequence_features(sequence)
-    Y.append(features[0])
-    X.append(features[1])
 
-feature_vector_length = int(np.median([len(x) for x in X]))
-for i in range(len(X)-1, 0, -1):
-    if len(X[i]) != feature_vector_length:
-        del X[i]
-        del Y[i]
+if __name__ == "__main__":
+    client = db.ListicClientDB(server_side=True)
+    all_queries = client.get_all_pir_values()
+    df = pd.DataFrame(join_pir_and_params(all_queries))
+    for seq_id in df['sequence_id'].unique():
+        if len(df[df['sequence_id'] == seq_id]) <= 1:
+            df = df[df['sequence_id'] != seq_id]
+    # # print(df[df['sequence_id'] == 1])
+    # # exit()
+    df.to_csv("all_pir_values.csv")
 
-train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
+    df = pd.read_csv("all_pir_values.csv")
+    all_sequences = split_sequences(df)
+    X = []
+    Y = []
+    for sequence in all_sequences:
+        features = get_sequence_features(sequence)
+        Y.append(features[0])
+        X.append(features[1])
 
-classifiers = [
-    sklearn.svm.SVR(),
-    sklearn.svm.LinearSVR(),
-    sklearn.linear_model.SGDRegressor(),
-    sklearn.linear_model.BayesianRidge(),
-    sklearn.linear_model.LassoLars(),
-    sklearn.linear_model.ARDRegression(),
-    sklearn.linear_model.PassiveAggressiveRegressor(),
-    sklearn.linear_model.TheilSenRegressor(),
-    sklearn.linear_model.LinearRegression(),
-    sklearn.linear_model.Ridge(),
-    sklearn.linear_model.ElasticNet(),
-    # sklearn.linear_model.LogisticRegression(),
-    # sklearn.linear_model.TweedieRegressor(),
-    # sklearn.linear_model.Perceptron(),
-    sklearn.linear_model.HuberRegressor(),
+    feature_vector_length = int(np.median([len(x) for x in X]))
+    for i in range(len(X)-1, 0, -1):
+        if len(X[i]) != feature_vector_length:
+            del X[i]
+            del Y[i]
 
-]
+    train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
 
-pd.set_option('float_format', '{:.3f}'.format)
-print("Speeds recorded:")
-print(pd.DataFrame(Y, columns=["Speeds recorded on each sequence (km/h)"]).describe())
+    classifiers = [
+        sklearn.svm.SVR(),
+        sklearn.svm.LinearSVR(),
+        sklearn.linear_model.SGDRegressor(),
+        sklearn.linear_model.BayesianRidge(),
+        sklearn.linear_model.LassoLars(),
+        sklearn.linear_model.ARDRegression(),
+        sklearn.linear_model.PassiveAggressiveRegressor(),
+        sklearn.linear_model.TheilSenRegressor(),
+        sklearn.linear_model.LinearRegression(),
+        sklearn.linear_model.Ridge(),
+        sklearn.linear_model.ElasticNet(),
+        # sklearn.linear_model.LogisticRegression(),
+        # sklearn.linear_model.TweedieRegressor(),
+        # sklearn.linear_model.Perceptron(),
+        sklearn.linear_model.HuberRegressor(),
 
-results = []
-for item in classifiers:
-    clf = item
-    clf.fit(train_X, train_y)
-    # cv_score_percent_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = sklearn.metrics.mean_absolute_percentage_error)
-    cv_score_mean_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'neg_mean_absolute_error')
-    cv_score_abs_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'neg_median_absolute_error')
-    cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
-    # # print(item.__class__.__name__, ":", -np.mean(cv_score)) #sklearn.metrics.mean_absolute_error(clf.predict(test_X), test_y))
-    results.append([item.__class__.__name__, np.mean(cv_score_mean_error), np.mean(cv_score_abs_error), np.mean(cv_score_r2)])
+    ]
 
-print(pd.DataFrame(results, columns=["Regressor name", "Mean error", "Median abs error", "R2 score"]))
-#
-# i = 0
-# for x_test, y_test in zip(test_X, test_y):
-#     print(classifiers[0].predict([x_test]), y_test)
-#     i += 1
-#     if i > 10:
-#         break
-#
-# print('weights: ')
-# print(classifiers[0].coef_)
-# print('Intercept: ')
-# print(classifiers[0].intercept_)
+    pd.set_option('float_format', '{:.3f}'.format)
+    print("Speeds recorded:")
+    print(pd.DataFrame(Y, columns=["Speeds recorded on each sequence (km/h)"]).describe())
+
+    results = []
+    for item in classifiers:
+        clf = item
+        clf.fit(train_X, train_y)
+        # cv_score_percent_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = sklearn.metrics.mean_absolute_percentage_error)
+        cv_score_mean_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'neg_mean_absolute_error')
+        cv_score_abs_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'neg_median_absolute_error')
+        cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
+        # # print(item.__class__.__name__, ":", -np.mean(cv_score)) #sklearn.metrics.mean_absolute_error(clf.predict(test_X), test_y))
+        results.append([item.__class__.__name__, np.mean(cv_score_mean_error), np.mean(cv_score_abs_error), np.mean(cv_score_r2)])
+
+    print(pd.DataFrame(results, columns=["Regressor name", "Mean error", "Median abs error", "R2 score"]))
+    #
+    # i = 0
+    # for x_test, y_test in zip(test_X, test_y):
+    #     print(classifiers[0].predict([x_test]), y_test)
+    #     i += 1
+    #     if i > 10:
+    #         break
+    #
+    # print('weights: ')
+    # print(classifiers[0].coef_)
+    # print('Intercept: ')
+    # print(classifiers[0].intercept_)
