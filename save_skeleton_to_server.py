@@ -71,7 +71,6 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                 frames = pipeline.wait_for_frames(200)
                 number_of_frames += 1
                 current_timestamp = recording.get_frame_timestamp(frames)
-                print(f"{number_of_frames}: {current_timestamp}")
                 timestamp = current_timestamp
                 if start_timestamp is None:
                     start_timestamp = timestamp
@@ -84,7 +83,7 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
             try:
                 color_frame = np.array(frames.get_color_frame().get_data())
                 depth_frame = frames.get_depth_frame()
-                depth_frame = filters.l515_filter(depth_frame).as_depth_frame()
+                # depth_frame = filters.l515_filter(depth_frame).as_depth_frame()
             except Exception as e:
                 print(f"Error on the file {bag_filename}:", e)
                 recording.stop_playback(pipeline)
@@ -101,7 +100,6 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
 
                 has_human_presence = False
                 if skeletrack.check_user_presence(color_image=color_frame):
-                    print("human")
                     human = human_skeleton.HumanSkeleton()
                     try:
                         human.from_tracker(skeletrack, 0, depth_frame)

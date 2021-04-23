@@ -31,9 +31,7 @@ def get_all_speeds_recorded():
         for frame_index in range(len(data['timestamps'])):
             human = human_skeleton.HumanSkeleton()
             human.from_feet_analitics(data['coordinates'], frame_index)
-
-            if human.check_keypoints3D(['LEFT_SHOULDER']) or human.check_keypoints3D(['RIGHT_SHOULDER']) or human.check_keypoints3D(['LEFT_HIP']) or human.check_keypoints3D(['RIGHT_HIP']) \
-                    and frame_index < len(data['timestamps']) -1:
+            if human.check_keypoints3D('LEFT_SHOULDER') and frame_index < len(data['timestamps']) - 1:
                 if not sequence_starting:
                     sequence_starting = True
                     sequence_started_index = frame_index
@@ -45,7 +43,7 @@ def get_all_speeds_recorded():
                 if starting_human != previous_human:
                     if sequence_starting and (cooldown < 0 or frame_index == len(data['timestamps']) -1):
                         # cooldown = time_cooldown
-                        displacement = np.linalg.norm(previous_human.get_center_of_gravity() - starting_human.get_center_of_gravity())
+                        displacement = np.linalg.norm(np.array(previous_human.get_keypoint3D('LEFT_SHOULDER')) - np.array(starting_human.get_keypoint3D('LEFT_SHOULDER')))
                         displacement /= ((data['timestamps'][last_time_index]/1000) - (data['timestamps'][sequence_started_index]/1000))
                         sequences.append(displacement)
                         sequence_starting = False
@@ -80,56 +78,61 @@ def split_sequences(pir_df: pd.DataFrame):
 
 
 
-pir_data = pd.read_csv("all_pir_values.csv")
-sequences = split_sequences(pir_data)
-# speeds = get_all_speeds_recorded()
-speeds = {}
-current_sequence_id = -1
+if __name__ == '__main__':
+    pir_data = pd.read_csv("all_pir_values.csv")
+    sequences = split_sequences(pir_data)
+    # speeds = get_all_speeds_recorded()
+    speeds = {}
+    current_sequence_id = -1
 
-all_data = {'coordinates': {}, 'timestamps': []}
-print("fetching files")
-for file in glob.glob("tmp_data*.json"):
-    data = json.load(open(file, "r"))
-    for key in data['coordinates']:
-        if key not in all_data['coordinates']:
-            all_data['coordinates'][key] = []
-        all_data['coordinates'][key].extend(data['coordinates'][key])
-    all_data['timestamps'].extend(data['timestamps'])
+    all_data = {'coordinates': {}, 'timestamps': []}
+    print("fetching files")
+    for file in glob.glob("tmp_data_*.json"):
+        data = json.load(open(file, "r"))
+        for key in data['coordinates']:
+            if key not in all_data['coordinates']:
+                all_data['coordinates'][key] = []
+            all_data['coordinates'][key].extend(data['coordinates'][key])
+        all_data['timestamps'].extend(data['timestamps'])
 
-print("Sorting")
-for key in all_data['coordinates']:
-    all_data['coordinates'][key] = [coord for _, coord in zip(all_data['timestamps'], all_data['coordinates'][key])]
-all_data['timestamps'] = sorted(all_data['timestamps'])
+    print("Sorting")
+    for key in all_data['coordinates']:
+        all_data['coordinates'][key] = [coord for _, coord in zip(all_data['timestamps'], all_data['coordinates'][key])]
+    all_data['timestamps'] = sorted(all_data['timestamps'])
 
-print("Parsing")
-for i, seq in enumerate(sequences):
-    print(f"{round(((i+1)/len(sequences))*100)}%")
-    start = dateutil.parser.isoparse(seq['time'].iloc[0].replace("Z", "+00:00")).timestamp() * 1000
-    end = dateutil.parser.isoparse(seq['time'].iloc[-1].replace("Z", "+00:00")).timestamp() * 1000
-    sequence_id = seq['sequence_id'].iloc[0]
+    print("Parsing")
+    for i, seq in enumerate(sequences):
+        print(f"{round(((i+1)/len(sequences))*100)}%")
+        start = dateutil.parser.isoparse(seq['time'].iloc[0].replace("Z", "+00:00")).timestamp() * 1000
+        end = dateutil.parser.isoparse(seq['time'].iloc[-1].replace("Z", "+00:00")).timestamp() * 1000
+        sequence_id = seq['sequence_id'].iloc[0]
 
-    for frame_index in range(len(all_data['timestamps'])):
-        human = human_skeleton.HumanSkeleton()
-        human.from_feet_analitics(all_data['coordinates'], frame_index)
-        if human.check_keypoints3D(["RIGHT_SHOULDER"]) or human.check_keypoints3D(["LEFT_SHOULDER"]) or human.check_keypoints3D(["RIGHT_HIP"]) or human.check_keypoints3D(["LEFT_HIP"]):
-            if all_data['timestamps'][frame_index] < start or all_data['timestamps'][frame_index] > end:
-                continue
-            else:
-                if sequence_id not in speeds:
-                    speeds[sequence_id] = {'id': sequence_id,
-                                           'start_pos': human.get_center_of_gravity(),
-                                           'start_time': all_data['timestamps'][frame_index],
-                                           'end_pos': None,
-                                           'end_time': None}
+        for frame_index in range(len(all_data['timestamps'])):
+            human = human_skeleton.HumanSkeleton()
+            human.from_feet_analitics(all_data['coordinates'], frame_index)
+            number_of_keys = 0
+            for key in ['LEFT_SHOULDER']: #, 'RIGHT_SHOULDER', 'LEFT_HIP', 'RIGHT_HIP']:
+                if human.check_keypoints3D(key):
+                    number_of_keys += 10
+            if number_of_keys > 1:
+                if all_data['timestamps'][frame_index] < start or all_data['timestamps'][frame_index] > end:
+                    continue
                 else:
-                    speeds[sequence_id]['end_pos'] = human.get_center_of_gravity()
-                    speeds[sequence_id]['end_time'] = all_data['timestamps'][frame_index]
+                    if sequence_id not in speeds:
+                        speeds[sequence_id] = {'id': sequence_id,
+                                               'start_pos': human.get_keypoint3D('LEFT_SHOULDER'),
+                                               'start_time': all_data['timestamps'][frame_index],
+                                               'end_pos': None,
+                                               'end_time': None}
+                    else:
+                        speeds[sequence_id]['end_pos'] = human.get_keypoint3D('LEFT_SHOULDER')
+                        speeds[sequence_id]['end_time'] = all_data['timestamps'][frame_index]
 
-print("100%")
-print("Calculating speeds")
-for seq_id in speeds:
-    try:
-        speeds[seq_id]['speed'] = np.linalg.norm(speeds[seq_id]['end_pos'] - speeds[seq_id]['start_pos']) / (speeds[seq_id]['end_time'] - speeds[seq_id]['start_time'])
-        print(f"{speeds[seq_id]['id']} : {speeds[seq_id]['speed'] * 3.6}km/h")
-    except Exception as e:
-        print(e)
+    print("100%")
+    print("Calculating speeds")
+    for seq_id in speeds:
+        try:
+            speeds[seq_id]['speed'] = np.linalg.norm(np.array(speeds[seq_id]['end_pos']) - np.array(speeds[seq_id]['start_pos'])) / (speeds[seq_id]['end_time'] - speeds[seq_id]['start_time'])
+            print(f"{speeds[seq_id]['id']} : {round(speeds[seq_id]['speed'] * 1000, 2)}m/s ({speeds[seq_id]['start_time']} - {speeds[seq_id]['end_time']})")
+        except Exception as e:
+            print(e)

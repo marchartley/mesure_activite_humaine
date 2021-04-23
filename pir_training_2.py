@@ -11,6 +11,9 @@ import sklearn.model_selection
 import sklearn.linear_model
 
 from warnings import filterwarnings
+
+from matplotlib import pyplot as plt
+
 filterwarnings('ignore')
 
 
@@ -56,29 +59,36 @@ def get_sequence_features(sequence, number_of_peaks):
 
 
 
+#
+# # Method 1: Take the features from the biggest peak of each sequence
+# number_of_peaks_to_analyse = 1
+# # Method 2: Take the features from more peaks (here 3)
+# # number_of_peaks = 3
+#
+# df = pd.read_csv("all_pir_values.csv")
+# all_sequences = split_sequences(df)
+# X = []
+# Y = []
+# # Compute the feature vectors for all sequences
+# for sequence in all_sequences:
+#     features = get_sequence_features(sequence, number_of_peaks_to_analyse)
+#     Y.append(features[0])
+#     X.append(features[1])
+#
+# # Check if the the feature vectors all have the same size
+# # For some of them, there are not enough peaks in the signal
+# feature_vector_length = int(np.median([len(x) for x in X]))
+# for i in range(len(X)-1, 0, -1):
+#     if len(X[i]) != feature_vector_length: # The sequences with too few peaks are ignored
+#         del X[i]
+#         del Y[i]
 
-# Method 1: Take the features from the biggest peak of each sequence
-number_of_peaks_to_analyse = 1
-# Method 2: Take the features from more peaks (here 3)
-# number_of_peaks = 3
+df_sequences = pd.read_csv("sequences_resumed.csv")
+df_sequences = df_sequences.dropna()
+input_cols = ['period_pir0', 'time_pir0', 'period_pir1', 'time_pir1', 'period_pir2', 'time_pir2', 'period_pir3', 'time_pir3', 'delta_time_0_2', 'delta_time_1_3']
+X = df_sequences[input_cols]
+Y = df_sequences['walking_speed']
 
-df = pd.read_csv("all_pir_values.csv")
-all_sequences = split_sequences(df)
-X = []
-Y = []
-# Compute the feature vectors for all sequences
-for sequence in all_sequences:
-    features = get_sequence_features(sequence, number_of_peaks_to_analyse)
-    Y.append(features[0])
-    X.append(features[1])
-
-# Check if the the feature vectors all have the same size
-# For some of them, there are not enough peaks in the signal
-feature_vector_length = int(np.median([len(x) for x in X]))
-for i in range(len(X)-1, 0, -1):
-    if len(X[i]) != feature_vector_length: # The sequences with too few peaks are ignored
-        del X[i]
-        del Y[i]
 
 # Split the data in 2 : training/testing
 train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
@@ -87,7 +97,7 @@ train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y
 classifiers = [
     sklearn.svm.SVR(),
     sklearn.svm.LinearSVR(),
-    sklearn.linear_model.SGDRegressor(),
+    # sklearn.linear_model.SGDRegressor(),
     sklearn.linear_model.BayesianRidge(),
     sklearn.linear_model.LassoLars(),
     sklearn.linear_model.ARDRegression(),
@@ -103,7 +113,7 @@ classifiers = [
 pd.set_option('float_format', '{:.3f}'.format)
 # Display stats about the velocities of the sequences
 print("Speeds recorded:")
-print(pd.DataFrame(Y, columns=["Speeds recorded on each sequence (km/h)"]).describe())
+print(pd.DataFrame(Y.values, columns=["Speeds recorded on each sequence (km/h)"]).describe())
 
 results = []
 # Train all regressors
@@ -118,3 +128,14 @@ for item in classifiers:
 
 # Display the results
 print(pd.DataFrame(results, columns=["Regressor name", "Mean error", "Median abs error", "R2 score"]))
+
+predictions = classifiers[-1].predict(X)
+ground_truth = Y.values
+
+predictions = [x for _, x in sorted(zip(Y.index, predictions))]
+ground_truth = [x for _, x in sorted(zip(Y.index, ground_truth))]
+
+plt.plot(predictions, label="Prediction")
+plt.plot(ground_truth, label="Ground Truth")
+plt.legend()
+plt.show()

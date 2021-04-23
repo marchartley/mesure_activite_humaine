@@ -155,6 +155,7 @@ class ListicClientDB():
     def get_all_pir_values(self):
         # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "autogen"."pir_network"'
         query = f'SELECT "pir0", "pir1", "pir2", "pir3", "walking_speed" FROM "pir_network" WHERE time > \'2021-04-21 12:00:00\' GROUP BY move'
+        # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" WHERE time > \'2021-04-21 12:00:00\' GROUP BY move'
         results = self.client.query(query)
         return results
 

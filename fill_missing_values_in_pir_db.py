@@ -34,8 +34,10 @@ fast_speed = 2.3
 # 1619010068159.0 1619009944864.0
 
 
+all_speeds = speed_values.get_all_speeds_recorded()
+number_found = 0
 def get_my_speed(start, end):
-    all_speeds = speed_values.get_all_speeds_recorded()
+    global number_found
     if start > end:
         tmp = start
         start = end
@@ -44,13 +46,13 @@ def get_my_speed(start, end):
         if start <= all_speeds[i][0][0] <= end or start <= all_speeds[i][0][1] <= end \
                 or all_speeds[i][0][0] <= start <= all_speeds[i][0][1] \
                 or all_speeds[i][0][0] <= end <= all_speeds[i][0][1]:
+            number_found += 1
+            # print(f"Found {number_found} -> {all_speeds[i][1]}")
             return all_speeds[i][1]
-    else:
-        print("Nothing found")
     return None
 
 def join_pir_and_params(all_queries):
-    delay_limit_for_sequence = 1000
+    delay_limit_for_sequence = 500
 
     all_data_joint = []
     last_pir_timestamp = None
@@ -61,12 +63,11 @@ def join_pir_and_params(all_queries):
 
     not_tagged_query = all_queries.items()[0][1]
     speeds = {dateutil.parser.isoparse(data['time'].replace('Z', '+00:00')).timestamp() * 1000: data['walking_speed'] for data in not_tagged_query}
-    # print(speeds)
-    # exit()
     starting_sequence_time = 0
     offset = 0
     num_true = 0
     num_ttl = 0
+    num_speeds_found = 0
     for key, all_data in all_queries.items():
         if key[1]['move'] == '':
             continue
@@ -93,17 +94,17 @@ def join_pir_and_params(all_queries):
                     sequence_id += 1
                     starting_sequence_time = current_timestamp
 
-                speed = 0
-                if slow[0] <= current_timestamp <= slow[1]:
-                    speed = slow_speed
-                elif normal1[0] <= current_timestamp <= normal1[1] or normal2[0] <= current_timestamp <= normal2[1]:
-                    speed = normal_speed
-                elif fast1[0] <= current_timestamp <= fast1[1] or fast2[0] <= current_timestamp <= fast2[1]:
-                    speed = fast_speed
+                # speed = 0
+                # if slow[0] <= current_timestamp <= slow[1]:
+                #     speed = slow_speed
+                # elif normal1[0] <= current_timestamp <= normal1[1] or normal2[0] <= current_timestamp <= normal2[1]:
+                #     speed = normal_speed
+                # elif fast1[0] <= current_timestamp <= fast1[1] or fast2[0] <= current_timestamp <= fast2[1]:
+                #     speed = fast_speed
 
-                # this_data['walking_speed'] = get_my_speed(starting_sequence_time, current_timestamp)
+                this_data['walking_speed'] = get_my_speed(starting_sequence_time, current_timestamp)
                 # if this_data['walking_speed'] is None:
-                this_data['walking_speed'] = ((noise([offset]) * 0.3) + 0.8) * speed + (random.random()*0.2+0.1)
+                # this_data['walking_speed'] = speed # * ((noise([offset]) * 0.3) + 0.8)  + (random.random()*0.2+0.1)
                 # this_data['walking_speed'] = last_walking_speed
                 this_data['sequence_id'] = sequence_id
                 move = key[1]['move']
@@ -115,22 +116,23 @@ def join_pir_and_params(all_queries):
 
         current_sequence = -1
         start_sequence = 0
-        for i in range(len(all_data_joint)):
-            num_ttl += 1
-            if current_sequence != all_data_joint[i]['sequence_id']:
-                start_sequence = dateutil.parser.isoparse(all_data_joint[i]['time'].replace('Z', '+00:00')).timestamp() * 1000
-                current_sequence = all_data_joint[i]['sequence_id']
-                speed_found = None
-                for j in range(len(all_data_joint) - i):
-                    if all_data_joint[j]['sequence_id'] != current_sequence:
-                        speed_found = get_my_speed(start_sequence, dateutil.parser.isoparse(all_data_joint[j]['time'].replace('Z', '+00:00')).timestamp() * 1000)
-                        if speed_found is not None:
-                            for x in range(i, j):
-                                all_data_joint[x]['walking_speed'] = speed_found
-                                num_true += 1
-                            break
-                        break
-    print((num_true/num_ttl)*100)
+        # for i in range(len(all_data_joint)):
+        #     num_ttl += 1
+        #     if current_sequence != all_data_joint[i]['sequence_id']:
+        #         start_sequence = dateutil.parser.isoparse(all_data_joint[i]['time'].replace('Z', '+00:00')).timestamp() * 1000
+        #         current_sequence = all_data_joint[i]['sequence_id']
+        #         speed_found = None
+        #         for j in range(len(all_data_joint) - i):
+        #             if all_data_joint[j]['sequence_id'] != current_sequence:
+        #                 speed_found = get_my_speed(start_sequence, dateutil.parser.isoparse(all_data_joint[j]['time'].replace('Z', '+00:00')).timestamp() * 1000)
+        #                 if speed_found is not None:
+        #                     num_speeds_found += 1
+        #                     for x in range(len(all_data_joint)):
+        #                         if all_data_joint[x]['sequence_id'] == current_sequence:
+        #                             all_data_joint[x]['walking_speed'] = speed_found
+        #                             num_true += 1
+        #                     break
+        #                 break
     return all_data_joint
 
 def split_sequences(pir_df: pd.DataFrame):
