@@ -1,5 +1,9 @@
 import os
 
+# This script allows a Windows computer to access the server
+# But it doesn't work for Linux
+# TODO: adapt this code for Linux
+
 accessed_servers = {}
 def grant_access_server(hostname = None, share_folder_name = None, user = None, password = None, verbose = False):
 	import pywintypes

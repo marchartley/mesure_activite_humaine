@@ -11,11 +11,12 @@ from cv2 import aruco
 
 import realsense_filters as filters
 
-###############################################
-# marker generation
-
+# We know that our camera can see up to 5m, so if it find any distance > 5m, it is a wrong value
 forced_cube_distance_range = (0.5, 5.0) # Box is always between 50cm to 5m from camera, to avoid wrong values
 
+# The AruCo box has 6 markers describing the X, Y and Z axis
+# For example, the face with marker '0' is on the plane XY, and the Z-axis is the opposite of the cross product of X and Y
+# But the face '1' is on the plane ZY (with the Z having to be inversed) and the X-axis is the cross product of Z and Y
 aruco_box = {
     0: {
         'vertical': 'y',
@@ -49,7 +50,7 @@ aruco_box = {
     }
 }
 
-
+# Use OpenCV functions to create the Aruco tags
 def generateMarkers(aruco_dict, n_x=1, n_y=1):
     border = 100
     size = 300
@@ -69,11 +70,7 @@ def generateMarkers(aruco_dict, n_x=1, n_y=1):
 
     return tags
 
-
-###############################################
-# marker detection
-
-
+# Use the OpenCV functions to find the Aruco tags on an image
 def detectMarker(frame, aruco_dict):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     parameters = aruco.DetectorParameters_create()
@@ -91,7 +88,9 @@ def detectMarker(frame, aruco_dict):
     return frame_markers, corners, ids
 
 
+# Transform a 2D coord from the color frame to the 3D coord given from the camera
 def get_3D_coord_from_realsense(pixel_coord, depth_frame, pipeline):
+    # Get all parameters from the camera sensors
     depth_stream = pipeline.get_active_profile().get_stream(rs.stream.depth)
     color_stream = pipeline.get_active_profile().get_stream(rs.stream.color)
 
@@ -112,20 +111,27 @@ def get_3D_coord_from_realsense(pixel_coord, depth_frame, pipeline):
 
     pixel_coord = np.array(pixel_coord, int).tolist()
 
+    # Computing the depth this way works well for the D435 and the L515 (not sure how it works, tho)
     color_point = rs.rs2_deproject_pixel_to_point(color_intrin, pixel_coord, 1)
     depth_point = rs.rs2_transform_point_to_point(color_to_depth_extrin, color_point)
     depth_coord = rs.rs2_project_point_to_pixel(depth_intrin, depth_point)
 
+    # This method is very imprecise using the L515 camera
     # depth_coord = rs.rs2_project_color_pixel_to_depth_pixel(
     #     depth_frame.get_data(), depth_scale,
     #     min_depth, max_depth,
     #     depth_intrin, color_intrin, depth_to_color_extrin, color_to_depth_extrin, pixel_coord)
-    distance = depth_frame.get_distance(int(depth_coord[0]), int(depth_coord[1]))
-    # print(distance)
 
+    # TODO: This has to be improved to check for negative values and too big values...
+    distance = depth_frame.get_distance(round(depth_coord[0]), round(depth_coord[1]))
+
+    # Finally, return 3D coord
     return np.array(rs.rs2_deproject_pixel_to_point(depth_intrin, depth_coord, distance))  # / depth_scale
 
 
+# Compute the 2D coord from a 3D point. The default origin is the camera, but you can give the coords of the Aruco
+#   marker if the point was already translated
+# This uses the RealSense SDK but is still not very precise, it should be used only for debugging usage
 def back_to_pixel(point_coord, pipeline, old_origin_coord=None, old_x_axis=None, old_y_axis=None,
                   old_z_axis=None):
     if old_origin_coord is None:
@@ -136,6 +142,7 @@ def back_to_pixel(point_coord, pipeline, old_origin_coord=None, old_x_axis=None,
         old_y_axis = [0, 1, 0]
     color_intrin = pipeline.get_active_profile().get_stream(rs.stream.color).as_video_stream_profile().get_intrinsics()
 
+    # If an origin is given, retransform the point to be in the camera origin
     x_axis = np.array(old_x_axis) - np.array(old_origin_coord)
     y_axis = np.array(old_y_axis) - np.array(old_origin_coord)
     if old_z_axis is None:
@@ -147,10 +154,13 @@ def back_to_pixel(point_coord, pipeline, old_origin_coord=None, old_x_axis=None,
     coord_from_cam = np.dot(point_coord, transform)
     coord_from_cam += old_origin_coord
 
+    # Get the 2D coord
     return rs.rs2_project_point_to_pixel(color_intrin, coord_from_cam.tolist()[0])
 
-
+# Compute the 3D coordinates from a point that was in the camera origin to another origin (ex: Aruco box)
 def translate_coord_to_world(coord, new_origin_coord, new_x_axis_coord, new_y_axis_coord, new_z_axis_coord=None, scale = 1.0):
+    # Get the starting reference (the camera)
+    # which is the identity matrix + nul-vector
     original_X = np.matrix([1, 0, 0]).transpose()
     original_Y = np.matrix([0, 1, 0]).transpose()
     original_Z = np.matrix([0, 0, 1]).transpose()
@@ -158,6 +168,7 @@ def translate_coord_to_world(coord, new_origin_coord, new_x_axis_coord, new_y_ax
     p1 = np.matrix(coord).transpose()
     O1 = np.matrix([0, 0, 0]).transpose()
 
+    # Compute the new origin and axis from their 3D coordinates
     O2 = np.matrix(new_origin_coord).transpose()
     new_X = np.matrix(new_x_axis_coord).transpose() - O2
     new_Y = np.matrix(new_y_axis_coord).transpose() - O2
@@ -167,28 +178,34 @@ def translate_coord_to_world(coord, new_origin_coord, new_x_axis_coord, new_y_ax
         new_Z = compute_z_axis(new_X, new_Y)
     M2 = np.column_stack((new_X, new_Y, new_Z))
 
-    p2 = np.dot(np.linalg.inv(M2), ((O1 - O2) + np.dot(M1, p1)))  # p2 = M2' * (O1 - O2 + M1 * p1)
+    # The position of the point is computed by
+    # p2 = M2' * (O1 - O2 + M1 * p1)
+    # with p1 -> the original point, M1 -> the 3 original axis' coordinates and O1 -> the original origin coordinates
+    # and p2 -> the translated point
+    p2 = np.dot(np.linalg.inv(M2), ((O1 - O2) + np.dot(M1, p1)))
+    # Rescale the result if needed
     return p2 * scale
 
-
+# Compute a 3rd axis when only 2 are available
 def compute_z_axis(x_axis, y_axis):
     z_axis = np.cross(x_axis.transpose(), y_axis.transpose()).transpose()
     # Getting a coherent Z norm
     norm_X = np.linalg.norm(x_axis)
     norm_Y = np.linalg.norm(y_axis)
     norm_Z = np.linalg.norm(z_axis)
+    # This is an approximation, if a nice mathematician want to correct me it would be nice!
     z_axis = (z_axis / norm_Z) * ((norm_X + norm_Y) / 2)
     return z_axis
 
 
+##### Starting of the demo #####
+
+# Drawing a line on an image
 def draw_line(image, start, end, color=(0, 0, 0), thickness=2):
     image = cv2.line(image, tuple(map(int, start)), tuple(map(int, end)), color=color, thickness=thickness)
     return image
 
-
-all_top_left = []
-
-
+# Drawing a cube from the marker's location
 def draw_cube(image, marker, depth_frame, pipeline):
     (top_left, top_right, bottom_right, bottom_left) = (marker[0][0], marker[0][1], marker[0][2], marker[0][3])
 
@@ -196,11 +213,11 @@ def draw_cube(image, marker, depth_frame, pipeline):
     top_right_3D = get_3D_coord_from_realsense(top_right.tolist(), depth_frame, pipeline)
     bottom_left_3D = get_3D_coord_from_realsense(bottom_left.tolist(), depth_frame, pipeline)
 
+    # If we are missing a coord in the depth map, don't even try to draw the cube
     if np.all(top_left_3D == 0) or np.all(top_right_3D == 0) or np.all(bottom_left_3D == 0):
         return image
 
-    # color_intrin = pipeline.get_active_profile().get_stream(rs.stream.color).as_video_stream_profile().get_intrinsics()
-
+    # Compute the 8 coordinates of the cube
     p000 = back_to_pixel([0, 0, 0], pipeline, top_left_3D, top_right_3D, bottom_left_3D)
     p001 = back_to_pixel([0, 0, 1], pipeline, top_left_3D, top_right_3D, bottom_left_3D)
     p010 = back_to_pixel([0, 1, 0], pipeline, top_left_3D, top_right_3D, bottom_left_3D)
@@ -210,6 +227,7 @@ def draw_cube(image, marker, depth_frame, pipeline):
     p110 = back_to_pixel([1, 1, 0], pipeline, top_left_3D, top_right_3D, bottom_left_3D)
     p111 = back_to_pixel([1, 1, 1], pipeline, top_left_3D, top_right_3D, bottom_left_3D)
 
+    ## Display the lines ##
     # Depth
     image = draw_line(image, p000, p001, (0, 255, 0))
     image = draw_line(image, p010, p011, (0, 255, 0))
@@ -228,6 +246,7 @@ def draw_cube(image, marker, depth_frame, pipeline):
     image = draw_line(image, p010, p110, (0, 0, 255))
     image = draw_line(image, p011, p111, (0, 0, 255))
 
+    # Display the borders of the original marker to compare the error created by the 2D-to-3D-to-2D transformation
     image = draw_line(image, top_left, top_right, (0, 0, 255), thickness=1)
     image = draw_line(image, bottom_right, bottom_left, (0, 0, 255), thickness=1)
     image = draw_line(image, top_left, bottom_left, (255, 0, 0), thickness=1)
@@ -238,7 +257,8 @@ def draw_cube(image, marker, depth_frame, pipeline):
 def center_of_shape(vertices: list):
     return np.mean(np.array(vertices), axis=0)
 
-
+# The Aruco cube is using 6 Aruco tags. The camera can see at max 3 markers at the time,
+#   we want to get the maximum of precision on the axis by using the average of all markers seen
 def create_aruco_cube(corners, ids, depth_frame, pipeline):
     vectors_counts = {'x': 0, 'y': 0, 'z': 0}
     reference_vectors = {'x': np.array([0.0, 0.0, 0.0]),
@@ -253,7 +273,9 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
     ids = np.array(ids).flatten()
     centers3D = []
     for i, corner in enumerate(corners):
+        # Get the 2D values of the corners of the tag
         (top_left, top_right, bottom_right, bottom_left) = (corner[0][0], corner[0][1], corner[0][2], corner[0][3])
+        # Get the center of the shape and compute it's 3D coordinates
         center2D = center_of_shape(corner[0])
         centers3D.append(get_3D_coord_from_realsense(center2D, depth_frame, pipeline))
 
@@ -262,6 +284,7 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
         bottom_left_3D = get_3D_coord_from_realsense(bottom_left, depth_frame, pipeline)
         bottom_right_3D = get_3D_coord_from_realsense(bottom_right, depth_frame, pipeline)
 
+        # Check if any point is badly detected
         if forced_cube_distance_range[0] > top_left_3D[2] or forced_cube_distance_range[1] < top_left_3D[2]:
             top_left_3D = np.array([0, 0, 0]) # Consider the value wrong if depth is an outlier
         if forced_cube_distance_range[0] > top_right_3D[2] or forced_cube_distance_range[1] < top_right_3D[2]:
@@ -271,14 +294,13 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
         if forced_cube_distance_range[0] > bottom_right_3D[2] or forced_cube_distance_range[1] < bottom_right_3D[2]:
             bottom_right_3D = np.array([0, 0, 0]) # Consider the value wrong if depth is an outlier
 
+        # Store which corner is badly detected to avoid using it in the computation
         missing_values = np.array([np.any(top_left_3D == 0), np.any(top_right_3D == 0), np.any(bottom_left_3D == 0), np.any(
             bottom_right_3D == 0)])
-        # if np.any(top_left_3D == 0) or np.any(top_right_3D == 0) or np.any(bottom_left_3D == 0) or np.any(
-        #         bottom_right_3D == 0):
+        # Cancel the use of this shape if there are less than 3 corners OK
         if len(missing_values[missing_values == True]) >= 2:
             continue
 
-        # print(missing_values, top_left_3D, top_right_3D, bottom_left_3D, bottom_right_3D)
         # Get axis associated with this marker
         v_ax = aruco_box[ids[i]]['vertical'][-1]  # last char is "x", "y" or "z"
         v_sign = -1 if aruco_box[ids[i]]['vertical'][0] == "-" else 1
@@ -288,6 +310,7 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
         last_ax = 'x' if 'x' not in (v_ax, h_ax) else 'y' if 'y' not in (v_ax, h_ax) else 'z'
         last_sign = -1 if aruco_box[ids[i]]['inverse_third_dim'] else 1
 
+        # Use the mean vector between the horizontal and vertical corners
         horizontal_axis = []
         if not missing_values[0] and not missing_values[1]:
             horizontal_axis.append(top_left_3D - top_right_3D)
@@ -304,6 +327,7 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
         vertical_axis = np.mean(np.array(vertical_axis),
                                 axis=0) * v_sign
 
+        # Store these axis values
         reference_vectors[v_ax] += vertical_axis
         reference_vectors[h_ax] += horizontal_axis
         reference_vectors[last_ax] += compute_z_axis(vertical_axis, horizontal_axis) * last_sign
@@ -316,10 +340,13 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
         vectors_counts[h_ax] += 1
         vectors_counts[last_ax] += 1
 
+    # Take the average fore each axis
     for axis in reference_vectors:
         if vectors_counts[axis] > 0:
             reference_vectors[axis] /= vectors_counts[axis]  # Mean of each axis
 
+    # The center is also translated into the center of the cube
+    # The center is not the same direction depending on the face, so we use the information of the 3rd axis
     for i in range(len(centers3D)):
         ax_v = aruco_box[ids[i]]['vertical'][-1]
         ax_h = aruco_box[ids[i]]['horizontal'][-1]
@@ -342,21 +369,28 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
     # Cancel "centers" where the depth is not in the "normal" range.
     centers3D = list(filter(lambda coord: forced_cube_distance_range[0] <= coord[2] <= forced_cube_distance_range[1], centers3D))
 
+    # Take the mean average of all the centers computed
     mean_center = np.mean(np.array(centers3D), axis=0)
 
+    # If there is still an incorrect value in the reference vectors, cancel all
+    # NOTE: If any vector has a coordinate with 0 (ex: horizontal or vertical center), it is considered incorrect
+    # but this is very unlikely to happen...
     if np.any(reference_vectors['x'] == 0) or np.any(reference_vectors['y'] == 0) or np.any(
             reference_vectors['z'] == 0):
         return None, None, None, None
 
     return mean_center, reference_vectors, centers3D, all_reference_vectors
 
+# Global variable for the Aruco cube reference
 all_references = {
     'x_axis': [],
     'y_axis': [],
     'z_axis': [],
     'center': []
 }
+# Improve the precision of the aruco cube at each frame
 def calibrate_aruco_cube(color_frame, aruco_dict, depth_frame, pipeline):
+    # Get the Aruco tags from the color frame and compute the axis and reference
     marked_frame, corners, ids = detectMarker(color_frame, aruco_dict)
     if len(corners) > 0:
         try:
@@ -373,6 +407,7 @@ def calibrate_aruco_cube(color_frame, aruco_dict, depth_frame, pipeline):
         except Exception as e:
             raise(e)
 
+    # The median value is good to filter out outliers
     if len(all_references['center']) > 0:
         median_center = np.median(all_references['center'], axis=0)
         median_x = np.median(all_references['x_axis'], axis=0)
@@ -395,6 +430,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     filename = args.filename
 
+    # The Aruco dictionary must be precised, and it must be the DICT_6x6_250 because that is the one used
+    # on the current Aruco cube
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
     pipeline = rs.pipeline()
     config = rs.config()
@@ -427,14 +464,16 @@ if __name__ == "__main__":
         # depth_frame = filters.custom_filters(frames.get_depth_frame(), "custom1").as_depth_frame()
         # depth_frame = frames.get_depth_frame()
 
+        # Calibrate if possible the cube and get it's reference
         median_center, median_x, median_y, median_z = calibrate_aruco_cube(color_frame, aruco_dict, depth_frame, pipeline)
 
+        # Track the skeleton for demonstration
         skeleton = skeletrack.track_skeletons(color_frame)
 
         depth_image = np.array(rs.colorizer(2).colorize(depth_frame).get_data())
         try:
             if median_center is not None:
-
+                # Display the reference
                 center2D = tuple(map(int, back_to_pixel(median_center, pipeline)))
                 x_axis = tuple(map(int,
                                    back_to_pixel(median_center + median_x * 2, pipeline)))
@@ -447,6 +486,7 @@ if __name__ == "__main__":
                 color_frame = cv2.line(color_frame, center2D, y_axis, (255, 0, 255), 4)
                 color_frame = cv2.line(color_frame, center2D, z_axis, (0, 255, 0), 4)
 
+                # FYI: these are the coords of the PIR sensors in the original experiment
                 P20 = [-181.427, 83.080, -2.405]
                 P21 = [7.778, 76.592, 1.313]
                 P22 = [-177.691, 80.872, 187.767]
@@ -466,6 +506,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
 
+        # If a skeleton is detected, you can get the coordinates of the person relative to the box
         if len(skeleton['body']) > 0 and median_center is not None:
             human = human_skeleton.HumanSkeleton()
             human.from_tracker(skeletrack, 0, depth_frame)

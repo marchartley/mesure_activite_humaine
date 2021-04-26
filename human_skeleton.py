@@ -27,7 +27,7 @@ class BodyParts(Enum):  # From the 18 keypoints of the coco dataset
     RIGHT_EAR = auto()
     LEFT_EAR = auto()
 
-
+# This class is used to store the keypoints found by the skeleton tracker, a JSON file or data from feet_analysis
 class HumanSkeleton():
     def __init__(self):
         self.POSITION_NOT_FOUND2D = None  # np.array([0, 0])
@@ -45,6 +45,7 @@ class HumanSkeleton():
             key = BodyParts[key.upper()]
         return self.body_parts_3D[key.name]
 
+    # Check if the legs are overlapping on the frame
     def legs_overlapping(self):
         overlap = False
         # Check RIGHT_HIP-RIGHT_KNEE and LEFT_HIP-LEFT_KNEE
@@ -69,20 +70,18 @@ class HumanSkeleton():
                                                self.get_keypoint2D(BodyParts.LEFT_ANKLE), 20, 20)
         return overlap
 
-    def arms_overlapping(self):
-        pass
-
-    def body_position2D(
-            self):  # Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button)
+    # Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button)
+    def body_position2D(self):
         return ((self.body_parts_2D['LEFT_SHOULDER'] + self.body_parts_2D['RIGHT_SHOULDER']) * 1 + (
                     self.body_parts_2D['LEFT_HIP'] + self.body_parts_2D['RIGHT_HIP']) * 3) / 8
 
-    def body_position3D(
-            self):  # Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button)
+    # Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button)
+    def body_position3D(self):
         return ((self.body_parts_3D['LEFT_SHOULDER'] + self.body_parts_3D['RIGHT_SHOULDER']) * 1 + (
                     self.body_parts_3D['LEFT_HIP'] + self.body_parts_3D['RIGHT_HIP']) * 3) / 8
 
-    def from_feet_analitics(self, coordinates, index):
+    # Get the keypoints from the feet_analytics data
+    def from_feet_analytics(self, coordinates, index):
         for key in coordinates:
             self.body_parts_2D[key] = self.POSITION_NOT_FOUND2D
             if np.any(coordinates[key][index] == -1) or np.all(coordinates[key][index] == 0) or None in coordinates[key][index]:
@@ -90,6 +89,7 @@ class HumanSkeleton():
             else:
                 self.body_parts_3D[key] = coordinates[key][index]
 
+    # Get the keypoints from the skeleton_tracker
     def from_tracker(self, tracker, id, depth_map=None):
         for key in self.body_parts_2D:
             if np.any(tracker.get_keypoint(key, person_id=id) == -1) or np.all(
@@ -104,6 +104,7 @@ class HumanSkeleton():
                 if tracker.is_3D_available and depth_map is not None:
                     self.body_parts_3D[key] = tracker.get_keypoint3D(key, depth_map, person_id=id)
 
+    # Get the keypoints from a JSON file (mostly used when using InfluxDB data)
     def from_json(self, data2D=None, data3D=None, specific_timestamp=None, id=None,
                   depth_map=None):  # id and depth_map unused, only for consistency with "from_tracker()"
         time_epsilon = 1.0

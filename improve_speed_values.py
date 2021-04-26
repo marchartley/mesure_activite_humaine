@@ -26,11 +26,10 @@ def get_all_speeds_recorded():
         last_time_index = 0
 
         start_time = 0 # data['timestamps'][0]
-        if data['timestamps'][-1]*1000 < 1619010000000:
-            continue
+
         for frame_index in range(len(data['timestamps'])):
             human = human_skeleton.HumanSkeleton()
-            human.from_feet_analitics(data['coordinates'], frame_index)
+            human.from_feet_analytics(data['coordinates'], frame_index)
             if human.check_keypoints3D('LEFT_SHOULDER') and frame_index < len(data['timestamps']) - 1:
                 if not sequence_starting:
                     sequence_starting = True
@@ -109,7 +108,7 @@ if __name__ == '__main__':
 
         for frame_index in range(len(all_data['timestamps'])):
             human = human_skeleton.HumanSkeleton()
-            human.from_feet_analitics(all_data['coordinates'], frame_index)
+            human.from_feet_analytics(all_data['coordinates'], frame_index)
             number_of_keys = 0
             for key in ['LEFT_SHOULDER']: #, 'RIGHT_SHOULDER', 'LEFT_HIP', 'RIGHT_HIP']:
                 if human.check_keypoints3D(key):

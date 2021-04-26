@@ -195,12 +195,14 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
         frame_indexes = data['frames']
         start_timestamp = timestamps[0]
 
+    # print("Not saving to DB")
+    # return
     walking_data = feet_analysis.preprocess_data_for_walk_analysis(data)
     number_of_frames = 0
     for i in range(len(walking_data['coordinates']['NOSE'])):
         number_of_frames += 1
         human = human_skeleton.HumanSkeleton()
-        human.from_feet_analitics(walking_data['coordinates'], i)
+        human.from_feet_analytics(walking_data['coordinates'], i)
 
         if median_center is not None:
             coord2D, coord3D = human.to_json(median_center, median_center + median_x,
@@ -221,15 +223,30 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
             reduced_walking_data = feet_analysis.reduce_walking_data_size(walking_data, number_of_frames)
             footsteps_per_velocity = \
                 feet_analysis.estimate_footsteps(reduced_walking_data, motion_threshold=motion_threshold)[0]
-            stance_swing_ratio = feet_analysis.compute_stance_swing_ratio(reduced_walking_data,
-                                                                          motion_threshold=motion_threshold)
-            double_support_ratio = feet_analysis.compute_double_support_time(reduced_walking_data,
-                                                                             motion_threshold=motion_threshold)
-            walking_width = feet_analysis.estimate_footsteps_width(reduced_walking_data)
-            walking_speed = feet_analysis.compute_walking_speed(reduced_walking_data)
-            distance_walked = (walking_speed * (timestamps[i] - start_timestamp)) / 1000
-            if footsteps_per_velocity > 0:
-                footstep_length = distance_walked / footsteps_per_velocity
+            try:
+                stance_swing_ratio = feet_analysis.compute_stance_swing_ratio(reduced_walking_data,
+                                                                            motion_threshold=motion_threshold)
+            except:
+                pass
+            try:
+                double_support_ratio = feet_analysis.compute_double_support_time(reduced_walking_data,
+                                                                                 motion_threshold=motion_threshold)
+            except:
+                pass
+            try:
+                walking_width = feet_analysis.estimate_footsteps_width(reduced_walking_data)
+            except:
+                pass
+            try:
+                walking_speed = feet_analysis.compute_walking_speed(reduced_walking_data)
+            except:
+                pass
+            try:
+                distance_walked = (walking_speed * (timestamps[i] - start_timestamp)) / 1000
+                if footsteps_per_velocity > 0:
+                    footstep_length = distance_walked / footsteps_per_velocity
+            except:
+                pass
 
             client.insert_skeleton_keypoints(coord2D=coord2D, coord3D=coord3D, skeleton_id=i,
                                              timestamp=walking_data['timestamps'][i],

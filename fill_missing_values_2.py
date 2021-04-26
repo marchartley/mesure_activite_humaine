@@ -19,8 +19,9 @@ filterwarnings('ignore')
 
 import improve_speed_values as speed_values
 
+# This is used for sequences where the camera didn't manage to find the user's speed...
+# It's very bad usage, but it was useful at first
 from perlin_noise import PerlinNoise
-
 noise = PerlinNoise(octaves=10, seed=1)
 slow = [dateutil.parser.isoparse('2021-04-21 14:51:30+02:00').timestamp() * 1000, dateutil.parser.isoparse('2021-04-21 15:17:10+02:00').timestamp() * 1000]
 normal1 = [dateutil.parser.isoparse('2021-04-21 15:17:10+02:00').timestamp() * 1000, dateutil.parser.isoparse('2021-04-21 15:42:54+02:00').timestamp() * 1000]
@@ -31,29 +32,10 @@ fast2 = [dateutil.parser.isoparse('2021-04-21 16:05:10+02:00').timestamp() * 100
 slow_speed = 0.70
 normal_speed = 1.1
 fast_speed = 2.3
-
-
-all_speeds = speed_values.get_all_speeds_recorded()
-number_found = 0
-def get_my_speed(start, end):
-    global number_found
-    if isinstance(start, str):
-        start = dateutil.parser.isoparse(start.replace('Z', '+00:00')).timestamp() * 1000
-    if isinstance(end, str):
-        end = dateutil.parser.isoparse(end.replace('Z', '+00:00')).timestamp() * 1000
-    if start > end:
-        tmp = start
-        start = end
-        end = tmp
-    for i in range(len(all_speeds)):
-        if start <= all_speeds[i][0][0] <= end or start <= all_speeds[i][0][1] <= end \
-                or all_speeds[i][0][0] <= start <= all_speeds[i][0][1] \
-                or all_speeds[i][0][0] <= end <= all_speeds[i][0][1]:
-            number_found += 1
-            return all_speeds[i][1]
-    return None
-
+# Get the speed of a sequence which has not been found in the tmp_data JSONs, but for which I'm sure of the ground truth
+# This is a solution of last resort
 def get_predefined_speed(start, end):
+    # Get dates as timestamps
     if isinstance(start, str):
         start = dateutil.parser.isoparse(start.replace('Z', '+00:00')).timestamp() * 1000
     if isinstance(end, str):
@@ -63,6 +45,7 @@ def get_predefined_speed(start, end):
         start = end
         end = tmp
 
+    # Get the corresponding speed and apply some noise to train the Learning machines
     if slow[0] <= start <= slow[1] or slow[0] <= end <= slow[1]:
         return slow_speed + (random.random() * 0.2 + 0.1)
     elif normal1[0] <= start <= normal1[1] or normal2[0] <= start <= normal2[1] or normal1[0] <= end <= normal1[1] or normal2[0] <= end <= normal2[1]:
@@ -70,7 +53,34 @@ def get_predefined_speed(start, end):
     elif fast1[0] <= start <= fast1[1] or fast2[0] <= start <= fast2[1] or fast1[0] <= end <= fast1[1] or fast2[0] <= end <= fast2[1]:
         return fast_speed + (random.random() * 0.2 + 0.1)
 
+
+# Get the speed from the tmp_data JSONs created in the recordings
+all_speeds = speed_values.get_all_speeds_recorded()
+# Get the speed of a sequence by comparing with the speeds computed in "all_speeds"
+def get_my_speed(start, end):
+    # Get dates as timestamps to compare them
+    if isinstance(start, str):
+        start = dateutil.parser.isoparse(start.replace('Z', '+00:00')).timestamp() * 1000
+    if isinstance(end, str):
+        end = dateutil.parser.isoparse(end.replace('Z', '+00:00')).timestamp() * 1000
+    # Simple check for start < end
+    if start > end:
+        tmp = start
+        start = end
+        end = tmp
+    # Find the speed corresponding to our sequence
+    for i in range(len(all_speeds)):
+        if start <= all_speeds[i][0][0] <= end or start <= all_speeds[i][0][1] <= end \
+                or all_speeds[i][0][0] <= start <= all_speeds[i][0][1] \
+                or all_speeds[i][0][0] <= end <= all_speeds[i][0][1]:
+            return all_speeds[i][1]
+    return None
+
+# Get all PIR values from the InfluxDB and associate them with the speed computed
+# The reason for this function is that the PIR values and the speed estimation are not
+#   joint correctly with InfluxDB, so we need to compute this by ourselves
 def join_pir_and_params(all_queries):
+    # If two values are separated by 500ms or more, we consider them as 2 different sequences
     delay_limit_for_sequence = 500
 
     all_data_joint = []
@@ -85,8 +95,10 @@ def join_pir_and_params(all_queries):
     starting_sequence_time = 0
     offset = 0
     for key, all_data in all_queries.items():
+        # We don't take into account sequences for which we didn't give a tag
         if key[1]['move'] == '':
             continue
+
         for data_pir in all_data:
             offset += 0.01
             current_timestamp = dateutil.parser.isoparse(data_pir['time'].replace('Z', '+00:00')).timestamp() * 1000
@@ -111,9 +123,11 @@ def join_pir_and_params(all_queries):
                 # elif fast1[0] <= current_timestamp <= fast1[1] or fast2[0] <= current_timestamp <= fast2[1]:
                 #     speed = fast_speed
 
+                # Find the precomputed speed from this sequence
                 this_data['walking_speed'] = get_my_speed(starting_sequence_time, current_timestamp)
                 # if this_data['walking_speed'] is None:
                 #   this_data['walking_speed'] = speed # * ((noise([offset]) * 0.3) + 0.8)  + (random.random()*0.2+0.1)
+                # Assign a sequence ID
                 this_data['sequence_id'] = sequence_id
                 move = key[1]['move']
                 this_data['move'] = move
@@ -133,12 +147,14 @@ def join_pir_and_params(all_queries):
 
     return all_data_joint
 
+# Creates an array with one dataframe per sequence
 def split_sequences(pir_df: pd.DataFrame):
     all_sequences = []
     for seq_id in pir_df['sequence_id'].unique():
         all_sequences.append(pir_df[pir_df['sequence_id'] == seq_id])
     return all_sequences
 
+# Extract features from one PIR sensor of a sequence
 def get_signal_features(signal, number_of_peaks = 3):
     signal = np.array(signal)
     peaks, props = scipy.signal.find_peaks(signal, height = 0)
@@ -162,6 +178,7 @@ def get_signal_features(signal, number_of_peaks = 3):
     # last_peak_offset = peaks[-1]/len(signal) if number_of_peaks > 0 else -1
     # return [number_of_peaks, max_peak_height, prominence, widths, first_peak_offset, last_peak_offset]
 
+# Extrqct feqtures from a sequence
 def get_sequence_features(sequence):
     pir0 = get_signal_features(sequence['pir0'])
     pir1 = get_signal_features(sequence['pir1'])
@@ -177,42 +194,61 @@ def get_sequence_features(sequence):
 
 
 if __name__ == "__main__":
+    # Access the DB
     client = db.ListicClientDB(server_side=True)
     all_queries = client.get_all_pir_values()
+    # Get all the values and get the speed associated
     df = pd.DataFrame(join_pir_and_params(all_queries))
+
+    # For each sequence, spread the speed associated with all the data of the sequence
     for seq_id in df['sequence_id'].unique():
-        median =  df[df['sequence_id'] == seq_id]['walking_speed'].median()
+        # Get the median of the sequence just to get the first non-null value
+        median = df[df['sequence_id'] == seq_id]['walking_speed'].median()
+        # If it's still null, try to associate the predefined speed
         if np.isnan(median):
             start = df[df['sequence_id'] == seq_id].iloc[0]['time']
             end = df[df['sequence_id'] == seq_id].iloc[-1]['time']
             median = get_predefined_speed(start, end)
 
+        # Give this speed to all data of the sequence
         df['walking_speed'][df['sequence_id'] == seq_id] = median
+
+        # Remove sequences of only one data (it used to happen at first, maybe not anymore, now)
         if len(df[df['sequence_id'] == seq_id]) <= 1:
             df = df[df['sequence_id'] != seq_id]
 
-    # df.dropna(inplace=True)
+    # Remove sequences where the speed wasn't found
+    df.dropna(inplace=True)
+    df = df[np.isfinite(df['walking_speed'])]
+    # Create the "compteur" variable in the dataframe
     df['compteur'] = range(len(df.index))
+    # Save it!
     df.to_csv("all_pir_values.csv")
 
     df = pd.read_csv("all_pir_values.csv")
+
+
     all_sequences = split_sequences(df)
     X = []
     Y = []
+    # Create the X and y data for the training
     for sequence in all_sequences:
         features = get_sequence_features(sequence)
         Y.append(features[0])
         X.append(features[1])
 
+    # Remove sequences for which we weren't able to find enough features (ex: not enough peaks)
     feature_vector_length = int(np.median([len(x) for x in X]))
     for i in range(len(X)-1, 0, -1):
         if len(X[i]) != feature_vector_length:
             del X[i]
             del Y[i]
 
+    # Split in training and testing sets
     train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
 
-    classifiers = [
+    # Use and compare all these regression models
+    regressors = [
         sklearn.svm.SVR(),
         sklearn.svm.LinearSVR(),
         # sklearn.linear_model.SGDRegressor(),
@@ -231,12 +267,13 @@ if __name__ == "__main__":
 
     ]
 
+    # Describe the speed values
     pd.set_option('float_format', '{:.3f}'.format)
     print("Speeds recorded:")
     print(pd.DataFrame(Y, columns=["Speeds recorded on each sequence (km/h)"]).describe())
 
     results = []
-    for item in classifiers:
+    for item in regressors:
         clf = item
         clf.fit(train_X, train_y)
         # cv_score_percent_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = sklearn.metrics.mean_absolute_percentage_error)
