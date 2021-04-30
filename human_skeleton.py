@@ -37,11 +37,15 @@ class HumanSkeleton():
 
     def get_keypoint2D(self, key: BodyParts):
         if isinstance(key, str):
+            if key.upper() not in BodyParts.__members__:
+                return self.POSITION_NOT_FOUND2D
             key = BodyParts[key.upper()]
         return self.body_parts_2D[key.name]
 
     def get_keypoint3D(self, key):
         if isinstance(key, str):
+            if key.upper() not in BodyParts.__members__:
+                return self.POSITION_NOT_FOUND3D
             key = BodyParts[key.upper()]
         return self.body_parts_3D[key.name]
 
@@ -423,7 +427,6 @@ class HumanSkeleton():
                         not display_back and body_BBox[i][2] == max_z[2]):
                     display_coord[i] = False
 
-            print(list(map(lambda coord: tuple(map(int, coord_conversion.back_to_pixel(coord, pipeline))), body_BBox)))
             p000, p001, p010, p011, p100, p101, p110, p111 = list(
                 map(lambda coord: tuple(map(int, coord_conversion.back_to_pixel(coord, pipeline))), body_BBox))
             if display_coord[0] and display_coord[1] and abs(p000[0]) < 200000 and abs(p000[1]) < 200000 and abs(
