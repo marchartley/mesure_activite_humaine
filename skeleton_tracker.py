@@ -205,8 +205,6 @@ class SkeletonTracker:
             num_parts = len(human_pose['keypoints'])
             num_links = len(human_pose['skeleton'])
 
-            # TODO let the user choose the resnet model
-            # TODO2 : select cuda only if available
             original_model_weights = trt_pose_data_dir + '/resnet18_baseline_att_224x224_A_epoch_249.pth'
             optimized_model_weights = trt_pose_data_dir + '/resnet18_baseline_att_224x224_A_epoch_249_trt.pth'
             self._trt_width = 224

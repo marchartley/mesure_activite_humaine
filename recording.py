@@ -146,7 +146,13 @@ def stop_playback(pipeline, restart_device = False):
 
 
 def get_frame_timestamp(composite_frame):
-    return composite_frame.get_depth_frame().get_frame_metadata(rs.frame_metadata_value.time_of_arrival)
+    if isinstance(composite_frame, rs.composite_frame):
+        return composite_frame.get_depth_frame().get_frame_metadata(rs.frame_metadata_value.time_of_arrival)
+    elif isinstance(composite_frame, rs.frame):
+        return composite_frame.get_frame_metadata(rs.frame_metadata_value.time_of_arrival)
+    else:
+        raise Exception(f"Wrong type given to get timestamp of image. "
+                        f"Given: {type(composite_frame)}, wanted: rs.composite_frame or rs.frame")
 
 
 if __name__ == "__main__":
