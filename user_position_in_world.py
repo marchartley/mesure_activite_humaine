@@ -6,6 +6,7 @@ import pyrealsense2 as rs
 import time
 #from skeletontracker import skeletontracker
 #import util as cm # Utils from the skeleton sdk
+import convert_realsense_to_real_world
 import recording
 import skeleton_tracker as st
 import human_skeleton
@@ -395,7 +396,7 @@ if __name__ == "__main__":
 	config = rs.config()
 	recording.configure_streams(config)
 	aruco_origin = [0, 0, 0]
-	marker_size = 21.0
+	marker_size = convert_realsense_to_real_world.marker_size
 
 	skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline = pipeline)
 	joint_confidence = 0.2

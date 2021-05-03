@@ -25,7 +25,7 @@ def grant_access_server(hostname = None, share_folder_name = None, user = None, 
 
 	net_resource = win32wnet.NETRESOURCE()
 	net_resource.lpRemoteName = SHARE_FULL_NAME
-	CONNECT_INTERACTIVE = 0x00000008
+	# CONNECT_INTERACTIVE = 0x00000008
 	flags = 0
 	# flags |= CONNECT_INTERACTIVE
 	if verbose:

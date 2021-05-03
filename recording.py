@@ -189,13 +189,17 @@ if __name__ == "__main__":
 
     if filename is not None:
         if os.path.pathsep * 2 in filename:  # path contains "\\"
-            if not server.grant_access_server():  # Create connection with the server
-                print("No connection with the server, maybe turn on the VPN?")
+            try:
+                if not server.grant_access_server():  # Create connection with the server
+                    print("No connection with the server, maybe turn on the VPN?")
+            except:
+                pass
 
     repeat_recording = True
 
     pipeline = rs.pipeline()
-    pipeline.start()
+    if recording:
+        pipeline.start()
 
     while repeat_recording:
         if (filename is None and directory is not None) or continuous:

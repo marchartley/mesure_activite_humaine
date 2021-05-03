@@ -14,6 +14,8 @@ import realsense_filters as filters
 # We know that our camera can see up to 5m, so if it find any distance > 5m, it is a wrong value
 forced_cube_distance_range = (0.5, 5.0) # Box is always between 50cm to 5m from camera, to avoid wrong values
 
+marker_size = 0.21  # Size of Aruco markers on the Aruco box
+
 # The AruCo box has 6 markers describing the X, Y and Z axis
 # For example, the face with marker '0' is on the plane XY, and the Z-axis is the opposite of the cross product of X and Y
 # But the face '1' is on the plane ZY (with the Z having to be inversed) and the X-axis is the cross product of Z and Y
@@ -123,7 +125,11 @@ def get_3D_coord_from_realsense(pixel_coord, depth_frame, pipeline):
     #     depth_intrin, color_intrin, depth_to_color_extrin, color_to_depth_extrin, pixel_coord)
 
     # TODO: This has to be improved to check for negative values and too big values...
-    distance = depth_frame.get_distance(round(depth_coord[0]), round(depth_coord[1]))
+    # Ideally, find exactly why it raise exceptions (maybe replace the round function...)
+    try:
+        distance = depth_frame.get_distance(round(depth_coord[0]), round(depth_coord[1]))
+    except:
+        distance = 0
 
     # Finally, return 3D coord
     return np.array(rs.rs2_deproject_pixel_to_point(depth_intrin, depth_coord, distance))  # / depth_scale
@@ -382,14 +388,16 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
     return mean_center, reference_vectors, centers3D, all_reference_vectors
 
 # Global variable for the Aruco cube reference
-all_references = {
+all_references_for_aruco_cube = {
     'x_axis': [],
     'y_axis': [],
     'z_axis': [],
     'center': []
 }
 # Improve the precision of the aruco cube at each frame
-def calibrate_aruco_cube(color_frame, aruco_dict, depth_frame, pipeline):
+def calibrate_aruco_cube(color_frame, depth_frame, pipeline, aruco_dict = None):
+    if aruco_dict is None:
+        aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
     # Get the Aruco tags from the color frame and compute the axis and reference
     marked_frame, corners, ids = detectMarker(color_frame, aruco_dict)
     if len(corners) > 0:
@@ -397,27 +405,62 @@ def calibrate_aruco_cube(color_frame, aruco_dict, depth_frame, pipeline):
             center, vectors, all_centers, all_vectors = create_aruco_cube(corners, ids, depth_frame, pipeline)
             if center is not None:
                 for a_center in all_centers:
-                    all_references['center'].append(a_center)
+                    all_references_for_aruco_cube['center'].append(a_center)
                 for x_vector in all_vectors['x']:
-                    all_references['x_axis'].append(np.array(x_vector))
+                    all_references_for_aruco_cube['x_axis'].append(np.array(x_vector))
                 for y_vector in all_vectors['y']:
-                    all_references['y_axis'].append(np.array(y_vector))
+                    all_references_for_aruco_cube['y_axis'].append(np.array(y_vector))
                 for z_vector in all_vectors['z']:
-                    all_references['z_axis'].append(np.array(z_vector))
+                    all_references_for_aruco_cube['z_axis'].append(np.array(z_vector))
         except Exception as e:
             raise(e)
 
     # The median value is good to filter out outliers
-    if len(all_references['center']) > 0:
-        median_center = np.median(all_references['center'], axis=0)
-        median_x = np.median(all_references['x_axis'], axis=0)
-        median_y = np.median(all_references['y_axis'], axis=0)
-        median_z = np.median(all_references['z_axis'], axis=0)
+    if len(all_references_for_aruco_cube['center']) > 0:
+        median_center = np.median(all_references_for_aruco_cube['center'], axis=0)
+        median_x = np.median(all_references_for_aruco_cube['x_axis'], axis=0)
+        median_y = np.median(all_references_for_aruco_cube['y_axis'], axis=0)
+        median_z = np.median(all_references_for_aruco_cube['z_axis'], axis=0)
 
         return median_center, median_x, median_y, median_z
 
     else:
         return None, None, None, None
+
+# Function to get the calibrated reference of the Aruco box
+def get_aruco_reference():
+    # The median value is good to filter out outliers
+    if len(all_references_for_aruco_cube['center']) > 0:
+        median_center = np.median(all_references_for_aruco_cube['center'], axis=0)
+        median_x = np.median(all_references_for_aruco_cube['x_axis'], axis=0)
+        median_y = np.median(all_references_for_aruco_cube['y_axis'], axis=0)
+        median_z = np.median(all_references_for_aruco_cube['z_axis'], axis=0)
+
+        return median_center, median_x, median_y, median_z
+
+    else:
+        return None, None, None, None
+
+# Function to count the number of time the Aruco box has been calibrated
+def get_number_of_calibration_of_aruco_box():
+    return len(all_references_for_aruco_cube['center'])
+
+def display_reference(color_frame, pipeline):
+    median_center, median_x, median_y, median_z = get_aruco_reference()
+    if median_center is not None:
+        # Display the reference
+        center2D = tuple(map(int, back_to_pixel(median_center, pipeline)))
+        x_axis = tuple(map(int,
+                           back_to_pixel(median_center + median_x * 2, pipeline)))
+        y_axis = tuple(map(int,
+                           back_to_pixel(median_center + median_y * 2, pipeline)))
+        z_axis = tuple(map(int,
+                           back_to_pixel(median_center + median_z * 2, pipeline)))
+        color_frame = cv2.circle(color_frame, center2D, 3, (0, 255, 0), -1)
+        color_frame = cv2.line(color_frame, center2D, x_axis, (255, 0, 0), 4)
+        color_frame = cv2.line(color_frame, center2D, y_axis, (0, 0, 255), 4)
+        color_frame = cv2.line(color_frame, center2D, z_axis, (0, 255, 0), 4)
+    return color_frame
 
 
 if __name__ == "__main__":
@@ -449,8 +492,6 @@ if __name__ == "__main__":
     filters.create_custom_filters("custom1", [
         rs.temporal_filter(smooth_alpha=0.060, smooth_delta=50, persistence_control=8)])
 
-    marker_size = 21.0
-
     skeletrack = skeleton_tracker.SkeletonTracker(choose_best_module=True, pipeline=pipeline)
     while True:
         try:
@@ -465,10 +506,12 @@ if __name__ == "__main__":
         # depth_frame = frames.get_depth_frame()
 
         # Calibrate if possible the cube and get it's reference
-        median_center, median_x, median_y, median_z = calibrate_aruco_cube(color_frame, aruco_dict, depth_frame, pipeline)
+        median_center, median_x, median_y, median_z = calibrate_aruco_cube(color_frame, depth_frame, pipeline,
+                                                                           aruco_dict)
 
         # Track the skeleton for demonstration
         skeleton = skeletrack.track_skeletons(color_frame)
+        color_frame, _, _ = detectMarker(color_frame, aruco_dict)
 
         depth_image = np.array(rs.colorizer(2).colorize(depth_frame).get_data())
         try:
@@ -483,7 +526,7 @@ if __name__ == "__main__":
                                    back_to_pixel(median_center + median_z * 2, pipeline)))
                 color_frame = cv2.circle(color_frame, center2D, 3, (0, 255, 0), -1)
                 color_frame = cv2.line(color_frame, center2D, x_axis, (255, 0, 0), 4)
-                color_frame = cv2.line(color_frame, center2D, y_axis, (255, 0, 255), 4)
+                color_frame = cv2.line(color_frame, center2D, y_axis, (0, 0, 255), 4)
                 color_frame = cv2.line(color_frame, center2D, z_axis, (0, 255, 0), 4)
 
                 # FYI: these are the coords of the PIR sensors in the original experiment
@@ -511,12 +554,14 @@ if __name__ == "__main__":
             human = human_skeleton.HumanSkeleton()
             human.from_tracker(skeletrack, 0, depth_frame)
             if human.check_keypoints("LEFT_WRIST"):
-                median_center = np.median(all_references['center'], axis=0)
+                median_center = np.median(all_references_for_aruco_cube['center'], axis=0)
                 coord_neck = translate_coord_to_world(human.get_keypoint3D("LEFT_WRIST"),
                                                       median_center,
-                                                      median_center + np.median(all_references['x_axis'], axis=0),
-                                                      median_center + np.median(all_references['y_axis'], axis=0),
-                                                      median_center + np.median(all_references['z_axis'], axis=0))
+                                                      median_center + np.median(all_references_for_aruco_cube['x_axis'], axis=0),
+                                                      median_center + np.median(all_references_for_aruco_cube['y_axis'], axis=0),
+                                                      median_center + np.median(all_references_for_aruco_cube['z_axis'], axis=0),
+                                                      marker_size)
+                print(coord_neck)
 
         color_frame = cv2.resize(cv2.cvtColor(color_frame, cv2.COLOR_BGR2RGB), (800, 600))
         cv2.imshow("color", color_frame)

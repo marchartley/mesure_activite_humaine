@@ -30,7 +30,7 @@ Progress:
 	-> Found a formula that seems to work : P = O1 + M1 . p1 = O2 + M2 . p2 (with M1 = axis vectors in columns)
 		Hopefully, for p1 to p2 : [M1]T (O2 - O1 + M2 p2)
 							or    [M2]T (O1 - O2 + M1 p1)
-	-> Todo : Detect at least 3 points and calibrate from them. Using AruCo for now
+	-> Detect at least 3 points and calibrate from them. Using AruCo for now
 	
 12/02:
 - Learn to convert camera 3D coord to real world coord using AruCo marker

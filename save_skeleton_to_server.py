@@ -91,10 +91,10 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
 
             try:
                 median_center, median_x, median_y, median_z = coord_converter.calibrate_aruco_cube(color_frame,
-                                                                                                   aruco.Dictionary_get(
-                                                                                                       aruco.DICT_6X6_250),
                                                                                                    depth_frame,
-                                                                                                   pipeline)
+                                                                                                   pipeline,
+                                                                                                   aruco.Dictionary_get(
+                                                                                                       aruco.DICT_6X6_250))
 
                 skeletons = skeletrack.track_skeletons(color_frame, debug_time=False)
 
@@ -284,7 +284,7 @@ def retrieve_data(bag_filename, client=None, verbose=False):
 
 if __name__ == "__main__":
     # Example of usage: python save_skeleton_to_server.py --dir recordings --local
-    # or    python save_skeleton_to_server.py --dir recordings --remote --adress 192.168.143.29
+    # or    python save_skeleton_to_server.py --dir recordings --remote --address 192.168.143.29
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -300,7 +300,7 @@ if __name__ == "__main__":
                             action='store_true')
     host_group.add_argument('--remote', dest='remote', help='Use the InfluxDB installed on a remote machine',
                             action='store_true')
-    parser.add_argument('--adress', dest='adress', help='If using --remote, define the server adress', type=str)
+    parser.add_argument('--address', dest='address', help='If using --remote, define the server address', type=str)
     parser.add_argument('--port', dest='port', help='Define the port used by InfluxDB (default: 8086)', type=str,
                         default=8086)
     parser.add_argument('-l', '--login', dest='login', help='Username for InfluxDB', type=str)
@@ -311,22 +311,22 @@ if __name__ == "__main__":
     recordings_folder = args.directory
     local = args.local
     remote = args.remote
-    adress = args.adress
+    address = args.address
     port = args.port
     login = args.login
     password = args.password
     database = args.database
     filename = args.filename
 
-    if adress is None:
+    if address is None:
         if local:
-            adress = 'localhost'
+            address = 'localhost'
         elif remote:
-            adress = '192.168.143.29' #parser.error('--adress is required if --remote is chosen')
+            address = '192.168.143.29' #parser.error('--address is required if --remote is chosen')
     if login is not None and password is None:
         parser.error('--password is required with --login')
 
-    db_client = InfluxDB_connection.ListicClientDB(server_side=remote, host=adress, port=port, login=login,
+    db_client = InfluxDB_connection.ListicClientDB(server_side=remote, host=address, port=port, login=login,
                                                    pwd=password, database=database)
 
     if filename is not None:

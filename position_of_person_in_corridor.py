@@ -7,10 +7,11 @@ import time
 
 import scipy.spatial
 
+import convert_realsense_to_real_world
 import recording
 import skeleton_tracker as st
 import human_skeleton
-from convert_realsense_to_real_world import *
+# from convert_realsense_to_real_world import *
 
 from recording import *
 
@@ -66,9 +67,9 @@ class Map:
     def update_reference_coord(self, marker_corners, depth_frame, pipeline):
         (top_left, top_right, bottom_right, bottom_left) = (
             marker_corners[0][0], marker_corners[0][1], marker_corners[0][2], marker_corners[0][3])
-        aruco_origin_3D = get_3D_coord_from_realsense(top_left.tolist(), depth_frame, pipeline)
-        top_right_3D = get_3D_coord_from_realsense(top_right.tolist(), depth_frame, pipeline)
-        bottom_left_3D = get_3D_coord_from_realsense(bottom_left.tolist(), depth_frame, pipeline)
+        aruco_origin_3D = convert_realsense_to_real_world.get_3D_coord_from_realsense(top_left.tolist(), depth_frame, pipeline)
+        top_right_3D = convert_realsense_to_real_world.get_3D_coord_from_realsense(top_right.tolist(), depth_frame, pipeline)
+        bottom_left_3D = convert_realsense_to_real_world.get_3D_coord_from_realsense(bottom_left.tolist(), depth_frame, pipeline)
 
         if np.isnan(aruco_origin_3D).any() or np.isnan(top_right_3D).any() or np.isnan(bottom_left_3D).any():
             return None
@@ -202,7 +203,7 @@ if __name__ == "__main__":
     config = rs.config()
     recording.configure_streams(config)
     aruco_origin = [0, 0, 0]
-    marker_size = 21.0
+    marker_size = convert_realsense_to_real_world.marker_size
 
     skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline=pipeline)
     joint_confidence = 0.2
@@ -234,7 +235,7 @@ if __name__ == "__main__":
             skeletons = skeletrack.track_skeletons(color_frame, debug_time=False)  # "Live" solution
             # skeletons = skeleton_db2D_and_skeleton_db3D		# "InfluxDB" solution
 
-            marked_frame, corners, ids = detectMarker(color_frame, aruco_dict)
+            marked_frame, corners, ids = convert_realsense_to_real_world.detectMarker(color_frame, aruco_dict)
 
             if corners:
                 marker_corners = corners[0]
