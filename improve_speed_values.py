@@ -6,10 +6,118 @@ import dateutil
 import numpy as np
 import pandas as pd
 
+import InfluxDB_connection
 import human_skeleton
 import glob
 
+# Some values are going to be very low or very high because of the camera out-of-sight problem
+speed_high_bound = 3.0
+speed_low_bound = 0.1
+
 def get_all_speeds_recorded():
+    # if os.path.exists("all_tmp_datas_at_once.data"):
+    #     return pickle.load(open("all_tmp_datas_at_once.data", "rb"))
+
+    cooldown = 500  # time in ms between two "mini-sequences", data frequency ~20Hz
+    max_sequence_length = 10
+    sequences = []
+    times = []
+
+    client = InfluxDB_connection.ListicClientDB(server_side=True)
+    _, skeletons3D = client.get_all_skeletons()
+    skeletons3D = skeletons3D[0]
+
+    sequence_starting = False
+    sequence_started_index = 0
+    starting_human = None
+    previous_human = None
+    last_time_index = 0
+
+    # We will focus on a unique keypoint to compute the speed
+    keypoint_for_speed_computing = 'LEFT_SHOULDER'
+
+    # Get all the timestamps recorded
+    timestamps = [observation['time_ms'] for observation in skeletons3D[keypoint_for_speed_computing]]
+
+    frames_with_keypoint = 0
+    # For each "frame"
+    for i_frame in range(max_sequence_length, len(timestamps), 2):
+        previous_index = i_frame - max_sequence_length
+
+        if timestamps[i_frame] - timestamps[previous_index] < cooldown / 1000:
+            # Compute the displacement and deduce the speed
+            starting_coord = np.array([skeletons3D[keypoint_for_speed_computing][previous_index]['x'],
+                                      skeletons3D[keypoint_for_speed_computing][previous_index]['y'],
+                                      skeletons3D[keypoint_for_speed_computing][previous_index]['z']])
+            ending_coord = np.array([skeletons3D[keypoint_for_speed_computing][i_frame]['x'],
+                                    skeletons3D[keypoint_for_speed_computing][i_frame]['y'],
+                                    skeletons3D[keypoint_for_speed_computing][i_frame]['z']])
+
+            displacement = np.linalg.norm(ending_coord - starting_coord)
+            displacement /= (timestamps[i_frame] - timestamps[previous_index])
+
+            if speed_low_bound <= displacement <= speed_high_bound:
+                sequences.append(displacement)
+                # It's the end of the mini-sequence
+                sequence_starting = False
+                times.append((timestamps[previous_index] * 1000, timestamps[i_frame] * 1000))
+
+
+    # frames_with_keypoint = 0
+    # # For each "frame"
+    # for i_frame in range(len(timestamps)):
+    #     # Get the human body at this moment
+    #     human = human_skeleton.HumanSkeleton()
+    #     human.from_json(None, skeletons3D, timestamps[i_frame])
+    #
+    #     # If we see the considered keypoint, and we are not on the last frame
+    #     # (we don't want to start a mini-sequence on the last frame)
+    #     if human.check_keypoints3D(keypoint_for_speed_computing):
+    #         frames_with_keypoint += 1
+    #         # If we are not currently in a mini-sequence
+    #         if not sequence_starting:
+    #             # Store all the initial positions
+    #             sequence_starting = True
+    #             sequence_started_index = i_frame
+    #             starting_human = human
+    #         # In any case, save position, it might be the last time we see this body
+    #         previous_human = human
+    #         last_time_index = i_frame
+    #
+    #         # Change mini-sequence every 10 frames, or if it's the last frame, or if the next frame is in a long time
+    #         if (i_frame - sequence_started_index >= max_sequence_length or i_frame == len(timestamps) - 1 \
+    #             or timestamps[i_frame + 1] - timestamps[i_frame] > cooldown / 1000) and timestamps[i_frame] != timestamps[sequence_started_index]:
+    #             # Compute the displacement and deduce the speed
+    #             starting_coord = np.array(starting_human.get_keypoint3D(keypoint_for_speed_computing))
+    #             ending_coord = np.array(previous_human.get_keypoint3D(keypoint_for_speed_computing))
+    #
+    #             displacement = np.linalg.norm(ending_coord - starting_coord)
+    #             displacement /= (timestamps[last_time_index] - timestamps[sequence_started_index])
+    #             sequences.append(displacement)
+    #             # It's the end of the mini-sequence
+    #             sequence_starting = False
+    #             times.append((timestamps[sequence_started_index] * 1000, timestamps[last_time_index] * 1000))
+
+    sequences = np.array(sequences)
+    # print(sequences)
+    smoothed_sequences = []
+    for i in range(len(sequences)):
+        smoothed_speed = sequences[i]
+        # if i == 0:
+        #     smoothed_speed = sequences[i]*.8 + sequences[i + 1]*.2
+        # elif i == len(sequences) - 1:
+        #     smoothed_speed = sequences[i - 1]*.2 + sequences[i]*.8
+        # else:
+        #     smoothed_speed = sequences[i - 1]*.1 + sequences[i]*.8 + sequences[i + 1]*.1
+
+        smoothed_sequences.append([times[i], smoothed_speed])
+
+    # Sort the array on its starting timestamp
+    smoothed_sequences.sort(key = lambda sequence: sequence[0][0])
+    pickle.dump(smoothed_sequences, open("all_tmp_datas_at_once.data", "wb+"))
+    return smoothed_sequences
+
+def get_all_speeds_recorded_local():
     if os.path.exists("all_tmp_datas_at_once.data"):
         return pickle.load(open("all_tmp_datas_at_once.data", "rb"))
     time_cooldown = 100
@@ -54,17 +162,18 @@ def get_all_speeds_recorded():
     # print(sequences)
     smoothed_sequences = []
     for i in range(len(sequences)):
-        smoothed_speed = 0
-        if i == 0:
-            smoothed_speed = sequences[i]*.8 + sequences[i + 1]*.2
-        elif i == len(sequences) - 1:
-            smoothed_speed = sequences[i - 1]*.2 + sequences[i]*.8
-        else:
-            smoothed_speed = sequences[i - 1]*.1 + sequences[i]*.8 + sequences[i + 1]*.1
+        smoothed_speed = sequences[i]
+        # if i == 0:
+        #     smoothed_speed = sequences[i]*.8 + sequences[i + 1]*.2
+        # elif i == len(sequences) - 1:
+        #     smoothed_speed = sequences[i - 1]*.2 + sequences[i]*.8
+        # else:
+        #     smoothed_speed = sequences[i - 1]*.1 + sequences[i]*.8 + sequences[i + 1]*.1
 
         smoothed_sequences.append([times[i], smoothed_speed])
 
-    smoothed_sequences.sort(key = lambda seq: seq[0][0])
+    # Sort the array on its starting timestamp
+    smoothed_sequences.sort(key = lambda sequence: sequence[0][0])
     pickle.dump(smoothed_sequences, open("all_tmp_datas_at_once.data", "wb+"))
     return smoothed_sequences
 

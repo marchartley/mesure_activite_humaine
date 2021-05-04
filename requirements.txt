@@ -27,3 +27,4 @@ opencv-python~=4.4.0.44
 ttkwidgets~=0.11.0
 openvino~=2021.2
 mutagen~=1.45.1
+python-dateutil~=2.8.1

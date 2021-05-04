@@ -32,6 +32,7 @@ fast2 = [dateutil.parser.isoparse('2021-04-21 16:05:10+02:00').timestamp() * 100
 slow_speed = 0.70
 normal_speed = 1.1
 fast_speed = 2.3
+
 # Get the speed of a sequence which has not been found in the tmp_data JSONs, but for which I'm sure of the ground truth
 # This is a solution of last resort
 def get_predefined_speed(start, end):
@@ -57,23 +58,35 @@ def get_predefined_speed(start, end):
 # Get the speed from the tmp_data JSONs created in the recordings
 all_speeds = speed_values.get_all_speeds_recorded()
 # Get the speed of a sequence by comparing with the speeds computed in "all_speeds"
-def get_my_speed(start, end):
+def get_my_speed(start, end = None):
     # Get dates as timestamps to compare them
     if isinstance(start, str):
         start = dateutil.parser.isoparse(start.replace('Z', '+00:00')).timestamp() * 1000
     if isinstance(end, str):
         end = dateutil.parser.isoparse(end.replace('Z', '+00:00')).timestamp() * 1000
-    # Simple check for start < end
-    if start > end:
-        tmp = start
-        start = end
-        end = tmp
+    if end is not None:
+        # Simple check for start < end
+        if start > end:
+            tmp = start
+            start = end
+            end = tmp
+    else:
+        end = start # Looking for 1 unique timestamp
+
+    speeds = []
     # Find the speed corresponding to our sequence
     for i in range(len(all_speeds)):
         if start <= all_speeds[i][0][0] <= end or start <= all_speeds[i][0][1] <= end \
                 or all_speeds[i][0][0] <= start <= all_speeds[i][0][1] \
                 or all_speeds[i][0][0] <= end <= all_speeds[i][0][1]:
-            return all_speeds[i][1]
+            speeds.append(all_speeds[i][1])
+        # speed sequences are ordered, so if the timestamp exceed this value, it will not find anything else
+        if end < all_speeds[i][0][0]:
+            break
+    if len(speeds) > 0:
+        # We have multiple subsequences crossing, so we take the median average
+        mean_speed = np.median(speeds)
+        return mean_speed
     return None
 
 # Get all PIR values from the InfluxDB and associate them with the speed computed
@@ -124,7 +137,9 @@ def join_pir_and_params(all_queries):
                 #     speed = fast_speed
 
                 # Find the precomputed speed from this sequence
-                this_data['walking_speed'] = get_my_speed(starting_sequence_time, current_timestamp)
+                # this_data['walking_speed'] = get_my_speed(starting_sequence_time, current_timestamp)
+                # Find the precomputed speed from this timestamp
+                this_data['walking_speed'] = get_my_speed(current_timestamp)
                 # if this_data['walking_speed'] is None:
                 #   this_data['walking_speed'] = speed # * ((noise([offset]) * 0.3) + 0.8)  + (random.random()*0.2+0.1)
                 # Assign a sequence ID
@@ -135,15 +150,6 @@ def join_pir_and_params(all_queries):
                 this_data['corridor'] = 1 if move[0] == 'O' else 0 if move[0] == 'C' else -1
                 if len(all_data_joint) == 0 or this_data['time'] != all_data_joint[-1]['time']:
                     all_data_joint.append(this_data)
-
-    # print("Fillings speeds")
-    # current_sequence = -1
-    # for i in range(len(all_data_joint)):
-    #     current_sequence = all_data_joint[i]['sequence_id']
-    #     if all_data_joint[i]['walking_speed'] is not None:
-    #         for j in range(len(all_data_joint)):
-    #             if all_data_joint[j]['sequence_id'] == current_sequence:
-    #                 all_data_joint[j]['walking_speed'] = all_data_joint[i]['walking_speed']
 
     return all_data_joint
 
@@ -178,7 +184,7 @@ def get_signal_features(signal, number_of_peaks = 3):
     # last_peak_offset = peaks[-1]/len(signal) if number_of_peaks > 0 else -1
     # return [number_of_peaks, max_peak_height, prominence, widths, first_peak_offset, last_peak_offset]
 
-# Extrqct feqtures from a sequence
+# Extract features from a sequence
 def get_sequence_features(sequence):
     pir0 = get_signal_features(sequence['pir0'])
     pir1 = get_signal_features(sequence['pir1'])
@@ -203,15 +209,15 @@ if __name__ == "__main__":
     # For each sequence, spread the speed associated with all the data of the sequence
     for seq_id in df['sequence_id'].unique():
         # Get the median of the sequence just to get the first non-null value
-        median = df[df['sequence_id'] == seq_id]['walking_speed'].median()
+        median = df[df['sequence_id'] == seq_id]['walking_speed'].mean()
         # If it's still null, try to associate the predefined speed
-        if np.isnan(median):
-            start = df[df['sequence_id'] == seq_id].iloc[0]['time']
-            end = df[df['sequence_id'] == seq_id].iloc[-1]['time']
-            median = get_predefined_speed(start, end)
+        # if np.isnan(median):
+        #     start = df[df['sequence_id'] == seq_id].iloc[0]['time']
+        #     end = df[df['sequence_id'] == seq_id].iloc[-1]['time']
+        #     median = get_predefined_speed(start, end)
 
-        # Give this speed to all data of the sequence
-        df['walking_speed'][df['sequence_id'] == seq_id] = median
+        # Give this speed to all data where we didn't find the correct speed
+        df['walking_speed'][np.logical_and(df['sequence_id'] == seq_id, np.isnan(df['walking_speed']))] = median
 
         # Remove sequences of only one data (it used to happen at first, maybe not anymore, now)
         if len(df[df['sequence_id'] == seq_id]) <= 1:
@@ -238,7 +244,7 @@ if __name__ == "__main__":
         X.append(features[1])
 
     # Remove sequences for which we weren't able to find enough features (ex: not enough peaks)
-    feature_vector_length = int(np.median([len(x) for x in X]))
+    feature_vector_length = max([len(x) for x in X])
     for i in range(len(X)-1, 0, -1):
         if len(X[i]) != feature_vector_length:
             del X[i]

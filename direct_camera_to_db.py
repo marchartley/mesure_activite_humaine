@@ -60,7 +60,8 @@ class HumanStorage:
                                                  scale=convert_realsense_to_real_world.marker_size)
                 db.insert_skeleton_keypoints(coord2D, coord3D, timestamp, human_id, send_immediatly=False)
             try:
-                print(f"Speed of human #{human_id+1} = {np.linalg.norm(starting_point - ending_point)/((end_timestamp - start_timestamp)/1000)} m/s")
+                speed = np.linalg.norm(starting_point - ending_point)/((end_timestamp - start_timestamp)/1000)
+                print(f"Speed of human #{human_id+1} = {speed} m/s")
             except:
                 pass
         db.send_to_db()

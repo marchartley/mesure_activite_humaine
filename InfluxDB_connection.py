@@ -151,10 +151,15 @@ class ListicClientDB():
 
     #            self.client.write_points(self.stored_points, time_precision=timestamp_unit)
 
+    @lru_cache(maxsize=1)
+    def get_all_skeletons(self):
+        return self.retrieve_skeleton_keypoints(start_time=1619395200000)  # = 26/04/2021 00:00
+
     @lru_cache(maxsize=2)
     def get_all_pir_values(self):
         # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "autogen"."pir_network"'
-        query = f'SELECT "pir0", "pir1", "pir2", "pir3", "walking_speed" FROM "pir_network" WHERE time > \'2021-04-21 12:00:00\' GROUP BY move'
+        query = f'SELECT "pir0", "pir1", "pir2", "pir3", "walking_speed" FROM "pir_network" ' \
+                f'WHERE time > \'2021-04-26 00:00:00\' GROUP BY move'
         # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" WHERE time > \'2021-04-21 12:00:00\' GROUP BY move'
         results = self.client.query(query)
         return results
@@ -176,7 +181,8 @@ class ListicClientDB():
                 closest_timestamp = current_timestamp
         return closest_timestamp
 
-    def retrieve_skeleton_keypoints(self, sequence_filename=None, start_time=None, end_time=None):
+    def retrieve_skeleton_keypoints(self, sequence_filename=None, start_time=None, end_time=None,
+                                    merge_skeleton_ids = True):
         if start_time is None and end_time is None:
             if sequence_filename is None:
                 pass
@@ -199,33 +205,40 @@ class ListicClientDB():
         if len(time_conditions) > 0:
             condition = "WHERE " + " and ".join(time_conditions)
 
-        query2D = f'SELECT "x", "y" FROM "autogen"."skeleton_detection_2d" {condition} GROUP BY "skeleton_id", "keypoint"'
-        query3D = f'SELECT "x", "y", "z" FROM "autogen"."skeleton_detection_3d" {condition} GROUP BY "skeleton_id", "keypoint"'
+        groupby = []
+        if not merge_skeleton_ids:
+            groupby.append('"skeleton_id"')
+        groupby.append('"keypoint"')
+        groupby_condition = 'GROUP BY ' + ', '.join(groupby)
+
+        query2D = f'SELECT "x", "y" FROM "autogen"."skeleton_detection_2d" {condition} {groupby_condition}'
+        query3D = f'SELECT "x", "y", "z" FROM "autogen"."skeleton_detection_3d" {condition} {groupby_condition}'
+        # print(query2D)
 
         results2D = self.client.query(query2D)
         points2D = {}
         for key, point in results2D.items():
-            skeleton_id = int(key[1]['skeleton_id'])
+            skeleton_id = 0 if merge_skeleton_ids else int(key[1]['skeleton_id'])
             if skeleton_id not in points2D:
                 points2D[skeleton_id] = {}
             keypoint = key[1]['keypoint']
             points2D[skeleton_id][keypoint] = np.array(list(map(  # Add the time as timestamp instead of str
                 lambda coord:
                 dict(coord,
-                     **{'time_ms': datetime.datetime.fromisoformat(coord['time'].replace('Z', '+00:00')).timestamp()}),
+                     **{'time_ms': dateutil.parser.isoparse(coord['time'].replace("Z", "+00:00")).timestamp()}),
                 point)))
 
         results3D = self.client.query(query3D)
         points3D = {}
         for key, point in results3D.items():
-            skeleton_id = int(key[1]['skeleton_id'])
+            skeleton_id = 0 if merge_skeleton_ids else int(key[1]['skeleton_id'])
             if skeleton_id not in points3D:
                 points3D[skeleton_id] = {}
             keypoint = key[1]['keypoint']
             points3D[skeleton_id][keypoint] = np.array(list(map(  # Add the time as timestamp instead of str
                 lambda coord:
                 dict(coord,
-                     **{'time_ms': datetime.datetime.fromisoformat(coord['time'].replace('Z', '+00:00')).timestamp()}),
+                     **{'time_ms': dateutil.parser.isoparse(coord['time'].replace("Z", "+00:00")).timestamp()}),
                 point)))
 
         return points2D, points3D
