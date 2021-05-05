@@ -11,7 +11,6 @@ class ListicClientDB():
     def __init__(self, server_side=None, host=None, port=None, login=None, pwd=None, database=None):
         self.stored_points = []
         self.walking_metrics = []
-        self.walking_metrics_to_pir = []
         self.client = None
 
         if server_side:
@@ -46,24 +45,24 @@ class ListicClientDB():
             raise e
 
     def insert_skeleton_keypoints(self, coord2D=None, coord3D=None, timestamp=None, skeleton_id=0,
-                                  device=None, ignore_None_values=True, send_immediatly=True,
+                                  device=None, ignore_None_values=True, send_immediately=True,
                                   walking_speed=None, footsteps_width=None, number_of_footsteps=None,
                                   stride_length=None, step_length=None,
                                   timestamp_unit='ms'):
         if self.client is None:
             raise Exception(f"Client of {self.__class__.__name__} wasn't configure correctly")
 
-        additionnal_fields = {}
-        if walking_speed is not None and walking_speed is not np.nan and walking_speed > 0:
-            additionnal_fields['walking_speed'] = float(walking_speed)
-        if footsteps_width is not None and footsteps_width is not np.nan and footsteps_width > 0:
-            additionnal_fields['footsteps_width'] = float(footsteps_width)
-        if number_of_footsteps is not None and number_of_footsteps is not np.nan and number_of_footsteps > 0:
-            additionnal_fields['number_of_footsteps'] = float(number_of_footsteps)
-        if stride_length is not None and stride_length is not np.nan and stride_length > 0:
-            additionnal_fields['stride_length'] = float(stride_length)
-        if step_length is not None and step_length is not np.nan and step_length > 0:
-            additionnal_fields['step_length'] = float(step_length)
+        # additional_fields = {}
+        # if walking_speed is not None and walking_speed is not np.nan and walking_speed > 0:
+        #     additional_fields['walking_speed'] = float(walking_speed)
+        # if footsteps_width is not None and footsteps_width is not np.nan and footsteps_width > 0:
+        #     additional_fields['footsteps_width'] = float(footsteps_width)
+        # if number_of_footsteps is not None and number_of_footsteps is not np.nan and number_of_footsteps > 0:
+        #     additional_fields['number_of_footsteps'] = float(number_of_footsteps)
+        # if stride_length is not None and stride_length is not np.nan and stride_length > 0:
+        #     additional_fields['stride_length'] = float(stride_length)
+        # if step_length is not None and step_length is not np.nan and step_length > 0:
+        #     additional_fields['step_length'] = float(step_length)
 
         if coord2D is not None:
             for i, key in enumerate(coord2D):
@@ -98,68 +97,78 @@ class ListicClientDB():
                             'z': coord3D[key][2],
                         }
                     })
-        if len(additionnal_fields) > 0:
-            # print(additionnal_fields)
-            self.walking_metrics.append({
-                'measurement': 'walking_metrics',
-                'time': round(timestamp),
-                'tags': {
-                    'device': device,
-                    'skeleton_id': skeleton_id,
-                },
-                'fields': additionnal_fields,
-            })
-            self.insert_walking_metrics_to_pir_network(timestamp, walking_speed,
-                                                       footsteps_width, number_of_footsteps,
-                                                       stride_length, step_length)
+        # if len(additional_fields) > 0:
+        #     self.walking_metrics.append({
+        #         'measurement': 'walking_metrics',
+        #         'time': round(timestamp),
+        #         'tags': {
+        #             'device': device,
+        #             'skeleton_id': skeleton_id,
+        #         },
+        #         'fields': additional_fields,
+        #     })
+            self.insert_walking_metrics(timestamp, walking_speed,
+                                        footsteps_width, number_of_footsteps,
+                                        stride_length, step_length, send_immediately, timestamp_unit,
+                                        skeleton_id, device, ignore_None_values)
 
-        if send_immediatly:
+        if send_immediately:
             self.send_to_db(timestamp_unit=timestamp_unit)
 
     def send_to_db(self, timestamp_unit='ms'):
         self.client.write_points(self.stored_points, time_precision=timestamp_unit)
         self.client.write_points(self.walking_metrics, time_precision=timestamp_unit)
-        self.client.write_points(self.walking_metrics_to_pir, time_precision=timestamp_unit)
         self.stored_points = []
         self.walking_metrics = []
-        self.walking_metrics_to_pir = []
 
-    def insert_walking_metrics_to_pir_network(self, timestamp, walking_speed,
-                                              footsteps_width, number_of_footsteps,
-                                              stride_length, step_length):
+    def insert_walking_metrics(self, timestamp, walking_speed,
+                               footsteps_width, number_of_footsteps,
+                               stride_length, step_length, send_immediately = False,
+                               timestamp_unit = 'ms', skeleton_id=0,
+                               device=None, ignore_None_values=True, ):
+        if self.client is None:
+            raise Exception(f"Client of {self.__class__.__name__} wasn't configure correctly")
         pir_timestamp = self.get_closest_timestamp(timestamp)
-        additionnal_fields = {}
+        additional_fields = {}
         if walking_speed is not None and walking_speed is not np.nan and walking_speed > 0:
-            additionnal_fields['walking_speed'] = float(walking_speed)
+            additional_fields['walking_speed'] = float(walking_speed)
         if footsteps_width is not None and footsteps_width is not np.nan and footsteps_width > 0:
-            additionnal_fields['footsteps_width'] = float(footsteps_width)
+            additional_fields['footsteps_width'] = float(footsteps_width)
         if number_of_footsteps is not None and number_of_footsteps is not np.nan and number_of_footsteps > 0:
-            additionnal_fields['number_of_footsteps'] = float(number_of_footsteps)
+            additional_fields['number_of_footsteps'] = float(number_of_footsteps)
         if stride_length is not None and stride_length is not np.nan and stride_length > 0:
-            additionnal_fields['stride_length'] = float(stride_length)
+            additional_fields['stride_length'] = float(stride_length)
         if step_length is not None and step_length is not np.nan and step_length > 0:
-            additionnal_fields['step_length'] = float(step_length)
+            additional_fields['step_length'] = float(step_length)
 
-        if len(additionnal_fields) > 0:
-            self.walking_metrics_to_pir.append({
-                'measurement': 'pir_network',
+        if len(additional_fields) > 0:
+            self.walking_metrics.append({
+                'measurement': 'walking_metrics',
                 'time': round(pir_timestamp),
                 'tags': {},
-                'fields': additionnal_fields,
+                'fields': additional_fields,
             })
-            # print(pir_timestamp)
-
-    #            self.client.write_points(self.stored_points, time_precision=timestamp_unit)
+        if send_immediately:
+            self.send_to_db(timestamp_unit=timestamp_unit)
 
     @lru_cache(maxsize=1)
     def get_all_skeletons(self):
-        return self.retrieve_skeleton_keypoints(start_time=1619395200000)  # = 26/04/2021 00:00
+        # return self.retrieve_skeleton_keypoints(start_time=1618963200000)  # = 21/04/2021 00:00
+        return self.retrieve_skeleton_keypoints(start_time=1619395200000, end_time=1619422738000)  # = 26/04/2021 00:00
+
+    @lru_cache(maxsize=1)
+    def get_all_precomputed_speeds(self):
+        query = f'SELECT "walking_speed", "footsteps_width", "number_of_footsteps", "stride_length", "step_length" ' \
+                f'FROM "walking_metrics" WHERE time > \'2021-04-21 00:00:00\''
+        results = self.client.query(query)
+        return results
 
     @lru_cache(maxsize=2)
     def get_all_pir_values(self):
         # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "autogen"."pir_network"'
-        query = f'SELECT "pir0", "pir1", "pir2", "pir3", "walking_speed" FROM "pir_network" ' \
-                f'WHERE time > \'2021-04-26 00:00:00\' GROUP BY move'
+        query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" ' \
+                f'WHERE time > \'2021-04-21 00:00:00\' GROUP BY move'
+                # f'WHERE time > \'2021-04-26 00:00:00\' GROUP BY move'
         # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" WHERE time > \'2021-04-21 12:00:00\' GROUP BY move'
         results = self.client.query(query)
         return results
@@ -217,6 +226,9 @@ class ListicClientDB():
 
         results2D = self.client.query(query2D)
         points2D = {}
+        results3D = self.client.query(query3D)
+        points3D = {}
+
         for key, point in results2D.items():
             skeleton_id = 0 if merge_skeleton_ids else int(key[1]['skeleton_id'])
             if skeleton_id not in points2D:
@@ -228,8 +240,6 @@ class ListicClientDB():
                      **{'time_ms': dateutil.parser.isoparse(coord['time'].replace("Z", "+00:00")).timestamp()}),
                 point)))
 
-        results3D = self.client.query(query3D)
-        points3D = {}
         for key, point in results3D.items():
             skeleton_id = 0 if merge_skeleton_ids else int(key[1]['skeleton_id'])
             if skeleton_id not in points3D:

@@ -113,28 +113,36 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
 
         predictions = cv.best_estimator_.predict(X_test_std)
         actual = y_test
-        plt.plot(predictions, label="Predictions")
-        plt.plot(actual, label="Ground truth")
+
+        plt.plot([0, 2], [0, 2], '--', c=(0.5, 0.5, 0.5))
+        plt.plot(predictions, actual, '.', c=(0, 0, 0))
+        plt.ylim((0, 2))
+        plt.ylabel("Ground truth")
+        plt.xlim((0, 2))
+        plt.xlabel("Prediction")
+        # plt.plot(predictions, label="Predictions")
+        # plt.plot(actual, label="Ground truth")
         return cv
 
 
-# plt.subplot(1, 2, 1)
-# plt.title("Predictions with 'direction'")
-# res_with_dir = NeuralNetwork("sequences_resumed.csv", 0.3,
-#                              ["period_pir0", "period_pir1", "period_pir2", "period_pir3", "delta_time_0_2",
-#                               "delta_time_1_3", "direction"],
-#                              ["walking_speed"], None)
-# plt.subplot(1, 2, 2)
-# plt.title("Prediction without 'direction'")
-res_without_dir = NeuralNetwork("sequences_resumed.csv", 0.3,
-                                ["period_pir0", "period_pir1", "period_pir2", "period_pir3", "delta_time_0_2",
-                                 "delta_time_1_3"],
-                                ["walking_speed"], None)
+if __name__ == '__main__':
+    # plt.subplot(1, 2, 1)
+    # plt.title("Predictions with 'direction'")
+    # res_with_dir = NeuralNetwork("sequences_resumed.csv", 0.3,
+    #                              ["period_pir0", "period_pir1", "period_pir2", "period_pir3", "delta_time_0_2",
+    #                               "delta_time_1_3", "direction"],
+    #                              ["walking_speed"], None)
+    # plt.subplot(1, 2, 2)
+    # plt.title("Prediction without 'direction'")
+    res_without_dir = NeuralNetwork("sequences_resumed.csv", 0.3,
+                                    ["period_pir0", "period_pir1", "period_pir2", "period_pir3", "delta_time_0_2",
+                                     "delta_time_1_3"],
+                                    ["walking_speed"], None)
 
-df_res_without_dir = pd.DataFrame(res_without_dir.cv_results_)
-# df_res_with_dir = pd.DataFrame(res_with_dir.cv_results_)
+    df_res_without_dir = pd.DataFrame(res_without_dir.cv_results_)
+    # df_res_with_dir = pd.DataFrame(res_with_dir.cv_results_)
 
-df_res_without_dir.to_csv("res_without_dir_speeds_under_2_0.csv")
-# df_res_with_dir.to_csv("res_with_dir_speeds_under_2_0.csv")
+    df_res_without_dir.to_csv("res_without_dir_speeds_under_2_0.csv")
+    # df_res_with_dir.to_csv("res_with_dir_speeds_under_2_0.csv")
 
-plt.show()
+    plt.show()

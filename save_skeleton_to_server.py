@@ -253,7 +253,7 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                                              walking_speed=walking_speed, footsteps_width=walking_width,
                                              number_of_footsteps=footsteps_per_velocity,
                                              stride_length=footstep_length * 2, step_length=footstep_length,
-                                             device=device, send_immediatly=False)
+                                             device=device, send_immediately=False)
     client.send_to_db()
 
 

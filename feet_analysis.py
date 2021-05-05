@@ -1,6 +1,8 @@
 import copy
 
 import cv2
+import pandas as pd
+import InfluxDB_connection
 import skeleton_tracker as st
 import pyrealsense2 as rs
 import numpy as np
@@ -142,6 +144,79 @@ def estimate_footsteps_width(data):
 def get_data(json_filename):
     with open(json_filename, 'r') as file:
         return json.load(file)
+
+# Load the skeletons from InfluxDB
+def get_data_from_db():
+    # limit = 200
+    # Connect to InfluxDB and get all the skeleton's coordinates
+    client = InfluxDB_connection.ListicClientDB(server_side=True)
+    _, skeletons3D = client.get_all_skeletons()
+    # For now, we merge all the skeletons in one...
+    # TODO: Take care of multiple skeletons
+    skeletons3D = skeletons3D[0]
+
+    timestamps = []
+    keys = []
+    for keypoint in skeletons3D:
+        # skeletons3D[keypoint] = skeletons3D[keypoint][:limit]
+        # Store all possible timestamps in the DB
+        timestamps.extend([elem['time_ms'] for elem in skeletons3D[keypoint]])
+        keys.extend([keypoint, keypoint + '_x', keypoint + '_y', keypoint + '_z'])
+    timestamps = sorted(list(set(timestamps)))
+
+    # Create the empty DF with one line per possible timestamp
+    full_df = pd.DataFrame(columns=keys, index=timestamps)
+    for keypoint in skeletons3D:
+        # Store the coordinates of this keypoint using the timestamp as index
+        vals = {c['time_ms']: ([c['x'], c['y'], c['z']]) for c in skeletons3D[keypoint]}
+        # Fill each cell, line-per-line, if the data is available
+        for timestamp in timestamps:
+            if timestamp in vals:
+                # full_df[keypoint][timestamp] = vals[timestamp]
+                full_df[f'{keypoint}_x'][timestamp] = vals[timestamp][0]
+                full_df[f'{keypoint}_y'][timestamp] = vals[timestamp][1]
+                full_df[f'{keypoint}_z'][timestamp] = vals[timestamp][2]
+
+    # Convert the X, Y, Z's columns to numeric data
+    cols = [col for col in full_df.columns if '_x' in col or '_y' in col or '_z' in col]
+    for col in cols:
+        full_df[col] = pd.to_numeric(full_df[col])
+    # Interpolate the X, Y, Z values
+    full_df[cols] = full_df[cols].interpolate(axis=0, limit_area=None)
+    # Convert the X, Y, Z columns into vectors
+    for keypoint in skeletons3D:
+        full_df[keypoint] = full_df.apply(
+            lambda row: np.array([row[f'{keypoint}_x'], row[f'{keypoint}_y'], row[f'{keypoint}_z']])
+            , axis=1)
+
+    json_data = {
+        'frames': list(range(full_df.shape[0])),
+        'timestamps': full_df.index.values.tolist(),
+        'coordinates': {},
+        'distances': {},
+        'velocities': {}
+    }
+    for keypoint in skeletons3D:
+        # The vectors have already been computed
+        json_data['coordinates'][keypoint] = full_df[keypoint].values
+
+        # Compute velocities by shifting the values and compute the difference
+        previous_pos = np.array(json_data['coordinates'][keypoint][:-1])
+        next_pos = np.array(json_data['coordinates'][keypoint][1:])  # Shift the array by one
+        number_of_velocities = len(json_data['coordinates'][keypoint]) - 1
+        movement = np.array([0] * number_of_velocities, dtype=float)
+        for i in range(number_of_velocities):
+            if previous_pos[i] is np.nan or next_pos[i] is np.nan or None in previous_pos[i] or None in next_pos[i]:
+                continue
+            try:
+                movement[i] = (np.linalg.norm(next_pos[i] - previous_pos[i]) / (json_data['timestamps'][i] - json_data['timestamps'][i - 1]))
+            except:
+                continue
+        json_data['velocities'][keypoint] = np.append([0], movement).tolist()
+        for keypoint2 in skeletons3D:
+            json_data['distances'][f'{keypoint}-{keypoint2}'] = full_df.apply(lambda row: np.linalg.norm(row[keypoint] - row[keypoint2]), axis=1).values
+
+    return json_data
 
 # Truncate values to a certain limit. It's possible to assign a value to None values
 def truncate_values(values, limit, convert_None_to=None):
@@ -345,9 +420,10 @@ if __name__ == "__main__":
     #           visual = True,
     #           needed_keypoints = ['RIGHT_ANKLE', 'LEFT_ANKLE'])
     # data = get_data("data_big_steps.json")
-    data = get_data("data_small_steps.json")
-
+    data = get_data_from_db()
+    print("Data fetched")
     original_data = preprocess_data_for_walk_analysis(data)
+    print("Data pre-processed")
 
     footsteps_per_velo = []
     footsteps_per_dist = []
@@ -371,24 +447,21 @@ if __name__ == "__main__":
         widths.append(estimate_footsteps_width(data))
         x_axis.append(i)
 
-    plt.plot(x_axis, footsteps_per_velo)
+    plt.plot(x_axis, widths)
     plt.show()
 
-# footsteps_motion = estimate_footsteps(original_data, motion_threshold = motion_threshold)[0]
-# print(footsteps_motion, "footsteps estimated with motion")
-#
-# footsteps_distance = estimate_footsteps_by_distance(original_data, 3)[0]
-# print(footsteps_distance, "footsteps estimated with distance")
-#
-# print("Cycle Time                 = ", compute_cycle_time(original_data))
-# print("Stance/Swing ratio (Right) = ", compute_stance_swing_ratio(original_data, motion_threshold = motion_threshold,
-#                                                                   concerned_foot = "RIGHT_ANKLE"))
-# print("Stance/Swing ratio (Left)  = ", compute_stance_swing_ratio(original_data, motion_threshold = motion_threshold,
-#                                                                   concerned_foot = "LEFT_ANKLE"))
-# print("Double support time        = ", compute_double_support_time(original_data, motion_threshold = motion_threshold))
-# print("Width of footsteps         = ", estimate_footsteps_width(original_data))
-#
-#
-#
-#
-# visualize_data(original_data, time_in_seconds = True)
+    footsteps_motion = estimate_footsteps(original_data, motion_threshold = motion_threshold)[0]
+    print(footsteps_motion, "footsteps estimated with motion")
+
+    footsteps_distance = estimate_footsteps_by_distance(original_data, 3)[0]
+    print(footsteps_distance, "footsteps estimated with distance")
+
+    print("Cycle Time                 = ", compute_cycle_time(original_data))
+    print("Stance/Swing ratio (Right) = ", compute_stance_swing_ratio(original_data, motion_threshold = motion_threshold,
+                                                                      concerned_foot = "RIGHT_ANKLE"))
+    print("Stance/Swing ratio (Left)  = ", compute_stance_swing_ratio(original_data, motion_threshold = motion_threshold,
+                                                                      concerned_foot = "LEFT_ANKLE"))
+    print("Double support time        = ", compute_double_support_time(original_data, motion_threshold = motion_threshold))
+    print("Width of footsteps         = ", estimate_footsteps_width(original_data))
+
+    visualize_data(original_data, time_in_seconds = False)
