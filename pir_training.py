@@ -1,187 +1,342 @@
-import InfluxDB_connection as db
-import torch
-import torch.nn as nn
-from torch.autograd import Variable
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+import datetime
+
+import dateutil
 import pandas as pd
-import matplotlib.pyplot as plt
+import scipy
+import scipy.signal
+
 import numpy as np
+import sklearn
+import sklearn.model_selection
+import sklearn.linear_model
+import sklearn.neural_network
+import sklearn.neighbors
+import sklearn.gaussian_process
+import sklearn.discriminant_analysis
+import sklearn.tree
+import sklearn.ensemble
+import sklearn.naive_bayes
 
-class Dataset(torch.utils.data.Dataset):
-    'Characterizes a dataset for PyTorch'
-    def __init__(self, PIR_values, labels):
-        'Initialization'
-        self.labels = labels
-        self.PIR_values = PIR_values
+from matplotlib import pyplot as plt
 
-    def __len__(self):
-        'Denotes the total number of samples'
-        return len(self.PIR_values)
-
-    def __getitem__(self, index):
-        # Load data and get label
-        X = self.PIR_values[index]
-        y = self.labels[index]
-
-        return X, y
+from warnings import filterwarnings
+filterwarnings('ignore')
 
 
-class LSTM1_model(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, seq_length):
-        super().__init__()
+# Split all the data into different sequences (defined by the "sequence_id")
+def split_sequences(pir_df: pd.DataFrame):
+    all_sequences = []
+    for seq_id in pir_df['sequence_id'].unique():
+        all_sequences.append(pir_df[pir_df['sequence_id'] == seq_id])
+    return all_sequences
 
-        self.num_layers = num_layers #number of layers
-        self.input_size = input_size #input size
-        self.hidden_size = hidden_size #hidden state
-        self.seq_length = seq_length #sequence length
+def get_signal_features(signal, number_of_peaks):
+    signal = np.array(signal)
+    peaks, props = scipy.signal.find_peaks(signal, height = 0)
+    # Sort by prominence
+    peaks = sorted(peaks, key = lambda peak: scipy.signal.peak_prominences(signal, [peak])[0], reverse = True)
 
-        self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True)
-        self.fc_1 =  nn.Linear(hidden_size, 128) #fully connected 1
-        self.fc = nn.Linear(128, 1) #fully connected last layer
+    peaks = peaks[:number_of_peaks]  # Get only th most interesting
+    # Get the prominences
+    prominences = scipy.signal.peak_prominences(signal, peaks)[0] if len(peaks) == number_of_peaks else [0] * number_of_peaks
+    # Get the widths
+    widths = scipy.signal.peak_widths(signal, peaks)[0] if len(peaks) == number_of_peaks else [0] * number_of_peaks
+    # Get the position of the peak in the signal
+    peaks_offsets = [peak/len(signal) for peak in peaks]
+    return [*prominences, *widths, *peaks_offsets]
 
-        self.relu = nn.ReLU()
+def get_sequence_features(sequence, number_of_peaks):
+    pir0 = get_signal_features(sequence['pir0'], number_of_peaks=number_of_peaks)
+    pir1 = get_signal_features(sequence['pir1'], number_of_peaks=number_of_peaks)
+    pir2 = get_signal_features(sequence['pir2'], number_of_peaks=number_of_peaks)
+    pir3 = get_signal_features(sequence['pir3'], number_of_peaks=number_of_peaks)
+    speed = np.median(sequence['walking_speed'])
 
-    def forward(self, x):
-        h_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size)) #hidden state
-        c_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size)) #internal state
-        output, (hn, cn) = self.lstm(x, (h_0, c_0))
-        hn = hn.view(-1, self.hidden_size) #reshaping the data for Dense layer next
-        out = self.relu(hn)
-        out = self.fc_1(out) #first Dense
-        out = self.relu(out) #relu
-        out = self.fc(out) #Final Output
-        return out
+    speed_as_km_per_hour = speed * 3.6 # * direction
+    # We return the real speed and the feature vector
+    # The feature vector has the features from each signal (pi0, pir1, pir2, pir3)
+    # The '*' transform the 4 signals into a single flat array
+    return speed_as_km_per_hour, [*pir0, *pir1, *pir2, *pir3]
 
-def prepare_pir_data(time_for_lstm = 1.0):
-    pir_frequency = 10
-    client = db.ListicClientDB(server_side=True)
-    all_data_queries = client.get_all_pir_values()
-
-    X = []
-    aggregated_Xs = []
-    Y = []
-
-    previous_walking_speed = None
-    for all_data in all_data_queries:
-        for data in all_data:
-            if previous_walking_speed is None and data['walking_speed'] is not None:
-                previous_walking_speed = data['walking_speed']
-
-            if data['walking_speed'] is not None:
-                current_walking_speed = data['walking_speed']
-            else:
-                current_walking_speed = previous_walking_speed
-
-            # if current_walking_speed is not None:
-            previous_walking_speed = current_walking_speed
-            if current_walking_speed is None or data['pir0'] is None:
-                continue
-            X.append([data['pir0'], data['pir1'], data['pir2'], data['pir3']])
-            Y.append(current_walking_speed)
-
-    latency = int(pir_frequency * time_for_lstm)
-    X = pd.DataFrame(X[:-latency])
-    # for i in range(len(X)):
-    #     for offset in range(latency):
-    #         aggregated_Xs.append(torch.tensor(X[i + latency]))
-    # aggregated_Xs = aggregated_Xs
-    Y = pd.DataFrame(Y[latency:])
-    return X, Y
+    # direction = int(sequence['direction'].iloc[0])
+    # corridor = int(sequence['corridor'].iloc[0])
+    # Feature vector is composed of the direction and the corridor we walked in
+    # return speed_as_km_per_hour, [direction, corridor, *pir0, *pir1, *pir2, *pir3]
 
 
-if __name__ == '__main__':
-    mm = MinMaxScaler()
-    ss = StandardScaler()
 
-    X, Y = prepare_pir_data(10.0)
-    X = mm.fit_transform(X)
-    Y = ss.fit_transform(Y)
+#
+# # Method 1: Take the features from the biggest peak of each sequence
+# number_of_peaks_to_analyse = 1
+# # Method 2: Take the features from more peaks (here 3)
+# # number_of_peaks = 3
+#
+# df = pd.read_csv("all_pir_values.csv")
+# all_sequences = split_sequences(df)
+# X = []
+# Y = []
+# # Compute the feature vectors for all sequences
+# for sequence in all_sequences:
+#     features = get_sequence_features(sequence, number_of_peaks_to_analyse)
+#     Y.append(features[0])
+#     X.append(features[1])
+#
+# # Check if the the feature vectors all have the same size
+# # For some of them, there are not enough peaks in the signal
+# feature_vector_length = int(np.median([len(x) for x in X]))
+# for i in range(len(X)-1, 0, -1):
+#     if len(X[i]) != feature_vector_length: # The sequences with too few peaks are ignored
+#         del X[i]
+#         del Y[i]
 
-    train_size, test_size = len(X)//2, len(X) - len(X)//2
 
-    X_train, y_train = X[train_size:], Y[train_size:]
-    X_test, y_test = X[:test_size], Y[:test_size]
 
-    # CUDA for PyTorch
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_cuda else "cpu")
-    torch.backends.cudnn.benchmark = True
+df_sequences = pd.read_csv("sequences_resumed.csv")
+df_sequences = df_sequences.dropna()
 
-    # Parameters
-    params = {'batch_size': 128,
-              'shuffle': False,
-              'num_workers': 6}
-    num_epochs = 10
-    learning_rate = 0.001
-    input_size = 4 # number of features
-    hidden_size = 2 # number of features in hidden state
-    num_layers = 1 # number of stacked lstm layers
-    seq_length = 10
+#
+# ##########################
+# ### Part for direction ###
+# ##########################
+# plt.subplot(2, 2, 1)
+# plt.title('Guessing direction')
+#
+# input_cols = ['period_pir0', 'time_pir0', 'period_pir1', 'time_pir1', 'period_pir2', 'time_pir2', 'period_pir3', 'time_pir3', 'delta_time_0_2', 'delta_time_1_3']
+# X = df_sequences[input_cols]
+# Y = df_sequences['direction']
+#
+# # Split the data in 2 : training/testing
+# train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
+#
+# # We use most of the regression methods provided by sklearn
+# classifiers = [
+#     sklearn.neighbors.KNeighborsClassifier(3),
+#     sklearn.svm.SVC(kernel="linear", C=0.025),
+#     sklearn.svm.SVC(gamma=2, C=1),
+#     sklearn.gaussian_process.GaussianProcessClassifier(1.0 * sklearn.gaussian_process.kernels.RBF(1.0)),
+#     sklearn.tree.DecisionTreeClassifier(max_depth=5),
+#     sklearn.ensemble.RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+#     sklearn.neural_network.MLPClassifier(alpha=1, max_iter=1000),
+#     sklearn.ensemble.AdaBoostClassifier(),
+#     sklearn.naive_bayes.GaussianNB(),
+#     sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis()
+# ]
+#
+# pd.set_option('float_format', '{:.3f}'.format)
+# # Display stats about the velocities of the sequences
+# print("Directions:")
+# print(pd.DataFrame(Y.values, columns=["Directions"]).describe())
+#
+# results = []
+# # Train all regressors
+# # Results are given using Cross-Validation with 5 folds
+# for item in classifiers:
+#     clf = item
+#     clf.fit(train_X, train_y)
+#     cv_score_accuracy = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'accuracy')
+#     cv_score_precision = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'precision')
+#     cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
+#     results.append([item.__class__.__name__, np.mean(cv_score_accuracy), np.mean(cv_score_precision), np.mean(cv_score_r2)])
+#
+# # Display the results
+# print(pd.DataFrame(results, columns=["Classifier's name", "Accuracy", "Precision", "R2 score"]))
+#
+# predictions = classifiers[-1].predict(X)
+# ground_truth = Y.values
+#
+# predictions = [x for _, x in sorted(zip(Y.index, predictions))]
+# ground_truth = [x for _, x in sorted(zip(Y.index, ground_truth))]
+#
+# plt.plot(predictions, label="Prediction")
+# plt.plot(ground_truth, label="Ground Truth")
+# plt.legend()
+#
+#
 
-    lstm = LSTM1_model(input_size, hidden_size, num_layers, seq_length)
-    criterion = torch.nn.MSELoss()  # mean-squared error for regression
-    optimizer = torch.optim.Adam(lstm.parameters(), lr=learning_rate)
+##########################
+### Part for corridor ###
+##########################
+plt.subplot(2, 2, 2)
+plt.title('Guess corridor')
 
-    print("Training Shape", X_train.shape, y_train.shape)
-    print("Testing Shape", X_test.shape, y_test.shape)
+input_cols = ['period_pir0', 'time_pir0', 'period_pir1', 'time_pir1', 'period_pir2', 'time_pir2', 'period_pir3', 'time_pir3', 'delta_time_0_2', 'delta_time_1_3']
+X = df_sequences[input_cols]
+Y = df_sequences['corridor']
 
-    X_train_tensors = Variable(torch.Tensor(X_train))
-    X_test_tensors = Variable(torch.Tensor(X_test))
 
-    y_train_tensors = Variable(torch.Tensor(y_train))
-    y_test_tensors = Variable(torch.Tensor(y_test))
+# Split the data in 2 : training/testing
+train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
 
-    X_train_tensors_final = torch.reshape(X_train_tensors, (X_train_tensors.shape[0], 1, X_train_tensors.shape[1]))
-    X_test_tensors_final = torch.reshape(X_test_tensors, (X_test_tensors.shape[0], 1, X_test_tensors.shape[1]))
+# We use most of the regression methods provided by sklearn
+classifiers = [
+    sklearn.neighbors.KNeighborsClassifier(3),
+    sklearn.svm.SVC(kernel="linear", C=0.025),
+    sklearn.svm.SVC(gamma=2, C=1),
+    sklearn.gaussian_process.GaussianProcessClassifier(1.0 * sklearn.gaussian_process.kernels.RBF(1.0)),
+    sklearn.tree.DecisionTreeClassifier(max_depth=10),
+    sklearn.ensemble.RandomForestClassifier(max_depth=10, n_estimators=10, max_features=10),
+    sklearn.neural_network.MLPClassifier(alpha=1, max_iter=1000),
+    sklearn.ensemble.AdaBoostClassifier(),
+    sklearn.naive_bayes.GaussianNB(),
+    sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis()
+]
 
-    print("Training Shape", X_train_tensors_final.shape, y_train_tensors.shape)
-    print("Testing Shape", X_test_tensors_final.shape, y_test_tensors.shape)
+pd.set_option('float_format', '{:.3f}'.format)
+# Display stats about the velocities of the sequences
+print("Directions:")
+print(pd.DataFrame(Y.values, columns=["Directions"]).describe())
 
-    training_set = Dataset(X_train_tensors_final, y_train_tensors)
-    training_generator = torch.utils.data.DataLoader(training_set, **params)
+results = []
+# Train all regressors
+# Results are given using Cross-Validation with 5 folds
+for item in classifiers:
+    clf = item
+    clf.fit(train_X, train_y)
+    cv_score_accuracy = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'accuracy')
+    cv_score_precision = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'precision')
+    cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
+    results.append([item.__class__.__name__, np.mean(cv_score_accuracy), np.mean(cv_score_precision), np.mean(cv_score_r2)])
 
-    validation_set = Dataset(X_test_tensors_final, y_test_tensors)
-    validation_generator = torch.utils.data.DataLoader(validation_set, **params)
+# Display the results
+print(pd.DataFrame(results, columns=["Classifier's name", "Accuracy", "Precision", "R2 score"]))
 
-    for epoch in range(num_epochs):
-        current_loss = 0
-        for local_batch, local_labels in training_generator:
-            outputs = lstm.forward(local_batch)  # forward pass
-            optimizer.zero_grad()  # caluclate the gradient, manually setting to 0
+predictions = classifiers[-1].predict(X)
+ground_truth = Y.values
 
-            # obtain the loss function
-            loss = criterion(outputs, local_labels)
-            current_loss += loss.item()
+predictions = [x for _, x in sorted(zip(Y.index, predictions))]
+ground_truth = [x for _, x in sorted(zip(Y.index, ground_truth))]
 
-            loss.backward()  # calculates the loss of the loss function
+plt.plot(predictions, label="Prediction")
+plt.plot(ground_truth, label="Ground Truth")
+plt.legend()
 
-            optimizer.step()  # improve from loss, i.e backprop
-            # print(np.mean(abs(outputs.detach().numpy()) - abs(local_labels.detach().numpy())))
-        if epoch % 1 == 0:
-            print("Epoch: %d, loss: %1.5f" % (epoch, current_loss))
 
-"""
-    # Looking at prediction:
-    df_X_ss = X_train_tensors_final  # ss.transform(X_test)  # old transformers
-    df_y_mm = y_train_tensors  #  mm.transform(y_test)  # old transformers
 
-    # df_X_ss = Variable(torch.Tensor(df_X_ss))  # converting to Tensors
-    # df_y_mm = Variable(torch.Tensor(df_y_mm))
-    # reshaping the dataset
-    # df_X_ss = torch.reshape(df_X_ss, (df_X_ss.shape[0], 1, df_X_ss.shape[1]))
+##############################
+### Part for speed classif ###
+##############################
+plt.subplot(2, 2, 3)
+plt.title('Classifying speed')
 
-    train_predict = lstm(df_X_ss)  # forward pass
-    data_predict = train_predict.data.numpy()  # numpy conversion
-    dataY_plot = df_y_mm.data.numpy()
+input_cols = ['period_pir0', 'time_pir0', 'period_pir1', 'time_pir1', 'period_pir2', 'time_pir2', 'period_pir3', 'time_pir3', 'delta_time_0_2', 'delta_time_1_3']
+X = df_sequences[input_cols]
+Y = df_sequences['walking_speed']
+Y[Y < 0.5] = -1
+Y[np.logical_and(0.5 <= Y, Y < 0.8)] = 0
+Y[Y >= 0.8] = 1
 
-    # data_predict = ss.inverse_transform(data_predict)  # reverse transformation
-    # dataY_plot = ss.inverse_transform(dataY_plot)
-    plt.figure(figsize=(10, 6))  # plotting
-    plt.axvline(x=train_size, c='r', linestyle='--')  # size of the training set
+# Split the data in 2 : training/testing
+train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
 
-    plt.plot(dataY_plot, label='Actual Data')  # actual plot
-    plt.plot(data_predict, label='Predicted Data')  # predicted plot
-    plt.title('Time-Series Prediction')
-    plt.legend()
-    plt.show()
-"""
+# We use most of the regression methods provided by sklearn
+classifiers = [
+    sklearn.neighbors.KNeighborsClassifier(3),
+    sklearn.svm.SVC(kernel="linear", C=0.025),
+    sklearn.svm.SVC(gamma=2, C=1),
+    sklearn.gaussian_process.GaussianProcessClassifier(1.0 * sklearn.gaussian_process.kernels.RBF(1.0)),
+    sklearn.tree.DecisionTreeClassifier(max_depth=5),
+    sklearn.ensemble.RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+    sklearn.neural_network.MLPClassifier(alpha=1, max_iter=1000),
+    sklearn.ensemble.AdaBoostClassifier(),
+    sklearn.naive_bayes.GaussianNB(),
+    sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis()
+]
+
+pd.set_option('float_format', '{:.3f}'.format)
+# Display stats about the velocities of the sequences
+print("Speed:")
+print(pd.DataFrame(Y.values, columns=["Speed (gait mode)"]).describe())
+
+results = []
+# Train all regressors
+# Results are given using Cross-Validation with 5 folds
+for item in classifiers:
+    clf = item
+    clf.fit(train_X, train_y)
+    cv_score_accuracy = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'accuracy')
+    cv_score_precision = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'precision')
+    cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
+    results.append([item.__class__.__name__, np.mean(cv_score_accuracy), np.mean(cv_score_precision), np.mean(cv_score_r2)])
+
+# Display the results
+print(pd.DataFrame(results, columns=["Classifier's name", "Accuracy", "Precision", "R2 score"]))
+
+predictions = classifiers[-1].predict(X)
+ground_truth = Y.values
+
+predictions = [x for _, x in sorted(zip(Y.index, predictions))]
+ground_truth = [x for _, x in sorted(zip(Y.index, ground_truth))]
+
+plt.plot(predictions, label="Prediction")
+plt.plot(ground_truth, label="Ground Truth")
+plt.legend()
+
+
+######################
+### Part for speed ###
+######################
+plt.subplot(2, 2, 4)
+plt.title('Guess speed')
+
+input_cols = ['period_pir0', 'time_pir0', 'period_pir1', 'time_pir1', 'period_pir2', 'time_pir2', 'period_pir3', 'time_pir3', 'delta_time_0_2', 'delta_time_1_3']
+X = df_sequences[input_cols]
+# X['direction'] = classifiers[0].predict(X)
+Y = df_sequences['walking_speed']
+
+
+# Split the data in 2 : training/testing
+train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
+
+# We use most of the regression methods provided by sklearn
+regression_models = [
+    sklearn.svm.SVR(),
+    sklearn.svm.LinearSVR(),
+    # sklearn.linear_model.SGDRegressor(),
+    sklearn.linear_model.BayesianRidge(),
+    sklearn.linear_model.LassoLars(),
+    sklearn.linear_model.ARDRegression(),
+    sklearn.linear_model.PassiveAggressiveRegressor(),
+    sklearn.linear_model.TheilSenRegressor(),
+    sklearn.linear_model.LinearRegression(),
+    sklearn.linear_model.Ridge(),
+    sklearn.linear_model.ElasticNet(),
+    sklearn.linear_model.HuberRegressor(),
+
+]
+
+pd.set_option('float_format', '{:.3f}'.format)
+# Display stats about the velocities of the sequences
+print("Speeds recorded:")
+print(pd.DataFrame(Y.values, columns=["Speeds recorded on each sequence (km/h)"]).describe())
+
+results = []
+# Train all regressors
+# Results are given using Cross-Validation with 5 folds
+for item in regression_models:
+    clf = item
+    clf.fit(train_X, train_y)
+    cv_score_mean_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'neg_mean_absolute_error')
+    cv_score_abs_error = -sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'neg_median_absolute_error')
+    cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
+    results.append([item.__class__.__name__, np.mean(cv_score_mean_error), np.mean(cv_score_abs_error), np.mean(cv_score_r2)])
+
+# Display the results
+print(pd.DataFrame(results, columns=["Regressor name", "Mean error", "Median abs error", "R2 score"]))
+
+predictions = regression_models[-1].predict(X)
+ground_truth = Y.values
+
+predictions = [x for _, x in sorted(zip(Y.index, predictions))]
+ground_truth = [x for _, x in sorted(zip(Y.index, ground_truth))]
+
+plt.plot(predictions, label="Prediction")
+plt.plot(ground_truth, label="Ground Truth")
+plt.legend()
+
+
+
+
+
+
+
+plt.show()

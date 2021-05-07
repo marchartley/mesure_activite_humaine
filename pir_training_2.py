@@ -27,7 +27,7 @@ filterwarnings('ignore')
 def split_sequences(pir_df: pd.DataFrame):
     all_sequences = []
     for seq_id in pir_df['sequence_id'].unique():
-        all_sequences.append(df[df['sequence_id'] == seq_id])
+        all_sequences.append(pir_df[pir_df['sequence_id'] == seq_id])
     return all_sequences
 
 def get_signal_features(signal, number_of_peaks):

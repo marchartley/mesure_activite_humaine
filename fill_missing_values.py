@@ -15,6 +15,9 @@ from matplotlib import pyplot as plt
 
 import InfluxDB_connection as db
 from warnings import filterwarnings
+
+import training_NN
+
 filterwarnings('ignore')
 
 import improve_speed_values as speed_values
@@ -57,6 +60,7 @@ def get_predefined_speed(start, end):
 
 # Get the speed from the tmp_data JSONs created in the recordings
 all_speeds = speed_values.get_all_speeds_recorded()
+all_precomputed_speeds = speed_values.get_precomputed_speeds()
 # Get the speed of a sequence by comparing with the speeds computed in "all_speeds"
 def get_my_speed(start, end = None):
     # Get dates as timestamps to compare them
@@ -104,7 +108,7 @@ def join_pir_and_params(all_queries):
     sequence_id = -1
 
     not_tagged_query = all_queries.items()[0][1]
-    speeds = {dateutil.parser.isoparse(data['time'].replace('Z', '+00:00')).timestamp() * 1000: data['walking_speed'] for data in not_tagged_query}
+    # speeds = {dateutil.parser.isoparse(data['time'].replace('Z', '+00:00')).timestamp() * 1000: data['walking_speed'] for data in not_tagged_query}
     starting_sequence_time = 0
     offset = 0
     for key, all_data in all_queries.items():
@@ -290,3 +294,19 @@ if __name__ == "__main__":
         results.append([item.__class__.__name__, np.mean(cv_score_mean_error), np.mean(cv_score_abs_error), np.mean(cv_score_r2)])
 
     print(pd.DataFrame(results, columns=["Regressor name", "Mean error", "Median abs error", "R2 score"]))
+
+    import subprocess
+    subprocess.call(['/usr/bin/Rscript', '--vanilla', '/home/marchartley/Downloads/Test1.R'])
+
+    res_without_dir = training_NN.NeuralNetwork("sequences_resumed.csv", 0.3,
+                                    ["period_pir0", "period_pir1", "period_pir2", "period_pir3", "delta_time_0_2",
+                                     "delta_time_1_3"],
+                                    ["walking_speed"], None)
+
+    df_res_without_dir = pd.DataFrame(res_without_dir.cv_results_)
+    # df_res_with_dir = pd.DataFrame(res_with_dir.cv_results_)
+
+    df_res_without_dir.to_csv("res_without_dir_speeds_under_2_0.csv")
+    # df_res_with_dir.to_csv("res_with_dir_speeds_under_2_0.csv")
+
+    plt.show()
