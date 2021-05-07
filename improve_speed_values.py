@@ -7,12 +7,57 @@ import numpy as np
 import pandas as pd
 
 import InfluxDB_connection
+import feet_analysis
 import human_skeleton
 import glob
 
 # Some values are going to be very low or very high because of the camera out-of-sight problem
 speed_high_bound = 3.0
 speed_low_bound = 0.1
+
+
+def get_all_gait_sequences():
+    client = InfluxDB_connection.ListicClientDB(server_side=True)
+
+    motion_threshold = 0.8  # 0.8m/s ~ 3km/h
+    sequences_boundaries = client.get_splitted_sequences_boundaries(time_between_sequences=1.0)
+    sequences_parameters = []
+
+    for sequence_id in range(len(sequences_boundaries)):
+        try:
+            data = feet_analysis.get_data_from_db(sequence_id, 1.0)
+            footsteps_motion = feet_analysis.estimate_footsteps(data, motion_threshold=motion_threshold)[0]
+            footsteps_distance = feet_analysis.estimate_footsteps_by_distance(data, 3)[0]
+            cycle_time = feet_analysis.compute_cycle_time(data)
+            cadence = 60 / cycle_time
+            stance_ratio_right = feet_analysis.compute_stance_ratio(data, motion_threshold=motion_threshold,
+                                                                    concerned_foot="RIGHT_ANKLE")
+            stance_ratio_left = feet_analysis.compute_stance_ratio(data, motion_threshold=motion_threshold,
+                                                                   concerned_foot="LEFT_ANKLE")
+            double_support_ratio = feet_analysis.compute_double_support_time(data, motion_threshold=motion_threshold)
+            footstep_width = feet_analysis.estimate_footsteps_width(data)
+            walking_speed = feet_analysis.compute_walking_speed(data)
+            stride_length, right_length, left_length = feet_analysis.compute_stride_length(data)
+            params = {'start': sequences_boundaries[sequence_id][0],
+                      'end': sequences_boundaries[sequence_id][1],
+                      'nb_steps_motion': footsteps_motion,
+                      'nb_steps_distance': footsteps_distance,
+                      'cycle_time': cycle_time,
+                      'cadence': cadence,
+                      'stance_ratio_right': stance_ratio_right,
+                      'stance_ratio_left': stance_ratio_left,
+                      'double_support_ratio': double_support_ratio,
+                      'footstep_width': footstep_width,
+                      'walking_speed': walking_speed,
+                      'stride_length': stride_length,
+                      'stride_length_right': right_length,
+                      'stride_length_left': left_length
+                      }
+            sequences_parameters.append(params)
+        except:
+            pass
+    json.dump(sequences_parameters, open('sequence_parameters.json', 'w+'))
+
 
 def get_all_speeds_recorded():
     # if os.path.exists("all_tmp_datas_at_once.data"):
@@ -47,11 +92,11 @@ def get_all_speeds_recorded():
         if timestamps[i_frame] - timestamps[previous_index] < cooldown / 1000:
             # Compute the displacement and deduce the speed
             starting_coord = np.array([skeletons3D[keypoint_for_speed_computing][previous_index]['x'],
-                                      skeletons3D[keypoint_for_speed_computing][previous_index]['y'],
-                                      skeletons3D[keypoint_for_speed_computing][previous_index]['z']])
+                                       skeletons3D[keypoint_for_speed_computing][previous_index]['y'],
+                                       skeletons3D[keypoint_for_speed_computing][previous_index]['z']])
             ending_coord = np.array([skeletons3D[keypoint_for_speed_computing][i_frame]['x'],
-                                    skeletons3D[keypoint_for_speed_computing][i_frame]['y'],
-                                    skeletons3D[keypoint_for_speed_computing][i_frame]['z']])
+                                     skeletons3D[keypoint_for_speed_computing][i_frame]['y'],
+                                     skeletons3D[keypoint_for_speed_computing][i_frame]['z']])
 
             displacement = np.linalg.norm(ending_coord - starting_coord)
             displacement /= (timestamps[i_frame] - timestamps[previous_index])
@@ -62,60 +107,18 @@ def get_all_speeds_recorded():
                 sequence_starting = False
                 times.append((timestamps[previous_index] * 1000, timestamps[i_frame] * 1000))
 
-
-    # frames_with_keypoint = 0
-    # # For each "frame"
-    # for i_frame in range(len(timestamps)):
-    #     # Get the human body at this moment
-    #     human = human_skeleton.HumanSkeleton()
-    #     human.from_json(None, skeletons3D, timestamps[i_frame])
-    #
-    #     # If we see the considered keypoint, and we are not on the last frame
-    #     # (we don't want to start a mini-sequence on the last frame)
-    #     if human.check_keypoints3D(keypoint_for_speed_computing):
-    #         frames_with_keypoint += 1
-    #         # If we are not currently in a mini-sequence
-    #         if not sequence_starting:
-    #             # Store all the initial positions
-    #             sequence_starting = True
-    #             sequence_started_index = i_frame
-    #             starting_human = human
-    #         # In any case, save position, it might be the last time we see this body
-    #         previous_human = human
-    #         last_time_index = i_frame
-    #
-    #         # Change mini-sequence every 10 frames, or if it's the last frame, or if the next frame is in a long time
-    #         if (i_frame - sequence_started_index >= max_sequence_length or i_frame == len(timestamps) - 1 \
-    #             or timestamps[i_frame + 1] - timestamps[i_frame] > cooldown / 1000) and timestamps[i_frame] != timestamps[sequence_started_index]:
-    #             # Compute the displacement and deduce the speed
-    #             starting_coord = np.array(starting_human.get_keypoint3D(keypoint_for_speed_computing))
-    #             ending_coord = np.array(previous_human.get_keypoint3D(keypoint_for_speed_computing))
-    #
-    #             displacement = np.linalg.norm(ending_coord - starting_coord)
-    #             displacement /= (timestamps[last_time_index] - timestamps[sequence_started_index])
-    #             sequences.append(displacement)
-    #             # It's the end of the mini-sequence
-    #             sequence_starting = False
-    #             times.append((timestamps[sequence_started_index] * 1000, timestamps[last_time_index] * 1000))
-
     sequences = np.array(sequences)
     # print(sequences)
-    smoothed_sequences = []
-    for i in range(len(sequences)):
-        smoothed_speed = sequences[i]
-        # if i == 0:
-        #     smoothed_speed = sequences[i]*.8 + sequences[i + 1]*.2
-        # elif i == len(sequences) - 1:
-        #     smoothed_speed = sequences[i - 1]*.2 + sequences[i]*.8
-        # else:
-        #     smoothed_speed = sequences[i - 1]*.1 + sequences[i]*.8 + sequences[i + 1]*.1
-
-        smoothed_sequences.append([times[i], smoothed_speed])
+    smoothed_sequences = list(zip(times, sequences))
+    # for i in range(len(sequences)):
+    #     smoothed_speed = sequences[i]
+    #     smoothed_sequences.append([times[i], smoothed_speed])
 
     # Sort the array on its starting timestamp
-    smoothed_sequences.sort(key = lambda sequence: sequence[0][0])
+    smoothed_sequences.sort(key=lambda sequence: sequence[0][0])
     pickle.dump(smoothed_sequences, open("all_tmp_datas_at_once.data", "wb+"))
     return smoothed_sequences
+
 
 def get_all_speeds_recorded_local():
     if os.path.exists("all_tmp_datas_at_once.data"):
@@ -133,7 +136,7 @@ def get_all_speeds_recorded_local():
         previous_human = None
         last_time_index = 0
 
-        start_time = 0 # data['timestamps'][0]
+        start_time = 0  # data['timestamps'][0]
 
         for frame_index in range(len(data['timestamps'])):
             human = human_skeleton.HumanSkeleton()
@@ -148,10 +151,13 @@ def get_all_speeds_recorded_local():
                 cooldown = time_cooldown
             else:
                 if starting_human != previous_human:
-                    if sequence_starting and (cooldown < 0 or frame_index == len(data['timestamps']) -1):
+                    if sequence_starting and (cooldown < 0 or frame_index == len(data['timestamps']) - 1):
                         # cooldown = time_cooldown
-                        displacement = np.linalg.norm(np.array(previous_human.get_keypoint3D('LEFT_SHOULDER')) - np.array(starting_human.get_keypoint3D('LEFT_SHOULDER')))
-                        displacement /= ((data['timestamps'][last_time_index]/1000) - (data['timestamps'][sequence_started_index]/1000))
+                        displacement = np.linalg.norm(
+                            np.array(previous_human.get_keypoint3D('LEFT_SHOULDER')) - np.array(
+                                starting_human.get_keypoint3D('LEFT_SHOULDER')))
+                        displacement /= ((data['timestamps'][last_time_index] / 1000) - (
+                                    data['timestamps'][sequence_started_index] / 1000))
                         sequences.append(displacement)
                         sequence_starting = False
                         times.append((data['timestamps'][sequence_started_index], data['timestamps'][last_time_index]))
@@ -173,7 +179,7 @@ def get_all_speeds_recorded_local():
         smoothed_sequences.append([times[i], smoothed_speed])
 
     # Sort the array on its starting timestamp
-    smoothed_sequences.sort(key = lambda sequence: sequence[0][0])
+    smoothed_sequences.sort(key=lambda sequence: sequence[0][0])
     pickle.dump(smoothed_sequences, open("all_tmp_datas_at_once.data", "wb+"))
     return smoothed_sequences
 
@@ -185,8 +191,10 @@ def split_sequences(pir_df: pd.DataFrame):
     return all_sequences
 
 
-
 if __name__ == '__main__':
+    get_all_gait_sequences()
+    print("All data saved as sequence_parameters.json!")
+    exit()
     pir_data = pd.read_csv("all_pir_values.csv")
     sequences = split_sequences(pir_data)
     # speeds = get_all_speeds_recorded()
@@ -210,7 +218,7 @@ if __name__ == '__main__':
 
     print("Parsing")
     for i, seq in enumerate(sequences):
-        print(f"{round(((i+1)/len(sequences))*100)}%")
+        print(f"{round(((i + 1) / len(sequences)) * 100)}%")
         start = dateutil.parser.isoparse(seq['time'].iloc[0].replace("Z", "+00:00")).timestamp() * 1000
         end = dateutil.parser.isoparse(seq['time'].iloc[-1].replace("Z", "+00:00")).timestamp() * 1000
         sequence_id = seq['sequence_id'].iloc[0]
@@ -219,7 +227,7 @@ if __name__ == '__main__':
             human = human_skeleton.HumanSkeleton()
             human.from_feet_analytics(all_data['coordinates'], frame_index)
             number_of_keys = 0
-            for key in ['LEFT_SHOULDER']: #, 'RIGHT_SHOULDER', 'LEFT_HIP', 'RIGHT_HIP']:
+            for key in ['LEFT_SHOULDER']:  # , 'RIGHT_SHOULDER', 'LEFT_HIP', 'RIGHT_HIP']:
                 if human.check_keypoints3D(key):
                     number_of_keys += 10
             if number_of_keys > 1:
@@ -240,7 +248,10 @@ if __name__ == '__main__':
     print("Calculating speeds")
     for seq_id in speeds:
         try:
-            speeds[seq_id]['speed'] = np.linalg.norm(np.array(speeds[seq_id]['end_pos']) - np.array(speeds[seq_id]['start_pos'])) / (speeds[seq_id]['end_time'] - speeds[seq_id]['start_time'])
-            print(f"{speeds[seq_id]['id']} : {round(speeds[seq_id]['speed'] * 1000, 2)}m/s ({speeds[seq_id]['start_time']} - {speeds[seq_id]['end_time']})")
+            speeds[seq_id]['speed'] = np.linalg.norm(
+                np.array(speeds[seq_id]['end_pos']) - np.array(speeds[seq_id]['start_pos'])) / (
+                                                  speeds[seq_id]['end_time'] - speeds[seq_id]['start_time'])
+            print(
+                f"{speeds[seq_id]['id']} : {round(speeds[seq_id]['speed'] * 1000, 2)}m/s ({speeds[seq_id]['start_time']} - {speeds[seq_id]['end_time']})")
         except Exception as e:
             print(e)

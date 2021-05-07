@@ -195,14 +195,12 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
         frame_indexes = data['frames']
         start_timestamp = timestamps[0]
 
-    # print("Not saving to DB")
-    # return
     walking_data = feet_analysis.preprocess_data_for_walk_analysis(data)
     number_of_frames = 0
     for i in range(len(walking_data['coordinates']['NOSE'])):
         number_of_frames += 1
         human = human_skeleton.HumanSkeleton()
-        human.from_feet_analytics(walking_data['coordinates'], i)
+        human.from_feet_analytics(walking_data['coordinates'], 0)
 
         if median_center is not None:
             coord2D, coord3D = human.to_json(median_center, median_center + median_x,
@@ -211,6 +209,7 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                                              scale=0.21)
         else:
             coord2D, coord3D = human.to_json()  # If there is no Aruco box
+        raw2D, raw3D = human.to_json()
 
         footsteps_per_velocity = 0
         stance_swing_ratio = None
@@ -253,9 +252,9 @@ def save_data(bag_filename, client=None, skeletrack=None, device='realsense1', u
                                              walking_speed=walking_speed, footsteps_width=walking_width,
                                              number_of_footsteps=footsteps_per_velocity,
                                              stride_length=footstep_length * 2, step_length=footstep_length,
+                                             raw_coord_2D=raw2D, raw_coord_3D=raw3D,
                                              device=device, send_immediately=False)
     client.send_to_db()
-
 
     print("Done.")
 

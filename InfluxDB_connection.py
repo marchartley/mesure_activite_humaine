@@ -48,7 +48,7 @@ class ListicClientDB():
                                   device=None, ignore_None_values=True, send_immediately=True,
                                   walking_speed=None, footsteps_width=None, number_of_footsteps=None,
                                   stride_length=None, step_length=None,
-                                  timestamp_unit='ms'):
+                                  timestamp_unit='ms', raw_coord_2D=None, raw_coord_3D=None):
         if self.client is None:
             raise Exception(f"Client of {self.__class__.__name__} wasn't configure correctly")
 
@@ -80,6 +80,22 @@ class ListicClientDB():
                             'y': coord2D[key][1],
                         }
                     })
+        if raw_coord_2D is not None:
+            for i, key in enumerate(raw_coord_2D):
+                if ignore_None_values and np.all(raw_coord_2D[key]) is not None:
+                    self.stored_points.append({
+                        'measurement': 'skeleton_detection_2d_raw',
+                        'time': round(timestamp),
+                        'tags': {
+                            'device': device,
+                            'skeleton_id': skeleton_id,
+                            'keypoint': key
+                        },
+                        'fields': {
+                            'x': raw_coord_2D[key][0],
+                            'y': raw_coord_2D[key][1],
+                        }
+                    })
         if coord3D is not None:
             for i, key in enumerate(coord3D):
                 if ignore_None_values and np.all(coord3D[key]) is not None:
@@ -97,16 +113,33 @@ class ListicClientDB():
                             'z': coord3D[key][2],
                         }
                     })
-        # if len(additional_fields) > 0:
-        #     self.walking_metrics.append({
-        #         'measurement': 'walking_metrics',
-        #         'time': round(timestamp),
-        #         'tags': {
-        #             'device': device,
-        #             'skeleton_id': skeleton_id,
-        #         },
-        #         'fields': additional_fields,
-        #     })
+        if raw_coord_3D is not None:
+            for i, key in enumerate(raw_coord_3D):
+                if ignore_None_values and np.all(raw_coord_3D[key]) is not None:
+                    self.stored_points.append({
+                        'measurement': 'skeleton_detection_3d_raw',
+                        'time': round(timestamp),
+                        'tags': {
+                            'device': device,
+                            'skeleton_id': skeleton_id,
+                            'keypoint': key
+                        },
+                        'fields': {
+                            'x': raw_coord_3D[key][0],
+                            'y': raw_coord_3D[key][1],
+                            'z': raw_coord_3D[key][2],
+                        }
+                    })
+            # if len(additional_fields) > 0:
+            #     self.walking_metrics.append({
+            #         'measurement': 'walking_metrics',
+            #         'time': round(timestamp),
+            #         'tags': {
+            #             'device': device,
+            #             'skeleton_id': skeleton_id,
+            #         },
+            #         'fields': additional_fields,
+            #     })
             self.insert_walking_metrics(timestamp, walking_speed,
                                         footsteps_width, number_of_footsteps,
                                         stride_length, step_length, send_immediately, timestamp_unit,
@@ -123,8 +156,8 @@ class ListicClientDB():
 
     def insert_walking_metrics(self, timestamp, walking_speed,
                                footsteps_width, number_of_footsteps,
-                               stride_length, step_length, send_immediately = False,
-                               timestamp_unit = 'ms', skeleton_id=0,
+                               stride_length, step_length, send_immediately=False,
+                               timestamp_unit='ms', skeleton_id=0,
                                device=None, ignore_None_values=True, ):
         if self.client is None:
             raise Exception(f"Client of {self.__class__.__name__} wasn't configure correctly")
@@ -157,6 +190,63 @@ class ListicClientDB():
         return self.retrieve_skeleton_keypoints(start_time=1619395200000, end_time=1619422738000)  # = 26/04/2021 00:00
 
     @lru_cache(maxsize=1)
+    def get_splitted_sequences_boundaries(self, sequence_filename=None, start_time=None, end_time=None,
+                                          merge_skeleton_ids=True, time_between_sequences=20.0):
+        if start_time is None and end_time is None:
+            if sequence_filename is None:
+                pass
+            else:
+                pipeline = recording.start_playback(sequence_filename, realtime=False)
+                start_time = recording.get_frame_timestamp(pipeline.wait_for_frames())
+                duration = pipeline.get_active_profile().get_device().as_playback().get_duration()
+                pipeline = recording.stop_playback(pipeline)
+                duration = (duration / datetime.timedelta(microseconds=1)) / 1e3
+                end_time = start_time + duration
+
+        time_conditions = []
+        if start_time:
+            start_time = math.floor(start_time)
+            time_conditions.append(str(start_time) + "ms <= time")
+        if end_time:
+            end_time = math.ceil(end_time)
+            time_conditions.append("time <= " + str(end_time) + "ms")
+        condition = ""
+        if len(time_conditions) > 0:
+            condition = "WHERE " + " and ".join(time_conditions)
+
+        # First, get the data from InfluxDB, not looking at the keypoint.
+        query = f'SELECT "x" FROM "autogen"."skeleton_detection_3d" {condition}'
+        results = self.client.query(query)
+
+        # Split all the data to group them into clusters of time and find the first and last timestamp of each cluster
+        sequences_interval = []
+        for key, points in results.items():
+            # Get the timestamps in seconds
+            timestamps = np.array(sorted(list(set(
+                [dateutil.parser.isoparse(point['time'].replace("Z", "+00:00")).timestamp() for point in points]))))
+            # Split these values to get groups of timestamps that are closer than "time_between_sequences" seconds apart
+            sequences_interval = list(map(
+                lambda arr: (arr[0] * 1000, arr[-1] * 1000),
+                np.split(timestamps, np.where(np.diff(timestamps) > time_between_sequences)[0] + 1)))
+        return sequences_interval
+
+    @lru_cache(maxsize=1)
+    def get_skeletons_in_splitted_sequences(self, sequence_filename=None, start_time=None, end_time=None,
+                                            merge_skeleton_ids=True, time_between_sequences=20.0,
+                                            sequence_index = None):
+
+        sequences_interval = self.get_splitted_sequences_boundaries(sequence_filename, start_time, end_time,
+                                                                   merge_skeleton_ids, time_between_sequences)
+        # Apply the normal skeleton retrieval with the time boundaries found before
+        if sequence_index is not None:
+            return self.retrieve_skeleton_keypoints(start_time=sequences_interval[sequence_index][0],
+                                                    end_time=sequences_interval[sequence_index][1])
+        skeletons = []
+        for interval in sequences_interval:
+            skeletons.append(self.retrieve_skeleton_keypoints(start_time=interval[0], end_time=interval[1]))
+        return skeletons
+
+    @lru_cache(maxsize=1)
     def get_all_precomputed_speeds(self):
         query = f'SELECT "walking_speed", "footsteps_width", "number_of_footsteps", "stride_length", "step_length" ' \
                 f'FROM "walking_metrics" WHERE time > \'2021-04-21 00:00:00\''
@@ -168,7 +258,7 @@ class ListicClientDB():
         # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "autogen"."pir_network"'
         query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" ' \
                 f'WHERE time > \'2021-04-21 00:00:00\' GROUP BY move'
-                # f'WHERE time > \'2021-04-26 00:00:00\' GROUP BY move'
+        # f'WHERE time > \'2021-04-26 00:00:00\' GROUP BY move'
         # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" WHERE time > \'2021-04-21 12:00:00\' GROUP BY move'
         results = self.client.query(query)
         return results
@@ -191,7 +281,7 @@ class ListicClientDB():
         return closest_timestamp
 
     def retrieve_skeleton_keypoints(self, sequence_filename=None, start_time=None, end_time=None,
-                                    merge_skeleton_ids = True):
+                                    merge_skeleton_ids=True):
         if start_time is None and end_time is None:
             if sequence_filename is None:
                 pass

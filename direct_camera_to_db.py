@@ -58,7 +58,9 @@ class HumanStorage:
                 end_timestamp = timestamp
                 coord2D, coord3D = human.to_json(center, center + x, center + y, center + z,
                                                  scale=convert_realsense_to_real_world.marker_size)
-                db.insert_skeleton_keypoints(coord2D, coord3D, timestamp, human_id, send_immediatly=False)
+                raw2D, raw3D = human.to_json()
+                db.insert_skeleton_keypoints(coord2D, coord3D, timestamp, human_id, send_immediately=False,
+                                             raw_coord_2D=raw2D, raw_coord_3D=raw3D)
             try:
                 speed = np.linalg.norm(starting_point - ending_point)/((end_timestamp - start_timestamp)/1000)
                 print(f"Speed of human #{human_id+1} = {speed} m/s")
