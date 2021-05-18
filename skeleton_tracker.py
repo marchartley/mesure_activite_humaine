@@ -453,9 +453,12 @@ class SkeletonTracker:
         else:
             return [convert_realsense_to_real_world.get_3D_coord_from_realsense(coord, depth_map, pipeline) for coord in self.get_keypoint(name, part, None)]
 
-
-    def draw_skeleton(self, color_image):
+    def draw_skeleton(self, color_image, color = (0, 255, 255), index_of_unavailable = [], color_unavailable = (255, 0, 0)):
         skeletons = self.track_skeletons_async(color_image, use_cache=True, debug_time=False)
+
+        if isinstance(index_of_unavailable, int):
+            index_of_unavailable = [index_of_unavailable]
+
         if len(skeletons) > 0:
             # color_image = _colors_image.copy()
 
@@ -471,20 +474,22 @@ class SkeletonTracker:
 
             possible_keypoints = [key.name for key in keypoints_enum]
             for i, id in enumerate(skeletons['ids']):
+                used_color = color
+                if i in index_of_unavailable:
+                    used_color = color_unavailable
                 for edge in edges_for_skeleton_drawing:
                     if edge[0] not in possible_keypoints or edge[1] not in possible_keypoints:
                         continue
-
                     key0 = tuple(map(int, self.get_keypoint(edge[0], person_id=i)))
                     key1 = tuple(map(int, self.get_keypoint(edge[1], person_id=i)))
 
                     if key0 == (-1, -1) or key1 == (-1, -1):
                         continue
-                    color_image = cv2.line(color_image, key0, key1, (0, 255, 255), 2)
+                    color_image = cv2.line(color_image, key0, key1, used_color, 2)
                 for key in possible_keypoints:
-                    color_image = cv2.circle(color_image, tuple(map(int, self.get_keypoint(key, person_id=i))), 4, (0, 255, 255), -1)
+                    color_image = cv2.circle(color_image, tuple(map(int, self.get_keypoint(key, person_id=i))),
+                                             4, used_color, -1)
         return color_image
-
 
     def get_number_of_skeletons(self, color_image=None):
         if color_image is None:
@@ -494,7 +499,8 @@ class SkeletonTracker:
 
         return len(results['body'])
 
-    def check_user_presence(self, tracker_results = None, color_image = None, required_confidence = None, min_number_of_joints_per_person = 0):
+    def check_user_presence(self, tracker_results = None, color_image = None,
+                            required_confidence = None, min_number_of_joints_per_person = 0):
         if tracker_results is not None:
             results = tracker_results
         elif color_image is None:
