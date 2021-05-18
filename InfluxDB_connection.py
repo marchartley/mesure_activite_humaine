@@ -1,3 +1,5 @@
+import time
+
 import influxdb as db
 import numpy as np
 import recording
@@ -246,6 +248,36 @@ class ListicClientDB():
             skeletons.append(self.retrieve_skeleton_keypoints(start_time=interval[0], end_time=interval[1]))
         return skeletons
 
+    def get_pir_values_from_walking_sequence(self, skeleton_data = None, start_time = None,
+                                             end_time = None, id_sequence = None, time_offset = 5.0,
+                                             time_between_sequences = 20.0):
+        pir_start = None
+        pir_end = None
+        if skeleton_data is not None:
+            min_time = min([skeleton_data[keypoint][0]['time_ms'] for keypoint in skeleton_data])
+            max_time = max([skeleton_data[keypoint][-1]['time_ms'] for keypoint in skeleton_data])
+            pir_start = min_time
+            pir_end = max_time
+
+        elif start_time is not None and end_time is not None:
+            pir_start = start_time
+            pir_end = end_time
+        elif id_sequence is not None:
+            boundaries = self.get_splitted_sequences_boundaries(time_between_sequences = time_between_sequences)
+            pir_start = boundaries[id_sequence][0]
+            pir_end = boundaries[id_sequence][1]
+        else:
+            raise Exception("One of those parameters must be used to get the PIR sequence:\n"
+                            "- skeleton_data (dictionary coming from "
+                            "InfluxDB_connection.retrieve_skeleton_keypoints() )\n"
+                            "- start_time and end_time\n"
+                            "- sequence_id and time_between_sequences")
+        pir_start -= time_offset * 1000
+        pir_end += time_offset * 1000
+
+        return self.get_all_pir_values(start = pir_start, end = pir_end, group_by_move = False)
+
+
     @lru_cache(maxsize=1)
     def get_all_precomputed_speeds(self):
         query = f'SELECT "walking_speed", "footsteps_width", "number_of_footsteps", "stride_length", "step_length" ' \
@@ -253,13 +285,28 @@ class ListicClientDB():
         results = self.client.query(query)
         return results
 
+    def timestamp_to_date_format(self, timestamp, unit='ms'):
+        if unit == 's':
+            timestamp /= 1000
+        date = datetime.datetime.fromtimestamp(timestamp, tz = datetime.timezone.utc)
+        return date.strftime('%Y-%m-%dT%H:%M:%SZ')
+
     @lru_cache(maxsize=2)
-    def get_all_pir_values(self):
-        # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "autogen"."pir_network"'
-        query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" ' \
-                f'WHERE time > \'2021-04-21 00:00:00\' GROUP BY move'
-        # f'WHERE time > \'2021-04-26 00:00:00\' GROUP BY move'
-        # query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" WHERE time > \'2021-04-21 12:00:00\' GROUP BY move'
+    def get_all_pir_values(self, start = None, end = None, group_by_move = True):
+        if start is None:
+            start = '2021-04-21 00:00:00'
+
+        if not isinstance(start, str):
+            start = self.timestamp_to_date_format(start, unit='s')
+        where_condition = f'WHERE time > \'{start}\''
+        if end is not None:
+            if not isinstance(end, str):
+                end = self.timestamp_to_date_format(end, unit='s')
+            where_condition += f' AND time < \'{end}\''
+        group_by_condition = 'GROUP BY move' if group_by_move else ''
+
+        query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" {where_condition} {group_by_condition}'
+        print(query)
         results = self.client.query(query)
         return results
 
@@ -350,3 +397,8 @@ class ListicClientDB():
             max_timestamp = max(max_timestamp, max([data['time_ms'] for data in skeleton_data[keypoint]]))
 
         return max_timestamp > current_timestamp
+
+
+# client = ListicClientDB(server_side=True)
+# res = client.get_pir_values_from_walking_sequence(id_sequence=-3, time_between_sequences=5.0)
+# print(res.raw)
