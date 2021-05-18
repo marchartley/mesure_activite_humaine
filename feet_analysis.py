@@ -151,10 +151,10 @@ def get_data(json_filename):
 
 
 # Load the skeletons from InfluxDB
-def get_data_from_db(sequence_id=None, time_between_sequences=20.0):
+def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side = True):
     # limit = 200
     # Connect to InfluxDB and get all the skeleton's coordinates
-    client = InfluxDB_connection.ListicClientDB(server_side=True)
+    client = InfluxDB_connection.ListicClientDB(server_side = server_side)
     if sequence_id is None:
         _, skeletons3D = client.get_all_skeletons()
     else:
@@ -193,7 +193,7 @@ def get_data_from_db(sequence_id=None, time_between_sequences=20.0):
     for col in cols:
         full_df[col] = pd.to_numeric(full_df[col])
     # Interpolate the X, Y, Z values
-    full_df[cols] = full_df[cols].interpolate(axis=0, limit_area='inside')
+    full_df[cols] = full_df[cols].interpolate(axis=0, limit_area='inside', method='linear')
     # Convert the X, Y, Z columns into vectors
     for keypoint in skeletons3D:
         full_df[keypoint] = full_df.apply(
@@ -227,6 +227,81 @@ def get_data_from_db(sequence_id=None, time_between_sequences=20.0):
                 continue
         json_data['velocities'][keypoint] = np.append([0], movement)
         for keypoint2 in skeletons3D:
+            json_data['distances'][f'{keypoint}-{keypoint2}'] = full_df.apply(
+                lambda row: np.linalg.norm(row[keypoint] - row[keypoint2]), axis=1).values
+
+    return json_data
+
+
+# From a collection of skeletons created for example by the HumanStorage,
+# Create the json data that is used in the feet analysis functions
+# The "human_collection" must be in the shape:
+# {
+#   'timestamp1': HumanSkeleton(),
+#   'timestamp2': HumanSkeleton(),
+#   ...
+# }
+def create_feet_analysis_data_from_humans(human_collection):
+    timestamps = list(human_collection.keys())
+    keys = []
+    full_keys = []
+    for keypoint in human_skeleton.BodyParts:
+        keys.append(keypoint.name)
+        full_keys.extend([keypoint.name + '_' + coord for coord in ('x', 'y', 'z')])
+    full_keys.extend(keys)
+
+    # Create the empty DataFrame with one line per possible timestamp
+    full_df = pd.DataFrame(columns=full_keys, index=timestamps)
+    for timestamp in human_collection:
+        human = human_collection[timestamp]
+        for keypoint in keys:
+            # Store the coordinates of this keypoint using the timestamp as index
+            if human.check_keypoints3D(keypoint):
+                keypoint_coord = human.get_keypoint3D(keypoint)
+                # Fill each cell, line-per-line
+                full_df[f'{keypoint}_x'][timestamp] = keypoint_coord[0]
+                full_df[f'{keypoint}_y'][timestamp] = keypoint_coord[1]
+                full_df[f'{keypoint}_z'][timestamp] = keypoint_coord[2]
+
+    # Convert the X, Y, Z's columns to numeric data
+    cols = [col for col in full_df.columns if '_x' in col or '_y' in col or '_z' in col]
+    for col in cols:
+        full_df[col] = pd.to_numeric(full_df[col])
+    # Interpolate the X, Y, Z values
+    full_df[cols] = full_df[cols].interpolate(axis=0, limit_area='inside')
+    # Convert the X, Y, Z columns into vectors
+    for keypoint in keys:
+        full_df[keypoint] = full_df.apply(
+            lambda row: np.array([row[f'{keypoint}_x'], row[f'{keypoint}_y'], row[f'{keypoint}_z']])
+            if row[f'{keypoint}_x'] is not None else np.array([0, 0, 0])
+            , axis=1)
+
+    json_data = {
+        'frames': list(range(full_df.shape[0])),
+        'timestamps': full_df.index.values / 1000,
+        'coordinates': {},
+        'distances': {},
+        'velocities': {}
+    }
+    for keypoint in keys:
+        # The vectors have already been computed
+        json_data['coordinates'][keypoint] = full_df[keypoint].values
+
+        # Compute velocities by shifting the values and compute the difference
+        previous_pos = np.array(json_data['coordinates'][keypoint][:-1])
+        next_pos = np.array(json_data['coordinates'][keypoint][1:])  # Shift the array by one
+        number_of_velocities = len(json_data['coordinates'][keypoint]) - 1
+        movement = np.array([0] * number_of_velocities, dtype=float)
+        for i in range(number_of_velocities):
+            if previous_pos[i] is np.nan or next_pos[i] is np.nan or None in previous_pos[i] or None in next_pos[i]:
+                continue
+            try:
+                movement[i] = (np.linalg.norm(next_pos[i] - previous_pos[i]) / (
+                        json_data['timestamps'][i] - json_data['timestamps'][i - 1]))
+            except:
+                continue
+        json_data['velocities'][keypoint] = np.append([0], movement)
+        for keypoint2 in keys:
             json_data['distances'][f'{keypoint}-{keypoint2}'] = full_df.apply(
                 lambda row: np.linalg.norm(row[keypoint] - row[keypoint2]), axis=1).values
 
@@ -294,6 +369,20 @@ def remove_None_by_interpolation(values, extreme_values=0):
                     distance_after / (distance_before + distance_after))
     return values
 
+def replace_trailing_and_leading_zeros_in_array(array, remove_leading = True, remove_trailing = True,
+                                                replace_value = None):
+    array = np.array(array)
+    zeros_index = np.where(array == 0)
+    # Group the indices that are following each other together
+    # Ex: for zeros_index = [0, 1, 2, 5, 6, 10, 11]
+    #   Result is [(0, 1, 2), (5, 6), (10, 11)]
+    zeros_index = np.split(zeros_index[0], np.where(np.diff(zeros_index[0]) > 1)[0] + 1)
+    # The first indices are the leading ones, while the last ones are the trailing 0's
+    if remove_leading:
+        array[zeros_index[0]] = replace_value
+    if remove_trailing:
+        array[zeros_index[-1]] = replace_value
+    return array
 
 # Display a plot with the calculation of footsteps by distance and by velocity
 def visualize_data(data, time_in_seconds=True):
@@ -304,10 +393,16 @@ def visualize_data(data, time_in_seconds=True):
     frames = data['frames']
     timestamps = timestamps - timestamps[0]
 
+    feet_distance = data['distances']['RIGHT_ANKLE-LEFT_ANKLE']
     diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
     diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
     diff_right[diff_right < 0] = 0
     diff_left[diff_left < 0] = 0
+
+    # Replace the leading and trailing 0's to None to remove them from the plots
+    diff_left = replace_trailing_and_leading_zeros_in_array(diff_left)
+    diff_right = replace_trailing_and_leading_zeros_in_array(diff_right)
+    feet_distance = replace_trailing_and_leading_zeros_in_array(feet_distance)
 
     # Change the X-axis depending on the unit we want (frame number of time)
     if time_in_seconds:
@@ -334,7 +429,7 @@ def visualize_data(data, time_in_seconds=True):
 
     # Display footsteps by distance
     plt.subplot(212)
-    plt.plot(x_axis, data['distances']['RIGHT_ANKLE-LEFT_ANKLE'], 'g-', label='Distance between feet')
+    plt.plot(x_axis, feet_distance, 'g-', label='Distance between feet')
     for foot_estimation in motion_detection_distance:
         plt.axvline(x=foot_estimation, color=(.0, .0, 1.0, .4))
     plt.ylabel('Distance (m)')
@@ -497,6 +592,7 @@ def compute_walking_speed(data):
     return np.median([np.median(velocities_lh), np.median(velocities_rh),
                       np.median(velocities_rs), np.median(velocities_ls)])
 
+
 # Estimate the width of the gait
 def compute_stride_length(data):
     # It is hard to decide if we want to use the footstep estimation by velocity or by distance,
@@ -558,6 +654,8 @@ def compute_stride_length(data):
     left_length = np.median(stride_lengths['left'])
     stride_length = np.mean([right_length, left_length])
     return stride_length, right_length, left_length
+
+
 #
 # def compute_stride_length(data):
 #     walking_speed = compute_walking_speed(data)

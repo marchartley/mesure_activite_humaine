@@ -1,3 +1,4 @@
+import feet_analysis
 import human_skeleton
 import skeleton_tracker as tracker
 import cv2
@@ -12,11 +13,14 @@ import convert_realsense_to_real_world
 
 
 class HumanStorage:
-    def __init__(self, send_data_after=-1, db: InfluxDB_connection.ListicClientDB = None):
+    def __init__(self, send_data_after=-1, db: InfluxDB_connection.ListicClientDB = None, cooldown = None):
         self.humans = {}
         self.number_of_data_collected = 0
         self.send_data_after = send_data_after
         self.db = db
+
+        self.cooldown_limit = cooldown
+        self.cooldown = self.cooldown_limit
 
     def update(self, skeletrack: tracker.SkeletonTracker, depth_map, db: InfluxDB_connection.ListicClientDB = None):
         self.number_of_data_collected += 1
@@ -35,6 +39,15 @@ class HumanStorage:
                 db = self.db
             if self.number_of_data_collected >= self.send_data_after:
                 self.toDB(db)
+        elif self.cooldown is not None:
+            if number_of_persons == 0 and len(self.humans) > 0:
+                self.cooldown -= 1
+
+            if db is None:
+                db = self.db
+            if self.cooldown <= 0:
+                self.toDB(db)
+                self.cooldown = self.cooldown_limit
 
     def setDB(self, db: InfluxDB_connection.ListicClientDB):
         self.db = db
@@ -62,9 +75,43 @@ class HumanStorage:
                 db.insert_skeleton_keypoints(coord2D, coord3D, timestamp, human_id, send_immediately=False,
                                              raw_coord_2D=raw2D, raw_coord_3D=raw3D)
             try:
-                speed = np.linalg.norm(starting_point - ending_point)/((end_timestamp - start_timestamp)/1000)
-                print(f"Speed of human #{human_id+1} = {speed} m/s")
-            except:
+                # speed = np.linalg.norm(starting_point - ending_point)/((end_timestamp - start_timestamp)/1000)
+                # print(f"Speed of human #{human_id+1} = {speed} m/s")
+                data = feet_analysis.create_feet_analysis_data_from_humans(self.humans[0])
+                motion_threshold = 0.8  # 0.8 m/s ~= 3km/h
+
+                original_data = feet_analysis.preprocess_data_for_walk_analysis(data)
+
+                footsteps_motion = feet_analysis.estimate_footsteps(original_data, motion_threshold=motion_threshold)[0]
+                footsteps_distance = feet_analysis.estimate_footsteps_by_distance(original_data, 3)[0]
+                cycle_time = feet_analysis.compute_cycle_time(data)
+                stance_ratio_right = feet_analysis.compute_stance_ratio(data, motion_threshold=motion_threshold,
+                                                                        concerned_foot="RIGHT_ANKLE")
+                stance_ratio_left = feet_analysis.compute_stance_ratio(data, motion_threshold=motion_threshold,
+                                                                       concerned_foot="LEFT_ANKLE")
+                double_support_ratio = feet_analysis.compute_double_support_time(data,
+                                                                                 motion_threshold=motion_threshold)
+                footstep_width = feet_analysis.estimate_footsteps_width(data)
+                walking_speed = feet_analysis.compute_walking_speed(data)
+                stride_length, right_length, left_length = feet_analysis.compute_stride_length(data)
+
+                print(footsteps_motion, "footsteps estimated with motion")
+                print(footsteps_distance, "footsteps estimated with distance")
+
+                print(f"Walking speed              = {round(walking_speed * 3.6, 2)} km/h")
+                print(f"Cycle Time                 = {round(cycle_time, 3)} sec/step")
+                print(f"Cadence                    = {round(60 / cycle_time, 1)} steps/min")
+                print(f"Stance ratio (Right)       = {round(stance_ratio_right * 100, 2)}%")
+                print(f"Stance ratio (Left)        = {round(stance_ratio_left * 100, 2)}%")
+                print(f"Double support time        = {round(double_support_ratio * 100, 2)}%")
+                print(f"Width of footsteps         = {round(footstep_width * 100)}cm")
+                print(f"Stride length              = {round(stride_length * 100)}cm")
+                print(f"Stride length (R)          = {round(right_length * 100)}cm")
+                print(f"Stride length (L)          = {round(left_length * 100)}cm")
+
+                feet_analysis.visualize_data(original_data, time_in_seconds=True)
+            except Exception as e:
+                print(e)
                 pass
         db.send_to_db()
         self.reset()
@@ -134,7 +181,7 @@ if __name__ == "__main__":
     skeletrack = tracker.SkeletonTracker(choose_best_module=True, pipeline=pipeline, image_is_upside_down=True)
 
     # Instantiate the human storage to get the skeletons and send automatically to InfluxDB
-    human_storage = HumanStorage(send_data_after=10, db=db_client)
+    human_storage = HumanStorage(cooldown = 100, db=db_client)
 
     number_of_frames = 0
     start_time = time.time()
@@ -162,7 +209,6 @@ if __name__ == "__main__":
         if convert_realsense_to_real_world.get_number_of_calibration_of_aruco_box() < number_of_aruco_calibration_needed:
             convert_realsense_to_real_world.calibrate_aruco_cube(color_frame, depth_frame=depth_frame,
                                                                  pipeline=pipeline)
-            color_frame = convert_realsense_to_real_world.display_reference(color_frame, pipeline)
 
         else:
             calibration_finished = True
@@ -171,9 +217,16 @@ if __name__ == "__main__":
 
             if skeletrack.check_user_presence():
                 body_present = True
-                color_frame = skeletrack.draw_skeleton(color_frame)
+                unavailable_indices = []
+                for i, id_skeleton in enumerate(skeletons['ids']):
+                    human = human_skeleton.HumanSkeleton()
+                    human.from_tracker(skeletrack, i, depth_frame)
+                    if not human.check_keypoints3D([key.name for key in human_skeleton.BodyParts]):
+                        unavailable_indices.append(i)
+                color_frame = skeletrack.draw_skeleton(color_frame, index_of_unavailable = unavailable_indices)
             else:
                 body_present = False
+        color_frame = convert_realsense_to_real_world.display_reference(color_frame, pipeline)
 
         status = ""
         status_text = ""
@@ -189,7 +242,13 @@ if __name__ == "__main__":
         else:
             status = "wait"
             status_text = "No skeleton found"
+            if human_storage.cooldown < human_storage.cooldown_limit:
+                status_text += f' (saving data in {round(human_storage.cooldown / fps, 1)}s)'
             status_color = (0, 0, 255) # BLUE
+
+        # Rotate the image
+        color_frame = cv2.flip(color_frame, 0)
+        color_frame = cv2.flip(color_frame, 1)
         # Display the FPS and status on screen
         cv2.putText(color_frame, "Status: " + status_text, (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, status_color, 2)
