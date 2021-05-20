@@ -92,6 +92,7 @@ class HumanSkeleton():
                 self.body_parts_3D[key] = self.POSITION_NOT_FOUND3D
             else:
                 self.body_parts_3D[key] = coordinates[key][index]
+        return self
 
     # Get the keypoints from the skeleton_tracker
     def from_tracker(self, tracker, id, depth_map=None):
@@ -107,6 +108,7 @@ class HumanSkeleton():
                 self.body_parts_2D[key] = tracker.get_keypoint(key, person_id=id)
                 if tracker.is_3D_available and depth_map is not None:
                     self.body_parts_3D[key] = tracker.get_keypoint3D(key, depth_map, person_id=id)
+        return self
 
     # Get the keypoints from a JSON file (mostly used when using InfluxDB data)
     def from_json(self, data2D=None, data3D=None, specific_timestamp=None, id=None,
@@ -145,6 +147,7 @@ class HumanSkeleton():
                     position = data3D[key]
 
                 self.body_parts_3D[BodyParts[key].name] = position
+        return self
 
     def to_json(self, ref_center=None, ref_x=None, ref_y=None, ref_z=None, scale = 1.0):
         if ref_center is None:
@@ -475,6 +478,7 @@ class HumanSkeleton():
             if self.get_keypoint2D(name) is self.POSITION_NOT_FOUND2D:
                 return False
         return True
+
     def check_keypoints3D(self, names):
         if isinstance(names, str):
             names = [names]
@@ -482,3 +486,31 @@ class HumanSkeleton():
             if self.get_keypoint3D(name) is self.POSITION_NOT_FOUND3D:
                 return False
         return True
+
+    def get_number_of_visible_keypoints(self):
+        number_of_visible_keypoints = 0
+        for key in self.body_parts_3D:
+            if self.body_parts_3D[key] is not self.POSITION_NOT_FOUND3D and np.nan not in self.body_parts_3D[key]:
+                number_of_visible_keypoints += 1
+        return number_of_visible_keypoints
+
+    def get_mean_position_of_points(self):
+        positions = []
+        for key in self.body_parts_3D:
+            if self.body_parts_3D[key] is not self.POSITION_NOT_FOUND3D and np.nan not in self.body_parts_3D[key]:
+                positions.append(self.body_parts_3D[key])
+        # print(positions)
+        return np.median(positions, axis=0)
+
+    # TODO: make sure that the transformation doesn't change the data types
+    def apply_new_reference(self, aruco_reference, aruco_size):
+        center, x, y, z = aruco_reference
+        for keypoint in self.body_parts_3D:
+            if self.check_keypoints3D(keypoint):
+                # print(keypoint, self.body_parts_3D[keypoint])
+                self.body_parts_3D[keypoint] = coord_conversion.translate_coord_to_world(self.body_parts_3D[keypoint],
+                                                                                         center, center + x,
+                                                                                         center + y, center + z,
+                                                                                         aruco_size)
+                # print(keypoint, self.body_parts_3D[keypoint])
+        return self

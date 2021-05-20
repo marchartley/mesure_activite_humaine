@@ -20,7 +20,7 @@ def get_all_gait_sequences():
     client = InfluxDB_connection.ListicClientDB(server_side=True)
 
     motion_threshold = 0.8  # 0.8m/s ~ 3km/h
-    sequences_boundaries = client.get_splitted_sequences_boundaries(time_between_sequences=1.0)
+    sequences_boundaries = client.get_splitted_sequences_boundaries(time_between_sequences=1.0, ignore_small_sequences=0.2)
     sequences_parameters = []
 
     for sequence_id in range(len(sequences_boundaries)):

@@ -196,7 +196,7 @@ def create_video_for_one_person(db_client:InfluxDB_connection.ListicClientDB, or
 					frames_depth.append(cropped_depth_frame)
 
 				else: # The person is not in the frame
-					is_last_frame_with_body = not InfluxDB_connection.ListicClientDB.check_if_body_will_reapear(skeleton_db2D[skeleton_id], current_timestamp/1000)
+					is_last_frame_with_body = not InfluxDB_connection.ListicClientDB.check_if_body_will_reappear(skeleton_db2D[skeleton_id], current_timestamp / 1000)
 					if is_last_frame_with_body:
 						break # Stop the recording if the body won't reappear
 
