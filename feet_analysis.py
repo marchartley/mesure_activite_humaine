@@ -151,7 +151,7 @@ def get_data(json_filename):
 
 
 # Load the skeletons from InfluxDB
-def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side = True):
+def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side = True, start_time = 0):
     # limit = 200
     # Connect to InfluxDB and get all the skeleton's coordinates
     client = InfluxDB_connection.ListicClientDB(server_side = server_side)
@@ -159,7 +159,9 @@ def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side 
         _, skeletons3D = client.get_all_skeletons()
     else:
         _, skeletons3D = client.get_skeletons_in_splitted_sequences(sequence_index=sequence_id,
-                                                                    time_between_sequences=time_between_sequences)
+                                                                    time_between_sequences=time_between_sequences,
+                                                                    start_time = start_time,
+                                                                    ignore_small_sequences=0.5)
         # _, skeletons3D = sequences[sequence_id]
 
     # For now, we merge all the skeletons in one...
@@ -273,7 +275,7 @@ def create_feet_analysis_data_from_humans(human_collection):
     for keypoint in keys:
         full_df[keypoint] = full_df.apply(
             lambda row: np.array([row[f'{keypoint}_x'], row[f'{keypoint}_y'], row[f'{keypoint}_z']])
-            if row[f'{keypoint}_x'] is not None else np.array([0, 0, 0])
+            if row[f'{keypoint}_x'] is not None and not np.isnan(row[f'{keypoint}_x']) else np.array([0, 0, 0])
             , axis=1)
 
     json_data = {
@@ -373,19 +375,25 @@ def replace_trailing_and_leading_zeros_in_array(array, remove_leading = True, re
                                                 replace_value = None):
     array = np.array(array)
     zeros_index = np.where(array == 0)
+    if len(zeros_index[0]) == 0:
+        return array  # Nothing to do
     # Group the indices that are following each other together
     # Ex: for zeros_index = [0, 1, 2, 5, 6, 10, 11]
     #   Result is [(0, 1, 2), (5, 6), (10, 11)]
     zeros_index = np.split(zeros_index[0], np.where(np.diff(zeros_index[0]) > 1)[0] + 1)
     # The first indices are the leading ones, while the last ones are the trailing 0's
     if remove_leading:
-        array[zeros_index[0]] = replace_value
+        # The first index of the first group must be 0 if it's a leading item
+        if zeros_index[0][0] == 0:
+            array[zeros_index[0]] = replace_value
     if remove_trailing:
-        array[zeros_index[-1]] = replace_value
+        # The last index of the last group must be the last index of the original array to be "trailing"
+        if zeros_index[-1][-1] == len(array) - 1:
+            array[zeros_index[-1]] = replace_value
     return array
 
 # Display a plot with the calculation of footsteps by distance and by velocity
-def visualize_data(data, time_in_seconds=True):
+def visualize_data(data, time_in_seconds=True, non_blocking = False):
     footsteps_motion = estimate_footsteps(data, motion_threshold=0.01)[1]
     footsteps_distance = estimate_footsteps_by_distance(data, 3)[1]
 
@@ -404,6 +412,9 @@ def visualize_data(data, time_in_seconds=True):
     diff_right = replace_trailing_and_leading_zeros_in_array(diff_right)
     feet_distance = replace_trailing_and_leading_zeros_in_array(feet_distance)
 
+    x_start = min(np.where(diff_left != None)[0][0], np.where(diff_right != None)[0][0], np.where(feet_distance != None)[0][0])
+    x_end = max(np.where(diff_left != None)[0][-1], np.where(diff_right != None)[0][-1], np.where(feet_distance != None)[0][-1])
+
     # Change the X-axis depending on the unit we want (frame number of time)
     if time_in_seconds:
         x_axis = timestamps
@@ -415,6 +426,11 @@ def visualize_data(data, time_in_seconds=True):
         x_label = "Time (frames)"
         motion_detection_motion = footsteps_motion['frames']
         motion_detection_distance = footsteps_distance['frames']
+
+    x_axis = x_axis[x_start:x_end]
+    diff_left = diff_left[x_start:x_end]
+    diff_right = diff_right[x_start:x_end]
+    feet_distance = feet_distance[x_start:x_end]
 
     # Display footsteps by velocity
     plt.subplot(211)
@@ -437,7 +453,7 @@ def visualize_data(data, time_in_seconds=True):
     plt.xlabel(x_label)
     plt.legend()
 
-    plt.show()
+    plt.show(block = not non_blocking)
 
 
 # Process the data to remove None values and smooth the values
@@ -581,6 +597,13 @@ def compute_double_support_time(data, motion_threshold=0.01):
 # Get the walking speed with the average of the movement of the shoulders/hips
 # This function should maybe not be used...
 def compute_walking_speed(data):
+    velocities_rh = np.array(data['velocities']['RIGHT_HIP'])
+    velocities_rh = velocities_rh[np.logical_and(np.isfinite(velocities_rh), velocities_rh > 0)]
+    velocities_lh = np.array(data['velocities']['LEFT_HIP'])
+    velocities_lh = velocities_lh[np.logical_and(np.isfinite(velocities_lh), velocities_lh > 0)]
+    return np.median([np.median(velocities_lh), np.median(velocities_rh)])
+
+    """
     velocities_rs = np.array(data['velocities']['RIGHT_SHOULDER'])
     velocities_rs = velocities_rs[np.logical_and(np.isfinite(velocities_rs), velocities_rs > 0)]
     velocities_ls = np.array(data['velocities']['LEFT_SHOULDER'])
@@ -590,7 +613,7 @@ def compute_walking_speed(data):
     velocities_lh = np.array(data['velocities']['LEFT_HIP'])
     velocities_lh = velocities_lh[np.logical_and(np.isfinite(velocities_lh), velocities_lh > 0)]
     return np.median([np.median(velocities_lh), np.median(velocities_rh),
-                      np.median(velocities_rs), np.median(velocities_ls)])
+                      np.median(velocities_rs), np.median(velocities_ls)])"""
 
 
 # Estimate the width of the gait
@@ -667,7 +690,80 @@ def compute_stride_length(data):
 #     total_distance_walked = sequence_duration * walking_speed
 #     return total_distance_walked / (number_of_steps - 1)
 
-if __name__ == "__main__":
+def get_walking_direction(data):
+    starting_point = None
+    ending_point = None
+    for i in range(len(data['frames'])):
+        if starting_point is None:
+            starting_human = human_skeleton.HumanSkeleton()
+            starting_human.from_feet_analytics(data['coordinates'], i)
+            if starting_human.get_number_of_visible_keypoints() > 2:
+                print("Start :")
+                print({key: data['coordinates'][key][i] for key in data['coordinates']})
+                starting_point = starting_human.get_mean_position_of_points()
+        if ending_point is None:
+            ending_human = human_skeleton.HumanSkeleton()
+            ending_human.from_feet_analytics(data['coordinates'], len(data['frames']) - i - 1)
+            if ending_human.get_number_of_visible_keypoints() > 2:
+                print("End:")
+                print({key: data['coordinates'][key][len(data['frames']) - i - 1] for key in data['coordinates']})
+                ending_point = ending_human.get_mean_position_of_points()
+        if starting_point is not None and ending_point is not None:
+            break
+
+    print(ending_point, starting_point)
+    # If the displacement is at least 2m away from the camera (North - South), set to 1
+    if (ending_point - starting_point)[2] > 2.0:
+        return 1
+    # If the displacement is at least 2m towards the camera (South - North), set to -1
+    elif (ending_point - starting_point)[2] < -2.0:
+        return -1
+    # Otherwise, the movement is quite undefined, set to 0 (this can be a way to filter after)
+    else:
+        return 0
+
+
+def get_walking_features(data = None, id_sequence = None, time_between_sequences = 1.0, server_side = True, motion_threshold = 0.8,
+                         start_time = 0):
+    if data is None:
+        data = get_data_from_db(id_sequence, time_between_sequences = time_between_sequences, server_side = server_side,
+                                start_time = start_time)
+    original_data = preprocess_data_for_walk_analysis(data)
+
+    footsteps_motion = estimate_footsteps(original_data, motion_threshold=motion_threshold)[0]
+    footsteps_distance = estimate_footsteps_by_distance(original_data, 3)[0]
+    cycle_time = compute_cycle_time(data)
+    cadence = 60 / cycle_time
+    stance_ratio_right = compute_stance_ratio(data, motion_threshold=motion_threshold, concerned_foot="RIGHT_ANKLE")
+    stance_ratio_left = compute_stance_ratio(data, motion_threshold=motion_threshold, concerned_foot="LEFT_ANKLE")
+    double_support_ratio = compute_double_support_time(data, motion_threshold=motion_threshold)
+    footstep_width = estimate_footsteps_width(data)
+    walking_speed = compute_walking_speed(data)
+    stride_length, right_length, left_length = compute_stride_length(data)
+    direction = get_walking_direction(data)
+
+    params = {'nb_steps_motion': footsteps_motion,
+              'nb_steps_distance': footsteps_distance,
+              'cycle_time': cycle_time,
+              'cadence': cadence,
+              'stance_ratio_right': stance_ratio_right,
+              'stance_ratio_left': stance_ratio_left,
+              'double_support_ratio': double_support_ratio,
+              'footstep_width': footstep_width,
+              'walking_speed': walking_speed,
+              'stride_length': stride_length,
+              'stride_length_right': right_length,
+              'stride_length_left': left_length,
+              'direction': direction,
+              }
+    return params
+
+def display_walking_features(walking_features: dict):
+    text_length = max([len(key) for key in walking_features])
+    for key in walking_features:
+        print(f"{str(key)}{' ' * (text_length - len(key))}: {walking_features[key]}")
+
+def main():
     # motion_threshold = 0.01  # 0.01 m/s ~= 0.5m/min
     motion_threshold = 0.8  # 0.8 m/s ~= 3km/h
     # save_data("recordings/20210415_150731.bag", "data_big_steps.json",
@@ -675,7 +771,7 @@ if __name__ == "__main__":
     #           visual = True,
     #           needed_keypoints = ['RIGHT_ANKLE', 'LEFT_ANKLE'])
     # data = get_data("data_big_steps.json")
-    data = get_data_from_db(-1, time_between_sequences=1.0)
+    data = get_data_from_db(-1, time_between_sequences=1.0, server_side=True)
     original_data = preprocess_data_for_walk_analysis(data)
 
     # footsteps_per_velo = []
@@ -703,6 +799,10 @@ if __name__ == "__main__":
     # plt.plot(x_axis, widths)
     # plt.show()
 
+    display_walking_features(get_walking_features(data = data))
+    # print(get_walking_direction(data))
+    exit()
+
     footsteps_motion = estimate_footsteps(original_data, motion_threshold=motion_threshold)[0]
     footsteps_distance = estimate_footsteps_by_distance(original_data, 3)[0]
     cycle_time = compute_cycle_time(data)
@@ -724,7 +824,11 @@ if __name__ == "__main__":
     print(f"Double support time        = {round(double_support_ratio * 100, 2)}%")
     print(f"Width of footsteps         = {round(footstep_width * 100)}cm")
     print(f"Stride length              = {round(stride_length * 100)}cm")
-    print(f"Stride length (R)          = {round(right_length * 100)}cm")
+    print(f"Stride length (R)           = {round(right_length * 100)}cm")
     print(f"Stride length (L)          = {round(left_length * 100)}cm")
 
     visualize_data(original_data, time_in_seconds=True)
+
+
+if __name__ == "__main__":
+    main()

@@ -10,6 +10,8 @@ import recording
 import threading
 import InfluxDB_connection
 import convert_realsense_to_real_world
+# import matplotlib.pyplot as plt
+import threading
 
 
 class HumanStorage:
@@ -69,6 +71,8 @@ class HumanStorage:
                     start_timestamp = timestamp
                 ending_point = human.get_center_of_gravity()
                 end_timestamp = timestamp
+                # coord2D, coord3D = human.apply_new_reference(convert_realsense_to_real_world.get_aruco_reference(),
+                #                                              convert_realsense_to_real_world.marker_size).to_json()
                 coord2D, coord3D = human.to_json(center, center + x, center + y, center + z,
                                                  scale=convert_realsense_to_real_world.marker_size)
                 raw2D, raw3D = human.to_json()
@@ -77,7 +81,7 @@ class HumanStorage:
             try:
                 # speed = np.linalg.norm(starting_point - ending_point)/((end_timestamp - start_timestamp)/1000)
                 # print(f"Speed of human #{human_id+1} = {speed} m/s")
-                data = feet_analysis.create_feet_analysis_data_from_humans(self.humans[0])
+                data = feet_analysis.create_feet_analysis_data_from_humans(self.humans[human_id])
                 motion_threshold = 0.8  # 0.8 m/s ~= 3km/h
 
                 original_data = feet_analysis.preprocess_data_for_walk_analysis(data)
@@ -95,6 +99,8 @@ class HumanStorage:
                 walking_speed = feet_analysis.compute_walking_speed(data)
                 stride_length, right_length, left_length = feet_analysis.compute_stride_length(data)
 
+                walking_direction = feet_analysis.get_walking_direction(data)
+
                 print(footsteps_motion, "footsteps estimated with motion")
                 print(footsteps_distance, "footsteps estimated with distance")
 
@@ -108,8 +114,14 @@ class HumanStorage:
                 print(f"Stride length              = {round(stride_length * 100)}cm")
                 print(f"Stride length (R)          = {round(right_length * 100)}cm")
                 print(f"Stride length (L)          = {round(left_length * 100)}cm")
+                if walking_direction == 1:
+                    print(f"Walking from North to South")
+                elif walking_direction == -1:
+                    print(f"Walking from South to North")
+                else:
+                    print(f"Not walking through the corridor")
 
-                feet_analysis.visualize_data(original_data, time_in_seconds=True)
+                # feet_analysis.visualize_data(original_data, time_in_seconds=True, non_blocking = True)
             except Exception as e:
                 print(e)
                 pass
@@ -178,7 +190,7 @@ if __name__ == "__main__":
     pipeline.start(config)
 
     # Create a skeleton tracker
-    skeletrack = tracker.SkeletonTracker(choose_best_module=True, pipeline=pipeline, image_is_upside_down=True)
+    skeletrack = tracker.SkeletonTracker(choose_best_module=True, pipeline=pipeline) #, image_is_upside_down=True)
 
     # Instantiate the human storage to get the skeletons and send automatically to InfluxDB
     human_storage = HumanStorage(cooldown = 100, db=db_client)
@@ -221,9 +233,11 @@ if __name__ == "__main__":
                 for i, id_skeleton in enumerate(skeletons['ids']):
                     human = human_skeleton.HumanSkeleton()
                     human.from_tracker(skeletrack, i, depth_frame)
-                    if not human.check_keypoints3D([key.name for key in human_skeleton.BodyParts]):
+                    if not np.any([human.check_keypoints3D(key.name) for key in human_skeleton.BodyParts]):
                         unavailable_indices.append(i)
                 color_frame = skeletrack.draw_skeleton(color_frame, index_of_unavailable = unavailable_indices)
+                if len(unavailable_indices) == len(skeletons['ids']):
+                    body_present = False
             else:
                 body_present = False
         color_frame = convert_realsense_to_real_world.display_reference(color_frame, pipeline)
@@ -234,27 +248,28 @@ if __name__ == "__main__":
         if not calibration_finished:
             status = "calib"
             status_text = f"Calibrating camera... ({round(calibrations_remaining/20)}s)"
-            status_color = (255, 0, 0) # RED
+            status_color = (255, 0, 0)  # RED
         elif body_present:
             status = "record"
             status_text = "Recording skeleton"
-            status_color = (0, 255, 0) # GREEN
+            status_color = (0, 255, 0)  # GREEN
         else:
             status = "wait"
-            status_text = "No skeleton found"
+            status_text = "No skeleton seen"
             if human_storage.cooldown < human_storage.cooldown_limit:
                 status_text += f' (saving data in {round(human_storage.cooldown / fps, 1)}s)'
-            status_color = (0, 0, 255) # BLUE
+            status_color = (0, 0, 255)  # BLUE
 
         # Rotate the image
-        color_frame = cv2.flip(color_frame, 0)
-        color_frame = cv2.flip(color_frame, 1)
+        # color_frame = cv2.flip(color_frame, 0)
+        # color_frame = cv2.flip(color_frame, 1)
         # Display the FPS and status on screen
         cv2.putText(color_frame, "Status: " + status_text, (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, status_color, 2)
         cv2.putText(color_frame, "FPS: " + str(round(fps, 2)), (10, 50),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, status_color, 2)
 
+        # color_frame = np.array(rs.colorizer().colorize(depth_frame).get_data())
         color_frame = cv2.resize(color_frame, (1200, 600))
         cv2.imshow('Realsense', cv2.cvtColor(color_frame, cv2.COLOR_BGR2RGB))
 
