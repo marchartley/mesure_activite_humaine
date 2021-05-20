@@ -7,9 +7,10 @@ import datetime
 import math
 from functools import lru_cache
 import dateutil.parser
+import pandas as pd
 
 
-class ListicClientDB():
+class ListicClientDB:
     def __init__(self, server_side=None, host=None, port=None, login=None, pwd=None, database=None):
         self.stored_points = []
         self.walking_metrics = []
@@ -193,7 +194,8 @@ class ListicClientDB():
 
     @lru_cache(maxsize=1)
     def get_splitted_sequences_boundaries(self, sequence_filename=None, start_time=None, end_time=None,
-                                          merge_skeleton_ids=True, time_between_sequences=20.0):
+                                          merge_skeleton_ids=True, time_between_sequences=20.0,
+                                          ignore_small_sequences = None):
         if start_time is None and end_time is None:
             if sequence_filename is None:
                 pass
@@ -230,15 +232,21 @@ class ListicClientDB():
             sequences_interval = list(map(
                 lambda arr: (arr[0] * 1000, arr[-1] * 1000),
                 np.split(timestamps, np.where(np.diff(timestamps) > time_between_sequences)[0] + 1)))
+
+        # Remove sequences with a duration too low
+        if ignore_small_sequences is not None and ignore_small_sequences is not False and ignore_small_sequences > 0:
+            sequences_interval = list(filter(lambda seq: seq[1] - seq[0] > ignore_small_sequences * 1000,
+                                             sequences_interval))
         return sequences_interval
 
     @lru_cache(maxsize=1)
     def get_skeletons_in_splitted_sequences(self, sequence_filename=None, start_time=None, end_time=None,
                                             merge_skeleton_ids=True, time_between_sequences=20.0,
-                                            sequence_index = None):
+                                            sequence_index=None, ignore_small_sequences = None):
 
         sequences_interval = self.get_splitted_sequences_boundaries(sequence_filename, start_time, end_time,
-                                                                   merge_skeleton_ids, time_between_sequences)
+                                                                    merge_skeleton_ids, time_between_sequences,
+                                                                    ignore_small_sequences)
         # Apply the normal skeleton retrieval with the time boundaries found before
         if sequence_index is not None:
             return self.retrieve_skeleton_keypoints(start_time=sequences_interval[sequence_index][0],
@@ -248,9 +256,9 @@ class ListicClientDB():
             skeletons.append(self.retrieve_skeleton_keypoints(start_time=interval[0], end_time=interval[1]))
         return skeletons
 
-    def get_pir_values_from_walking_sequence(self, skeleton_data = None, start_time = None,
-                                             end_time = None, id_sequence = None, time_offset = 5.0,
-                                             time_between_sequences = 20.0):
+    def get_pir_values_from_walking_sequence(self, skeleton_data=None, start_time=None,
+                                             end_time=None, id_sequence=None, time_offset=5.0,
+                                             time_between_sequences=20.0):
         pir_start = None
         pir_end = None
         if skeleton_data is not None:
@@ -263,7 +271,8 @@ class ListicClientDB():
             pir_start = start_time
             pir_end = end_time
         elif id_sequence is not None:
-            boundaries = self.get_splitted_sequences_boundaries(time_between_sequences = time_between_sequences)
+            boundaries = self.get_splitted_sequences_boundaries(time_between_sequences=time_between_sequences,
+                                                                ignore_small_sequences=0.2)
             pir_start = boundaries[id_sequence][0]
             pir_end = boundaries[id_sequence][1]
         else:
@@ -275,8 +284,27 @@ class ListicClientDB():
         pir_start -= time_offset * 1000
         pir_end += time_offset * 1000
 
-        return self.get_all_pir_values(start = pir_start, end = pir_end, group_by_move = False)
+        return self.pir_values_to_json(self.get_all_pir_values(start=pir_start, end=pir_end, group_by_move=False))
 
+    def pir_values_to_json(self, query_results: db.client.ResultSet):
+        pirs = {
+            'time': [],
+            'pir0': [],
+            'pir1': [],
+            'pir2': [],
+            'pir3': [],
+        }
+        for key, val in query_results.items():
+            for values in val:
+                pirs['time'].append(values['time'])
+                pirs['pir0'].append(values['pir0'])
+                pirs['pir1'].append(values['pir1'])
+                pirs['pir2'].append(values['pir2'])
+                pirs['pir3'].append(values['pir3'])
+        return pirs
+
+    def pir_values_to_DF(self, query_results: db.client.ResultSet):
+        return pd.DataFrame(self.pir_values_to_json(query_results)).astype(int)
 
     @lru_cache(maxsize=1)
     def get_all_precomputed_speeds(self):
@@ -288,11 +316,11 @@ class ListicClientDB():
     def timestamp_to_date_format(self, timestamp, unit='ms'):
         if unit == 's':
             timestamp /= 1000
-        date = datetime.datetime.fromtimestamp(timestamp, tz = datetime.timezone.utc)
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
         return date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     @lru_cache(maxsize=2)
-    def get_all_pir_values(self, start = None, end = None, group_by_move = True):
+    def get_all_pir_values(self, start=None, end=None, group_by_move=True):
         if start is None:
             start = '2021-04-21 00:00:00'
 
@@ -306,7 +334,6 @@ class ListicClientDB():
         group_by_condition = 'GROUP BY move' if group_by_move else ''
 
         query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" {where_condition} {group_by_condition}'
-        print(query)
         results = self.client.query(query)
         return results
 
@@ -391,7 +418,7 @@ class ListicClientDB():
         return points2D, points3D
 
     @staticmethod
-    def check_if_body_will_reapear(skeleton_data: dict, current_timestamp: float):
+    def check_if_body_will_reappear(skeleton_data: dict, current_timestamp: float):
         max_timestamp = 0
         for keypoint in skeleton_data:
             max_timestamp = max(max_timestamp, max([data['time_ms'] for data in skeleton_data[keypoint]]))
@@ -399,6 +426,13 @@ class ListicClientDB():
         return max_timestamp > current_timestamp
 
 
-# client = ListicClientDB(server_side=True)
-# res = client.get_pir_values_from_walking_sequence(id_sequence=-3, time_between_sequences=5.0)
-# print(res.raw)
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+
+    client = ListicClientDB(server_side=True)
+
+    for i in range(1, 10):
+        res = client.get_pir_values_from_walking_sequence(id_sequence=-i, time_between_sequences=1.0)
+        pirs = client.pir_values_to_DF(res)
+        pirs.plot()
+        plt.show()

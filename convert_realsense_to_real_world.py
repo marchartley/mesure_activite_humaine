@@ -164,7 +164,8 @@ def back_to_pixel(point_coord, pipeline, old_origin_coord=None, old_x_axis=None,
     return rs.rs2_project_point_to_pixel(color_intrin, coord_from_cam.tolist()[0])
 
 # Compute the 3D coordinates from a point that was in the camera origin to another origin (ex: Aruco box)
-def translate_coord_to_world(coord, new_origin_coord, new_x_axis_coord, new_y_axis_coord, new_z_axis_coord=None, scale = 1.0):
+def translate_coord_to_world(coord, new_origin_coord, new_x_axis_coord, new_y_axis_coord, new_z_axis_coord=None,
+                             scale = 1.0):
     # Get the starting reference (the camera)
     # which is the identity matrix + nul-vector
     original_X = np.matrix([1, 0, 0]).transpose()

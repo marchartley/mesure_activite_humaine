@@ -1,0 +1,104 @@
+import os
+import pickle
+import time
+
+import InfluxDB_connection as db
+import feet_analysis
+import pandas as pd
+
+
+# Start the sequences from 26/04/2021 because before data were incorrect
+start_time = 1619395200000  # 1621342821000  #
+# Name of the output file
+output_filename = 'gait_values.csv'
+
+start_time_process = time.time()
+
+# Create DB client
+client = db.ListicClientDB(server_side=True)
+
+# Get all walking sequences (split sequences if there is at least 1 sec between them)
+print('Segmenting sequences from Database...')
+time_between_sequences = 1.0
+sequences_boundaries = client.get_splitted_sequences_boundaries(time_between_sequences=time_between_sequences,
+                                                                start_time=start_time, ignore_small_sequences=0.2)
+walking_sequences = client.get_skeletons_in_splitted_sequences(time_between_sequences=time_between_sequences,
+                                                               start_time = start_time, ignore_small_sequences=0.2)
+
+fetching_errors = []
+print("Fetching data and computing gait features...")
+sequence_data = []
+# Get the PIR values for each sequence
+for id_sequence in range(len(walking_sequences)):
+    print(f'{round(100 * id_sequence / len(walking_sequences), 1)}% ... ', end = "")
+    # If there are very few data in this sequence, don't bother work on it
+    try:
+        if max([len(walking_sequences[id_sequence][0][0][key]) for key in walking_sequences[id_sequence][0][0]]) < 5:
+            print(f'Sequence {id_sequence} ignored, not enough skeleton data')
+            continue
+    except KeyError as e:
+        print(f"Sequence {id_sequence} ignored, skeleton data wrongly saved")
+        continue
+
+    try:
+        # Get PIR values for this sequence
+        pir_values = client.get_pir_values_from_walking_sequence(start_time=sequences_boundaries[id_sequence][0],
+                                                                 end_time=sequences_boundaries[id_sequence][1],
+                                                                 time_offset=5.0)
+        if len(pir_values['time']) == 0:
+            print(f"Sequence {id_sequence} ignored, no PIR values")
+            continue
+        # Compute gait features for this specific sequence
+        gait_features = feet_analysis.get_walking_features(id_sequence = id_sequence,
+                                                           time_between_sequences = time_between_sequences,
+                                                           server_side=True, motion_threshold=0.8,
+                                                           start_time = start_time)
+
+        # Store these values in an array
+        sequence_data.append({
+            'id': id_sequence,
+            'PIR': pir_values,
+            'gait': gait_features
+        })
+        print(f"Sequence {id_sequence} OK")
+    except Exception as e:
+        fetching_errors.append({'id_sequence': id_sequence, 'error': e})
+        if isinstance(e, KeyError):
+            print(f"Sequence {id_sequence} ignored, possibly that this keypoint has not be found in the sequence: {e}")
+        else:
+            print(f"Sequence {id_sequence} ignored, other error: {e}")
+print('100%')
+
+print('Reformatting data...')
+# Transform all these values into a DataFrame
+full_df = None
+
+dataframe_errors = []
+for sequence in sequence_data:
+    try:
+        temp_df = pd.DataFrame(sequence['PIR'])
+        number_of_data = temp_df.shape[0]
+        for feature in sequence['gait']:
+            # Add this value to the entire column
+            temp_df[feature] = sequence['gait'][feature]
+        temp_df['sequence_id'] = sequence['id']
+        if full_df is None:
+            full_df = temp_df
+        else:
+            full_df = full_df.append(temp_df, ignore_index=True)
+    except Exception as e:
+        dataframe_errors.append({'sequence': sequence, 'error': e})
+
+print(f"Saving file to '{os.path.abspath(output_filename)}', {len(sequence_data)} sequences saved")
+full_df.to_csv(output_filename)
+
+pickle.dump({'fetch': fetching_errors, 'dataframe': dataframe_errors}, open('error_log.log', 'wb+'))
+if len(fetching_errors) > 0:
+    print(f'Encountered {len(fetching_errors)} errors while fetching:')
+    for err in fetching_errors:
+        print(f'\t- seq#{err["id_sequence"]}: {str(err["error"])}')
+
+if len(dataframe_errors) > 0:
+    print(f'Encountered {len(dataframe_errors)} errors while transforming:')
+    for err in dataframe_errors:
+        print(f'\t- seq#{err["sequence"]["id"]}: {str(err["error"])}')
