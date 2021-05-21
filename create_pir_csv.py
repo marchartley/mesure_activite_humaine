@@ -1,3 +1,4 @@
+import datetime
 import os
 import pickle
 import time
@@ -30,14 +31,17 @@ print("Fetching data and computing gait features...")
 sequence_data = []
 # Get the PIR values for each sequence
 for id_sequence in range(len(walking_sequences)):
-    print(f'{round(100 * id_sequence / len(walking_sequences), 1)}% ... ', end = "")
+    print(f'{round(100 * id_sequence / len(walking_sequences), 1)}% ... Sequence {id_sequence} '
+          f'({datetime.datetime.fromtimestamp(sequences_boundaries[id_sequence][0]/1000).strftime("%d/%m %H:%M:%S")} - '
+          f'{datetime.datetime.fromtimestamp(sequences_boundaries[id_sequence][1]/1000).strftime("%H:%M:%S")}) ',
+          end = "")
     # If there are very few data in this sequence, don't bother work on it
     try:
         if max([len(walking_sequences[id_sequence][0][0][key]) for key in walking_sequences[id_sequence][0][0]]) < 5:
-            print(f'Sequence {id_sequence} ignored, not enough skeleton data')
+            print(f'ignored, not enough skeleton data')
             continue
     except KeyError as e:
-        print(f"Sequence {id_sequence} ignored, skeleton data wrongly saved")
+        print(f"ignored, skeleton data wrongly saved")
         continue
 
     try:
@@ -46,13 +50,12 @@ for id_sequence in range(len(walking_sequences)):
                                                                  end_time=sequences_boundaries[id_sequence][1],
                                                                  time_offset=5.0)
         if len(pir_values['time']) == 0:
-            print(f"Sequence {id_sequence} ignored, no PIR values")
+            print(f"ignored, no PIR values")
             continue
         # Compute gait features for this specific sequence
-        gait_features = feet_analysis.get_walking_features(id_sequence = id_sequence,
-                                                           time_between_sequences = time_between_sequences,
+        gait_features = feet_analysis.get_walking_features(time_between_sequences = time_between_sequences,
                                                            server_side=True, motion_threshold=0.8,
-                                                           start_time = start_time)
+                                                           start_time = start_time, ignore_small_sequences=0.2)
 
         # Store these values in an array
         sequence_data.append({
@@ -60,13 +63,13 @@ for id_sequence in range(len(walking_sequences)):
             'PIR': pir_values,
             'gait': gait_features
         })
-        print(f"Sequence {id_sequence} OK")
+        print(f"OK")
     except Exception as e:
         fetching_errors.append({'id_sequence': id_sequence, 'error': e})
         if isinstance(e, KeyError):
-            print(f"Sequence {id_sequence} ignored, possibly that this keypoint has not be found in the sequence: {e}")
+            print(f"ignored, possibly that this keypoint has not been found in the sequence: {e}")
         else:
-            print(f"Sequence {id_sequence} ignored, other error: {e}")
+            print(f"ignored, other error: {e}")
 print('100%')
 
 print('Reformatting data...')
