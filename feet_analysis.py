@@ -151,7 +151,7 @@ def get_data(json_filename):
 
 
 # Load the skeletons from InfluxDB
-def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side = True, start_time = 0):
+def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side = True, start_time = 0, ignore_small_sequences = None):
     # limit = 200
     # Connect to InfluxDB and get all the skeleton's coordinates
     client = InfluxDB_connection.ListicClientDB(server_side = server_side)
@@ -161,7 +161,7 @@ def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side 
         _, skeletons3D = client.get_skeletons_in_splitted_sequences(sequence_index=sequence_id,
                                                                     time_between_sequences=time_between_sequences,
                                                                     start_time = start_time,
-                                                                    ignore_small_sequences=0.5)
+                                                                    ignore_small_sequences=ignore_small_sequences)
         # _, skeletons3D = sequences[sequence_id]
 
     # For now, we merge all the skeletons in one...
@@ -698,20 +698,15 @@ def get_walking_direction(data):
             starting_human = human_skeleton.HumanSkeleton()
             starting_human.from_feet_analytics(data['coordinates'], i)
             if starting_human.get_number_of_visible_keypoints() > 2:
-                print("Start :")
-                print({key: data['coordinates'][key][i] for key in data['coordinates']})
                 starting_point = starting_human.get_mean_position_of_points()
         if ending_point is None:
             ending_human = human_skeleton.HumanSkeleton()
             ending_human.from_feet_analytics(data['coordinates'], len(data['frames']) - i - 1)
             if ending_human.get_number_of_visible_keypoints() > 2:
-                print("End:")
-                print({key: data['coordinates'][key][len(data['frames']) - i - 1] for key in data['coordinates']})
                 ending_point = ending_human.get_mean_position_of_points()
         if starting_point is not None and ending_point is not None:
             break
 
-    print(ending_point, starting_point)
     # If the displacement is at least 2m away from the camera (North - South), set to 1
     if (ending_point - starting_point)[2] > 2.0:
         return 1
@@ -722,12 +717,35 @@ def get_walking_direction(data):
     else:
         return 0
 
+def get_corridor_used(data):
+    mean_pos = []
+    percent_stripped = 0.2
+    for i in range(len(data['frames'])):
+        human = human_skeleton.HumanSkeleton().from_feet_analytics(data['coordinates'], i)
+        if human.get_center_of_gravity() is not None:
+            mean_pos.append(human.get_center_of_gravity())
+
+    stripped_part = round(len(mean_pos) * percent_stripped)
+    position = np.median(mean_pos[stripped_part: -stripped_part], axis = 0)
+
+    # Estimate the corridor used by the X position
+    x_pos = position[0]
+    # If it's on the West side, code it as 1
+    if -2.5 <= x_pos <= -1.6:
+        return 1
+    # If it's in the center, code it as 0
+    if -1.6 <= x_pos <= -1.0:
+        return 0
+    # If it's on the East side, code it as -1
+    if -1.6 <= x_pos <= 0.0:
+        return -1
+
 
 def get_walking_features(data = None, id_sequence = None, time_between_sequences = 1.0, server_side = True, motion_threshold = 0.8,
-                         start_time = 0):
+                         start_time = 0, ignore_small_sequences = None):
     if data is None:
         data = get_data_from_db(id_sequence, time_between_sequences = time_between_sequences, server_side = server_side,
-                                start_time = start_time)
+                                start_time = start_time, ignore_small_sequences = ignore_small_sequences)
     original_data = preprocess_data_for_walk_analysis(data)
 
     footsteps_motion = estimate_footsteps(original_data, motion_threshold=motion_threshold)[0]
@@ -741,6 +759,7 @@ def get_walking_features(data = None, id_sequence = None, time_between_sequences
     walking_speed = compute_walking_speed(data)
     stride_length, right_length, left_length = compute_stride_length(data)
     direction = get_walking_direction(data)
+    corridor = get_corridor_used(data)
 
     params = {'nb_steps_motion': footsteps_motion,
               'nb_steps_distance': footsteps_distance,
@@ -755,6 +774,7 @@ def get_walking_features(data = None, id_sequence = None, time_between_sequences
               'stride_length_right': right_length,
               'stride_length_left': left_length,
               'direction': direction,
+              'corridor': corridor,
               }
     return params
 

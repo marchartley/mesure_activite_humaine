@@ -11,7 +11,7 @@ import human_skeleton
 import skeleton_tracker
 
 def visual_skeleton():
-    data = feet_analysis.get_data_from_db(-1, time_between_sequences=1.0, server_side = True)
+    data = feet_analysis.get_data_from_db(139, time_between_sequences=1.0, server_side = True, start_time=1619395200000, ignore_small_sequences=0.2)
     print(f"Data from {datetime.datetime.fromtimestamp(data['timestamps'][0]).strftime('%Y-%m-%d %H:%M:%S')} "
           f"to {datetime.datetime.fromtimestamp(data['timestamps'][-1]).strftime('%Y-%m-%d %H:%M:%S')}")
     fig = plt.figure()
@@ -25,14 +25,17 @@ def visual_skeleton():
     min_max_x = [0, 0]
     min_max_y = [0, 0]
     min_max_z = [0, 0]
+    mean_pos = []
+    percent_stripped = 0.2
     for frame_idx in range(len(data['frames'])):
 
         plt.cla()
         plt.title("Frame: {}".format(frame_idx))
 
-        ax.set_xlim3d([-2, 1])
-        ax.set_zlim3d([-1, 3])
+        ax.set_xlim3d([-2, 7])  # ([-2, 1])
+        ax.set_zlim3d([-2, 7])  # ([-1, 3])
         ax.set_ylim3d([-2, 7])
+
 
         human = human_skeleton.HumanSkeleton()
         human.from_feet_analytics(data['coordinates'], frame_idx)
@@ -44,6 +47,9 @@ def visual_skeleton():
                 min_max_y = [min(min_max_y[0], start_y, end_y), max(min_max_y[1], start_y, end_y)]
                 min_max_z = [min(min_max_z[0], start_z, end_z), max(min_max_z[1], start_z, end_z)]
                 ax.plot([start_x, end_x], [start_z, end_z], [start_y, end_y], color='b', marker=None)
+
+                mean_pos.append(human.get_keypoint3D(edge[0]))
+                mean_pos.append(human.get_keypoint3D(edge[1]))
         # for keypoint in human.body_parts_3D:
         #     if human.body_parts_3D[keypoint] is not None:
         #         x_plot, y_plot, z_plot = human.body_parts_3D[keypoint]
@@ -55,9 +61,11 @@ def visual_skeleton():
 
         ax.set_facecolor('none')
         plt.pause(0.1)
-    # print('x:', min_max_x)
-    # print('y:', min_max_y)
-    # print('z:', min_max_z)
+    print('x:', min_max_x)
+    print('y:', min_max_y)
+    print('z:', min_max_z)
+    stripped_part = round(len(mean_pos) * percent_stripped)
+    print(np.mean(mean_pos[stripped_part:-stripped_part], axis = 0))
     plt.ioff()
     ax.axis('off')
     plt.show()

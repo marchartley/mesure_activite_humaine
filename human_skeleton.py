@@ -506,11 +506,10 @@ class HumanSkeleton():
     def apply_new_reference(self, aruco_reference, aruco_size):
         center, x, y, z = aruco_reference
         for keypoint in self.body_parts_3D:
-            if self.check_keypoints3D(keypoint):
-                # print(keypoint, self.body_parts_3D[keypoint])
-                self.body_parts_3D[keypoint] = coord_conversion.translate_coord_to_world(self.body_parts_3D[keypoint],
-                                                                                         center, center + x,
-                                                                                         center + y, center + z,
-                                                                                         aruco_size)
-                # print(keypoint, self.body_parts_3D[keypoint])
+            pass
+            # if self.check_keypoints3D(keypoint):
+            #     self.body_parts_3D[keypoint] = coord_conversion.translate_coord_to_world(self.body_parts_3D[keypoint],
+            #                                                                              center, center + x,
+            #                                                                              center + y, center + z,
+            #                                                                              aruco_size)
         return self
