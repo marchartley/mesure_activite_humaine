@@ -192,9 +192,49 @@ class ListicClientDB:
         # return self.retrieve_skeleton_keypoints(start_time=1618963200000)  # = 21/04/2021 00:00
         return self.retrieve_skeleton_keypoints(start_time=1619395200000, end_time=1619422738000)  # = 26/04/2021 00:00
 
+    def get_splitted_presence_or_not_boundaries(self, start_time=None, end_time=None,
+                                          time_between_sequences=20.0,
+                                          ignore_small_sequences = None):
+        user_presence = self.get_splitted_sequences_boundaries(start_time=start_time, end_time=end_time,
+                                                               time_between_sequences=time_between_sequences,
+                                                               ignore_small_sequences=ignore_small_sequences)
+        # The duration of "no presence" will get the same distribution
+        users_durations = np.array([t[1] - t[0] for t in user_presence])
+        no_user_durations = np.random.normal(users_durations.mean(), users_durations.std(), len(users_durations) - 1)
+
+        # Store in an array the available timeslots with (available time, start, end, mean timestamp)
+        no_user_available_durations = [[user_presence[seq_index][0] - user_presence[seq_index - 1][1],
+                                       user_presence[seq_index - 1][1],
+                                       user_presence[seq_index][0],
+                                        (user_presence[seq_index][0] + user_presence[seq_index - 1][1]) / 2]
+                                       for seq_index in range(1, len(user_presence))]
+
+        # Save the repartition in a JSON {index of the available timeslot: [list of the index of the wished durations]}
+        repartition_of_no_user = {}
+        for i in range(len(no_user_durations)):
+            for j in range(len(no_user_available_durations)):
+                if no_user_available_durations[j][0] > no_user_durations[i]:
+                    no_user_available_durations[j][0] -= no_user_durations[i]
+                    if j not in repartition_of_no_user:
+                        repartition_of_no_user[j] = []
+                    repartition_of_no_user[j].append(i)
+                    break
+
+        boundaries_for_no_user = []
+        # Compute the timestamps for each non-user slots
+        for id_time_slot in repartition_of_no_user:
+            real_duration = np.array(repartition_of_no_user[id_time_slot]).sum()
+            current_start = no_user_available_durations[id_time_slot][3] - real_duration / 2
+            for id_duration in repartition_of_no_user[id_time_slot]:
+                boundaries_for_no_user.append((current_start, current_start + no_user_durations[id_duration]))
+                current_start += no_user_durations[id_duration]
+
+        return {'presence': user_presence, 'no_presence': boundaries_for_no_user}
+
+
     @lru_cache(maxsize=1)
     def get_splitted_sequences_boundaries(self, sequence_filename=None, start_time=None, end_time=None,
-                                          merge_skeleton_ids=True, time_between_sequences=20.0,
+                                          time_between_sequences=20.0,
                                           ignore_small_sequences = None):
         if start_time is None and end_time is None:
             if sequence_filename is None:
@@ -245,7 +285,7 @@ class ListicClientDB:
                                             sequence_index=None, ignore_small_sequences = None):
 
         sequences_interval = self.get_splitted_sequences_boundaries(sequence_filename, start_time, end_time,
-                                                                    merge_skeleton_ids, time_between_sequences,
+                                                                    time_between_sequences,
                                                                     ignore_small_sequences)
         # Apply the normal skeleton retrieval with the time boundaries found before
         if sequence_index is not None:
