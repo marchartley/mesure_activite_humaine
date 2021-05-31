@@ -12,10 +12,13 @@ import InfluxDB_connection
 import convert_realsense_to_real_world
 # import matplotlib.pyplot as plt
 import threading
+import create_pir_csv
+import test_wavelets
+import utils
 
 
 class HumanStorage:
-    def __init__(self, send_data_after=-1, db: InfluxDB_connection.ListicClientDB = None, cooldown = None):
+    def __init__(self, send_data_after=-1, db: InfluxDB_connection.ListicClientDB = None, cooldown=None):
         self.humans = {}
         self.number_of_data_collected = 0
         self.send_data_after = send_data_after
@@ -44,6 +47,8 @@ class HumanStorage:
         elif self.cooldown is not None:
             if number_of_persons == 0 and len(self.humans) > 0:
                 self.cooldown -= 1
+            else:
+                self.cooldown = self.cooldown_limit
 
             if db is None:
                 db = self.db
@@ -60,12 +65,14 @@ class HumanStorage:
             db = self.db
         if db is None:  # If the parameter was None and there was no DB given from constructor
             raise Exception("Skeletons were asked to be send to database but no InfluxDB client has been provided")
+
         for human_id in self.humans:
             starting_point = None
             ending_point = None
             start_timestamp = None
             end_timestamp = None
-            for timestamp, human in self.humans[human_id].items():
+
+            for i, (timestamp, human) in enumerate(self.humans[human_id].items()):
                 if starting_point is None:
                     starting_point = human.get_center_of_gravity()
                     start_timestamp = timestamp
@@ -78,6 +85,7 @@ class HumanStorage:
                 raw2D, raw3D = human.to_json()
                 db.insert_skeleton_keypoints(coord2D, coord3D, timestamp, human_id, send_immediately=False,
                                              raw_coord_2D=raw2D, raw_coord_3D=raw3D)
+
             try:
                 pass
                 # speed = np.linalg.norm(starting_point - ending_point)/((end_timestamp - start_timestamp)/1000)
@@ -128,6 +136,12 @@ class HumanStorage:
                 pass
         db.send_to_db()
         self.reset()
+        pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
+                                           output_filename='gait_values.csv',
+                                           client=db,
+                                           verbose=True,
+                                           use_cache=False)
+        test_wavelets.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
 
     def reset(self):
         self.humans = {}
@@ -184,6 +198,11 @@ if __name__ == "__main__":
     db_client = InfluxDB_connection.ListicClientDB(server_side=remote, host=address, port=port, login=login,
                                                    pwd=password, database=database)
 
+    threading.Thread(target=lambda: create_pir_csv.fill_csv(create_CSV_from_scratch=False,
+                                                            output_filename='gait_values.csv',
+                                                            client=db_client,
+                                                            verbose=True)).start()
+
     # Start the Realsense pipeline
     pipeline = rs.pipeline()
     config = rs.config()
@@ -191,10 +210,10 @@ if __name__ == "__main__":
     pipeline.start(config)
 
     # Create a skeleton tracker
-    skeletrack = tracker.SkeletonTracker(choose_best_module=True, pipeline=pipeline) #, image_is_upside_down=True)
+    skeletrack = tracker.SkeletonTracker(choose_best_module=True, pipeline=pipeline)  # , image_is_upside_down=True)
 
     # Instantiate the human storage to get the skeletons and send automatically to InfluxDB
-    human_storage = HumanStorage(cooldown = 100, db=db_client)
+    human_storage = HumanStorage(cooldown=100, db=db_client)
 
     number_of_frames = 0
     start_time = time.time()
@@ -236,7 +255,7 @@ if __name__ == "__main__":
                     human.from_tracker(skeletrack, i, depth_frame)
                     if not np.any([human.check_keypoints3D(key.name) for key in human_skeleton.BodyParts]):
                         unavailable_indices.append(i)
-                color_frame = skeletrack.draw_skeleton(color_frame, index_of_unavailable = unavailable_indices)
+                color_frame = skeletrack.draw_skeleton(color_frame, index_of_unavailable=unavailable_indices)
                 if len(unavailable_indices) == len(skeletons['ids']):
                     body_present = False
             else:
@@ -248,7 +267,7 @@ if __name__ == "__main__":
         status_color = (0, 0, 0)
         if not calibration_finished:
             status = "calib"
-            status_text = f"Calibrating camera... ({round(calibrations_remaining/20)}s)"
+            status_text = f"Calibrating camera... ({round(calibrations_remaining / 20)}s)"
             status_color = (255, 0, 0)  # RED
         elif body_present:
             status = "record"
