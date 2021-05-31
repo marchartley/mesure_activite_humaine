@@ -198,10 +198,14 @@ if __name__ == "__main__":
     db_client = InfluxDB_connection.ListicClientDB(server_side=remote, host=address, port=port, login=login,
                                                    pwd=password, database=database)
 
-    threading.Thread(target=lambda: create_pir_csv.fill_csv(create_CSV_from_scratch=False,
-                                                            output_filename='gait_values.csv',
-                                                            client=db_client,
-                                                            verbose=True)).start()
+    def update_datasets():
+        pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
+                                output_filename='gait_values.csv',
+                                client=db_client,
+                                verbose=True)
+        deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
+
+    threading.Thread(target=update_datasets).start()
 
     # Start the Realsense pipeline
     pipeline = rs.pipeline()
@@ -213,6 +217,7 @@ if __name__ == "__main__":
     skeletrack = tracker.SkeletonTracker(choose_best_module=True, pipeline=pipeline)  # , image_is_upside_down=True)
 
     # Instantiate the human storage to get the skeletons and send automatically to InfluxDB
+    # Cooldown is the number of frames without anybody on screen before sending to InfluxDB
     human_storage = HumanStorage(cooldown=100, db=db_client)
 
     number_of_frames = 0
