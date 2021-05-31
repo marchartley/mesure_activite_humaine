@@ -1,3 +1,4 @@
+import random
 import time
 
 import influxdb as db
@@ -133,20 +134,20 @@ class ListicClientDB:
                             'z': raw_coord_3D[key][2],
                         }
                     })
-            # if len(additional_fields) > 0:
-            #     self.walking_metrics.append({
-            #         'measurement': 'walking_metrics',
-            #         'time': round(timestamp),
-            #         'tags': {
-            #             'device': device,
-            #             'skeleton_id': skeleton_id,
-            #         },
-            #         'fields': additional_fields,
-            #     })
-            self.insert_walking_metrics(timestamp, walking_speed,
-                                        footsteps_width, number_of_footsteps,
-                                        stride_length, step_length, send_immediately, timestamp_unit,
-                                        skeleton_id, device, ignore_None_values)
+        # if len(additional_fields) > 0:
+        #     self.walking_metrics.append({
+        #         'measurement': 'walking_metrics',
+        #         'time': round(timestamp),
+        #         'tags': {
+        #             'device': device,
+        #             'skeleton_id': skeleton_id,
+        #         },
+        #         'fields': additional_fields,
+        #     })
+        self.insert_walking_metrics(timestamp, walking_speed,
+                                    footsteps_width, number_of_footsteps,
+                                    stride_length, step_length, send_immediately, timestamp_unit,
+                                    skeleton_id, device, ignore_None_values)
 
         if send_immediately:
             self.send_to_db(timestamp_unit=timestamp_unit)
@@ -164,7 +165,6 @@ class ListicClientDB:
                                device=None, ignore_None_values=True, ):
         if self.client is None:
             raise Exception(f"Client of {self.__class__.__name__} wasn't configure correctly")
-        pir_timestamp = self.get_closest_timestamp(timestamp)
         additional_fields = {}
         if walking_speed is not None and walking_speed is not np.nan and walking_speed > 0:
             additional_fields['walking_speed'] = float(walking_speed)
@@ -178,6 +178,7 @@ class ListicClientDB:
             additional_fields['step_length'] = float(step_length)
 
         if len(additional_fields) > 0:
+            pir_timestamp = self.get_closest_timestamp(timestamp)
             self.walking_metrics.append({
                 'measurement': 'walking_metrics',
                 'time': round(pir_timestamp),
@@ -198,32 +199,45 @@ class ListicClientDB:
         user_presence = self.get_splitted_sequences_boundaries(start_time=start_time, end_time=end_time,
                                                                time_between_sequences=time_between_sequences,
                                                                ignore_small_sequences=ignore_small_sequences)
-        # The duration of "no presence" will get the same distribution
-        users_durations = np.array([t[1] - t[0] for t in user_presence])
-        no_user_durations = np.random.normal(users_durations.mean(), users_durations.std(), len(users_durations) - 1)
+        # The duration of "no presence" will get the same distribution, with an extra 5sec
+        users_durations = np.array([t[1] - t[0] + 5000 for t in user_presence])
+        no_user_durations = abs(np.random.normal(users_durations.mean(), users_durations.std(),
+                                                 len(users_durations) - 1))
 
         # Store in an array the available timeslots with (available time, start, end, mean timestamp)
-        no_user_available_durations = [[user_presence[seq_index][0] - user_presence[seq_index - 1][1],
+        # Keep at least 5 sec between a presence and an absence
+        no_user_available_durations = [[user_presence[seq_index][0] - user_presence[seq_index - 1][1] - 5000*2,
                                        user_presence[seq_index - 1][1],
                                        user_presence[seq_index][0],
                                         (user_presence[seq_index][0] + user_presence[seq_index - 1][1]) / 2]
                                        for seq_index in range(1, len(user_presence))]
 
+        no_user_available_durations = list(filter(lambda x: x[0] > 0 and
+                                                            len(self.pir_values_to_json(
+                                                                self.get_all_pir_values(
+                                                                    start = x[1] + 5000,
+                                                                    end = x[2] - 5000,
+                                                                    group_by_move = False))['time']
+                                                                ) > 35 * x[0] / 1000, no_user_available_durations))
+        # print(no_user_available_durations[0])
+        # print(len(self.pir_values_to_json(self.get_all_pir_values(start = no_user_available_durations[0][1], end=no_user_available_durations[0][2], group_by_move=False))['time']))
+        # exit()
+
         # Save the repartition in a JSON {index of the available timeslot: [list of the index of the wished durations]}
         repartition_of_no_user = {}
-        for i in range(len(no_user_durations)):
-            for j in range(len(no_user_available_durations)):
-                if no_user_available_durations[j][0] > no_user_durations[i]:
-                    no_user_available_durations[j][0] -= no_user_durations[i]
-                    if j not in repartition_of_no_user:
-                        repartition_of_no_user[j] = []
-                    repartition_of_no_user[j].append(i)
+        for id_duration in range(len(no_user_durations)):
+            for id_time_slot in range(len(no_user_available_durations)):
+                if no_user_available_durations[id_time_slot][0] > no_user_durations[id_duration]:
+                    no_user_available_durations[id_time_slot][0] -= no_user_durations[id_duration]
+                    if id_time_slot not in repartition_of_no_user:
+                        repartition_of_no_user[id_time_slot] = []
+                    repartition_of_no_user[id_time_slot].append(id_duration)
                     break
 
         boundaries_for_no_user = []
         # Compute the timestamps for each non-user slots
         for id_time_slot in repartition_of_no_user:
-            real_duration = np.array(repartition_of_no_user[id_time_slot]).sum()
+            real_duration = np.array([no_user_durations[x] for x in repartition_of_no_user[id_time_slot]]).sum()
             current_start = no_user_available_durations[id_time_slot][3] - real_duration / 2
             for id_duration in repartition_of_no_user[id_time_slot]:
                 boundaries_for_no_user.append((current_start, current_start + no_user_durations[id_duration]))
