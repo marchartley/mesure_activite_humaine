@@ -13,7 +13,7 @@ import convert_realsense_to_real_world
 # import matplotlib.pyplot as plt
 import threading
 import create_pir_csv
-import test_wavelets
+import deep_neural_training
 import utils
 
 
@@ -141,7 +141,7 @@ class HumanStorage:
                                            client=db,
                                            verbose=True,
                                            use_cache=False)
-        test_wavelets.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
+        deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
 
     def reset(self):
         self.humans = {}
