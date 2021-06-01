@@ -99,6 +99,7 @@ class PretrainedModel(nn.Module):
             self.module.fc = nn.Identity()
 
         global device
+        self.use_cuda = use_cuda
         if use_cuda:
             device = cuda
         else:
@@ -109,6 +110,13 @@ class PretrainedModel(nn.Module):
 
 
         self.ending = nn.Linear(self.num_ftrs, 1)
+
+    def update_device(self):
+        global device
+        if self.use_cuda:
+            device = cuda
+        else:
+            device = cpu
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
         final_tensor = self.first_conv(concat_pir)
@@ -878,13 +886,13 @@ def try_all_models(hyperparameters,
 #     pickle.dump(retested_models, open(os.path.join(directory, file + "_" + str(time.time()) + ext), "wb+"))
 
 
-def display_models(filename, ignore_if_accuracy_lower=0.0, ignore_if_val_err_higher=math.inf,
+def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_if_val_err_higher=math.inf,
                    max_y_val=0.20):
     models_results = []
     validation_results = []
     best_results = None
 
-    # plt.subplot(2, 1, 1)
+    plt.subplot(2, 1, 1)
     all_models = []
     for file in glob.glob(os.path.splitext(filename)[0] + "*" + os.path.splitext(filename)[1]):
         models = pickle.load(open(file, "rb"))
@@ -918,10 +926,17 @@ def display_models(filename, ignore_if_accuracy_lower=0.0, ignore_if_val_err_hig
     plt.xlabel("Number of samples (x1000)")
     plt.ylabel("Validation loss")
 
-    # for i in range(4):
-    #     plt.subplot(2, 4, 4 + i + 1)
-    #     best_results = all_models[i]
-    #     visualize_model(best_results['training']['model'], test_loader)
+    # global device
+    # device = cpu
+    # best_results = all_models[1]
+    # visualize_model(best_results['training']['model'], test_loader=test_loader)
+    for i in range(10):
+        try:
+            plt.subplot(2, 10, i + 1)
+            best_results = all_models[i]
+            visualize_model(best_results['training']['model'], test_loader=test_loader)
+        except Exception as e:
+            print(e)
     return df
 
 def display_morlet(pir_data):
@@ -1069,7 +1084,7 @@ def main():
     #    "test_results" of 1 = perfect match, 0 = no significant match, -1 = what?, NaN = model is rubbish
     #    models that return a coef "NaN" = return same value, regardless of input
     # plt.title("Training of %d models for the speed estimator" % len(results_data))
-    results_data = display_models(path_to_save_cnn, max_y_val=math.inf) \
+    results_data = display_models(path_to_save_cnn, test_loader=testing_set_PIR, max_y_val=math.inf) \
         .sort_values(by="test_results", ascending=False)
     print(results_data)
     plt.show()
