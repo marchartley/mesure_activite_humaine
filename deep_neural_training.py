@@ -108,7 +108,6 @@ class PretrainedModel(nn.Module):
         self.module.to(device)
         self.first_conv = nn.Conv2d(4, 3, kernel_size=(3, 3), padding=1).to(device)
 
-
         self.ending = nn.Linear(self.num_ftrs, 1)
 
     def update_device(self):
@@ -152,6 +151,9 @@ class MultipleWaveletsModule(nn.Module):
 
         # In any case, the activation is a Dense of shape (4*output x 1)
         self.activation_function = nn.Linear(4 * mid_output_size, 1)
+
+    def update_device(self):
+        pass
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
         if self.use_concat_pir:
@@ -260,6 +262,9 @@ class MultipleWaveletsLinearModule(nn.Module):
 
         # In any case, the activation is a Dense of shape (4*output x 1)
         self.activation_function = nn.Linear(4 * mid_output_size, 1)
+
+    def update_device(self):
+        pass
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
         if self.use_concat_pir:
