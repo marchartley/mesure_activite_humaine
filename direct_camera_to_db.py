@@ -136,16 +136,25 @@ class HumanStorage:
                 pass
         db.send_to_db()
         self.reset()
-        pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
-                                           output_filename='gait_values.csv',
-                                           client=db,
-                                           verbose=True,
-                                           use_cache=False)
-        deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
+        threading.Thread(target=update_datasets, kwargs={'use_cache': False}).start()
+        # pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
+        #                                    output_filename='gait_values.csv',
+        #                                    client=db,
+        #                                    verbose=True,
+        #                                    use_cache=False)
+        # deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
 
     def reset(self):
         self.humans = {}
         self.number_of_data_collected = 0
+
+
+def update_datasets(use_cache = True):
+    pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
+                            output_filename='gait_values.csv',
+                            client=db_client,
+                            verbose=use_cache)
+    deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
 
 
 if __name__ == "__main__":
@@ -197,13 +206,6 @@ if __name__ == "__main__":
 
     db_client = InfluxDB_connection.ListicClientDB(server_side=remote, host=address, port=port, login=login,
                                                    pwd=password, database=database)
-
-    def update_datasets():
-        pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
-                                output_filename='gait_values.csv',
-                                client=db_client,
-                                verbose=True)
-        deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
 
     threading.Thread(target=update_datasets).start()
 
