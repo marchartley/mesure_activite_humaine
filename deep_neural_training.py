@@ -997,11 +997,11 @@ def precompute_morlet_transforms(data, output_filename=None):
             speed = seq['walking_speed'].median()
             corridor = seq['corridor'].median()
             direction = seq['direction'].median()
-            pir0 = compute_morlet_transform(seq['pir0'])
-            pir1 = compute_morlet_transform(seq['pir1'])
-            pir2 = compute_morlet_transform(seq['pir2'])
-            pir3 = compute_morlet_transform(seq['pir3'])
-            if speed < 10:
+            if speed < 10 and direction != 0 and not np.isnan(corridor):
+                pir0 = compute_morlet_transform(seq['pir0'])
+                pir1 = compute_morlet_transform(seq['pir1'])
+                pir2 = compute_morlet_transform(seq['pir2'])
+                pir3 = compute_morlet_transform(seq['pir3'])
                 all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction])
         time_estimation = (time.time() - start_time) * len(sequence_ids) / (i + 1)
         print(
@@ -1033,13 +1033,13 @@ def main():
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
     dataset = PIR_DataLoader(all_pirs_transformed, transform=transforms.Compose([
         transforms.Resize((input_size, input_size)),
-        transforms.RandomRotation([-1.0, 1.0]),
+        # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
-        transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
-        transforms.Lambda(lambda x: transforms.GaussianBlur(
-            2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
+        # transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
+        # transforms.Lambda(lambda x: transforms.GaussianBlur(
+        #     2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
     ]),
-                             data_inflate=10.0)
+                             data_inflate=1.0)
     # Train size = 70%, Validation = 10%, Testing = 20%
     ratio_train_set = 70 / 100
     ratio_valid_set = 10 / 100
