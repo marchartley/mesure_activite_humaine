@@ -73,12 +73,12 @@ class PretrainedModel(nn.Module):
         elif trained_model is all_pretrained_models['alexnet'] \
                 or trained_model is all_pretrained_models['mobilenet_v2'] \
                 or trained_model is all_pretrained_models['mobilenet_v3_small'] \
-                or trained_model is all_pretrained_models['mobilenet_v3_large']\
+                or trained_model is all_pretrained_models['mobilenet_v3_large'] \
                 or trained_model is all_pretrained_models['mnasnet']:
             self.num_ftrs = self.module.classifier[-1].in_features
             self.module.classifier[-1] = nn.Identity()  # nn.Linear(self.module.classifier[-2].out_features, 1)
         elif trained_model is all_pretrained_models['squeezenet']:
-            self.num_ftrs = 13*13
+            self.num_ftrs = 13 * 13
             # self.module.classifier = nn.Identity()  # nn.Linear(self.module.classifier[-2].out_features, 1)
             self.module.classifier = nn.Conv2d(512, 1, kernel_size=(1, 1), stride=(1, 1))
         elif trained_model is all_pretrained_models['vgg16']:
@@ -93,7 +93,7 @@ class PretrainedModel(nn.Module):
         #     pass
         elif trained_model is all_pretrained_models['resnext50_32x4d'] or \
                 trained_model is all_pretrained_models['wide_resnet50_2']:
-                # or trained_model is all_pretrained_models['inception']
+            # or trained_model is all_pretrained_models['inception']
             use_cuda = False
             self.num_ftrs = self.module.fc.in_features
             self.module.fc = nn.Identity()
@@ -365,6 +365,7 @@ def train_model(trainloader,
         raise Exception('No model parameters have been provided. Possible keys are: ' + '\n - '.join(
             model_class.__init__.__code__.co_varnames[1:]))
 
+    print(model_class)
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
     # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
     minibatch_size = 16
@@ -622,7 +623,7 @@ class PIR_DataLoader(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         # Get the file, load the image, apply transformation
-        pir0, pir1, pir2, pir3, id_seq, body_speed = self.data[index % len(self.data)]
+        pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction = self.data[index % len(self.data)]
         if self.transform is not None:
             pir0 = self.transform(pir0)
             pir1 = self.transform(pir1)
@@ -872,6 +873,7 @@ def try_all_models(hyperparameters,
             print('Exception occured : ', e)
     return models
 
+
 #
 # def retest_all_models(save_as: str, testing_set):
 #     retested_models = []
@@ -935,14 +937,15 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
     # device = cpu
     # best_results = all_models[1]
     # visualize_model(best_results['training']['model'], test_loader=test_loader)
-    for i in range(10):
+    for i in range(len(all_models)):
         try:
-            plt.subplot(2, 10, i + 1)
+            plt.subplot(2, len(all_models), i + 1)
             best_results = all_models[i]
             visualize_model(best_results['training']['model'], test_loader=test_loader)
         except Exception as e:
             print(e)
     return df
+
 
 def display_morlet(pir_data):
     data_norm = waipy.normalize(pir_data)
@@ -958,17 +961,26 @@ def compute_morlet_transform(pir_data):
     data_norm = waipy.normalize(pir_data)
     alpha = np.corrcoef(data_norm[0:-1], data_norm[1:])[0, 1]
     result = waipy.cwt(data_norm, 1 / 3.2, 1, 1 / 100, 2, 4 / 0.25, alpha, 6, mother='Morlet', name='name')
+    # print(result)
+    # exit()
     powers = np.array(result['power']).astype('uint8')
-    res = Image.fromarray(powers).resize((512, 512))
+    tmp_img = Image.fromarray(powers)
+    res = Image.fromarray(np.zeros((1024, 1024)))
+    res.paste(tmp_img, (0, 1024 - tmp_img.height))
+    res.resize((128, 128))
     return res
 
-def precompute_morlet_transforms(data, output_filename = None):
+
+def precompute_morlet_transforms(data, output_filename=None):
     start_time = time.time()
     sequence_ids = pd.unique(data['sequence_id'])
     all_pirs_transformed = []
     if os.path.exists('all_pirs_transformed.data'):
         all_pirs_transformed = pickle.load(open('all_pirs_transformed.data', 'rb'))
-    all_pirs_transformed = list(filter(lambda seq: seq[5] < 10, all_pirs_transformed))
+    all_pirs_transformed = list(filter(lambda seq: seq[5] < 10 and not np.isnan(seq[6]) and seq[7] != 0,
+                                       all_pirs_transformed))
+    ignored_sequences = set([seq[4] for seq in list(filter(lambda seq: seq[5] > 10 or np.isnan(seq[6]) or seq[7] == 0,
+                                                           all_pirs_transformed))])
     preexisting_sequences = set([seq[4] for seq in all_pirs_transformed])
 
     for i, seq_id in enumerate(sequence_ids):
@@ -976,23 +988,32 @@ def precompute_morlet_transforms(data, output_filename = None):
         if seq_id in preexisting_sequences:
             print("Loaded from cache")
             continue
+        if seq_id in ignored_sequences:
+            print("Ignored")
+            continue
 
         with HiddenPrints():
             seq = data[data['sequence_id'] == seq_id]
             speed = seq['walking_speed'].median()
+            corridor = seq['corridor'].median()
+            direction = seq['direction'].median()
             pir0 = compute_morlet_transform(seq['pir0'])
             pir1 = compute_morlet_transform(seq['pir1'])
             pir2 = compute_morlet_transform(seq['pir2'])
             pir3 = compute_morlet_transform(seq['pir3'])
             if speed < 10:
-                all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed])
+                all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction])
         time_estimation = (time.time() - start_time) * len(sequence_ids) / (i + 1)
         print(
             f"\tTime estimation: {int(time_estimation // 60)}min{round(time_estimation % 60, 2)}s ({time_estimation}s)")
+    print('100%')
 
     if output_filename is not None:
+        print(f"Saving into {output_filename}")
         pickle.dump(all_pirs_transformed, open(output_filename, 'wb+'))
+        print('Done.')
     return all_pirs_transformed
+
 
 def main():
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
@@ -1002,10 +1023,11 @@ def main():
     # All data comes from the CSV file created through fill_csv() in create_pir_csv.py
     data = pd.read_csv("gait_values.csv")
     # From the PIR values, apply a wavelet transform using Morlet waves and save them in a binary file
-    all_pirs_transformed = precompute_morlet_transforms(data, output_filename = 'all_pirs_transformed.data')
-
+    all_pirs_transformed = precompute_morlet_transforms(data, output_filename='all_pirs_transformed.data')
     # Required "resize" to fit the DNNs
-    input_size = 224
+    # input_size = 224
+    # Required "resize" to fit the CNNs
+    input_size = 32
 
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
@@ -1029,27 +1051,27 @@ def main():
                                                                                           [train_size, valid_size,
                                                                                            test_size])
     # Number of epochs applied on our model during the training
-    num_epochs = 50
+    num_epochs = 10
 
     # Path to save the binary files containing the data about our trained models
-    # root_to_cnn = "trained_models/" + device.type + "/"
-    root_to_cnn = "trained_models/transfer_learning/"
+    root_to_cnn = "trained_models/" + device.type + "/"
+    # root_to_cnn = "trained_models/transfer_learning/"
     path_to_save_cnn = root_to_cnn + "convolution_network.model"
 
     # Parameters to vary on the models
     # Be careful to avoid having too much params as the number of models is greatly increasing
     models_hyperparameters = {
         # Those params are for the CNNs (MultipleWaveletsModule and MultipleWaveletsLinearModule)
-        # 'input_size': input_size,
-        # 'mid_output_size': [10, 20],
-        # 'kernel_size': [3, 5],
-        # 'number_of_filters': [2, 4, 8],
-        # 'number_of_layers': [2, 3, 5, 6],
-        # 'hidden_cells': [None, 100, (128, 256), (256, 128)],
-        # 'dropout': [True, False],
-        # 'use_concat_pir': [True, False],
+        'input_size': input_size,
+        'mid_output_size': [10, 20],
+        'kernel_size': [3, 5],
+        'number_of_filters': [2, 4, 8],
+        'number_of_layers': [2, 3, 5, 6],
+        'hidden_cells': [None, 100, (128, 256), (256, 128)],
+        'dropout': [True, False],
+        'use_concat_pir': True,  # [True, False],
         # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
-        'trained_model': list(all_pretrained_models.values())
+        # 'trained_model': list(all_pretrained_models.values())
     }
 
     # Those parameters modify the type of training used for each network
@@ -1060,25 +1082,26 @@ def main():
                       optim.Adamax, optim.AdamW],
         'learning_rate': [0.0001, 0.00001, 0.00005],
         'loss_function': [nn.MSELoss, nn.L1Loss],
-        'model_class': PretrainedModel,  # [MultipleWaveletsLinearModule, MultipleWaveletsModule]
+        'model_class': [MultipleWaveletsLinearModule, MultipleWaveletsModule]
+        # PretrainedModel,  # [MultipleWaveletsLinearModule, MultipleWaveletsModule]
     }
 
     # Function that starts the training for all the models
-    # try_all_models(models_hyperparameters,
-    #                training_set_PIR,
-    #                validation_set_PIR,
-    #                testing_set_PIR,
-    #                training_parameters=training_parameters,
-    #                model_class=MultipleWaveletsLinearModule,
-    #                loss_function=nn.MSELoss,
-    #                verbose=10,
-    #                learning_rate=0.00005,
-    #                training_for_autoencoder=False,
-    #                save_as=path_to_save_cnn,
-    #                start_from_beginning=False,
-    #                display_precision=0.5,
-    #                early_stopping=10,
-    #                num_epochs=num_epochs)
+    try_all_models(models_hyperparameters,
+                   training_set_PIR,
+                   validation_set_PIR,
+                   testing_set_PIR,
+                   training_parameters=training_parameters,
+                   model_class=MultipleWaveletsLinearModule,
+                   loss_function=nn.MSELoss,
+                   verbose=10,
+                   learning_rate=0.00005,
+                   training_for_autoencoder=False,
+                   save_as=path_to_save_cnn,
+                   start_from_beginning=False,
+                   display_precision=0.5,
+                   early_stopping=10,
+                   num_epochs=num_epochs)
 
     pd.set_option('display.max_columns', None)
     pd.set_option('expand_frame_repr', False)
