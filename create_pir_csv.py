@@ -15,6 +15,7 @@ from utils import HiddenPrints
 def fill_csv(create_CSV_from_scratch = False,
              output_filename = 'gait_values.csv',
              client = None,
+             start_time = None, end_time = None,
              verbose = True,
              use_cache = True):
     with HiddenPrints(verbose):
@@ -22,12 +23,12 @@ def fill_csv(create_CSV_from_scratch = False,
             # Create DB client
             client = db.ListicClientDB(server_side=True)
 
-        start_time = None
         starting_sequence_id = 0
         old_data = None
         if create_CSV_from_scratch or not os.path.exists(output_filename):
             # Start the sequences from 26/04/2021 because before data were incorrect
-            start_time = 1619395200000  # 1621342821000  #
+            if start_time is None:
+                start_time = 1619395200000  # 1621342821000  #
         else:
             old_data = pd.read_csv(output_filename, index_col=0)
             start_time = (dateutil.parser.isoparse(old_data.iloc[-1]['time']).timestamp()) * 1000
@@ -41,9 +42,11 @@ def fill_csv(create_CSV_from_scratch = False,
             client.get_skeletons_in_splitted_sequences.cache_clear()
 
         sequences_boundaries = client.get_splitted_sequences_boundaries(time_between_sequences=time_between_sequences,
-                                                                        start_time=start_time, ignore_small_sequences=0.2)
+                                                                        start_time=start_time, end_time=end_time,
+                                                                        ignore_small_sequences=0.2)
         walking_sequences = client.get_skeletons_in_splitted_sequences(time_between_sequences=time_between_sequences,
-                                                                       start_time=start_time, ignore_small_sequences=0.2)
+                                                                       start_time=start_time, end_time=end_time,
+                                                                       ignore_small_sequences=0.2)
 
         fetching_errors = []
         print("Fetching data and computing gait features...")
@@ -122,8 +125,11 @@ def fill_csv(create_CSV_from_scratch = False,
             except Exception as e:
                 dataframe_errors.append({'sequence': sequence, 'error': e})
 
-        print(f"Saving file to '{os.path.abspath(output_filename)}', {len(sequence_data)} sequences saved")
-        full_df.to_csv(output_filename)
+        if len(sequence_data) > 0:
+            print(f"Saving file to '{os.path.abspath(output_filename)}', {len(sequence_data)} sequences saved")
+            full_df.to_csv(output_filename)
+        else:
+            print('No new data to save')
 
         pickle.dump({'fetch': fetching_errors, 'dataframe': dataframe_errors}, open('error_log.log', 'wb+'))
         if len(fetching_errors) > 0:
@@ -136,8 +142,11 @@ def fill_csv(create_CSV_from_scratch = False,
             for err in dataframe_errors:
                 print(f'\t- seq#{err["sequence"]["id"]}: {str(err["error"])}')
     # return full_df
-    # Should be improved to avoir re-reading, but for now it's missing something...
-    return pd.read_csv(output_filename)
+    if len(sequence_data) > 0:
+        # Should be improved to avoid re-reading, but for now it's missing something...
+        return pd.read_csv(output_filename)
+    else:
+        return None
 
 
 
