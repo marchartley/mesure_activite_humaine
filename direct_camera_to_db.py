@@ -1,3 +1,7 @@
+import datetime
+
+import dateutil.parser
+
 import feet_analysis
 import human_skeleton
 import skeleton_tracker as tracker
@@ -149,12 +153,14 @@ class HumanStorage:
         self.number_of_data_collected = 0
 
 
-def update_datasets(use_cache = True):
+def update_datasets(use_cache=True):
     pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
-                            output_filename='gait_values.csv',
-                            client=db_client,
-                            verbose=use_cache)
-    deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
+                                       output_filename='gait_values.csv',
+                                       start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000,
+                                       client=db_client,
+                                       use_cache=use_cache)
+    if pir_data is not None:
+        deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
 
 
 if __name__ == "__main__":
