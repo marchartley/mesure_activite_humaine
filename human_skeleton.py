@@ -108,6 +108,9 @@ class HumanSkeleton():
                 self.body_parts_2D[key] = tracker.get_keypoint(key, person_id=id)
                 if tracker.is_3D_available and depth_map is not None:
                     self.body_parts_3D[key] = tracker.get_keypoint3D(key, depth_map, person_id=id)
+                    if self.body_parts_3D[key][2] > 8: # Depth bigger than 8m is "impossible"
+                        self.body_parts_3D[key] = self.POSITION_NOT_FOUND3D
+                        self.body_parts_2D[key] = self.POSITION_NOT_FOUND2D
         return self
 
     # Get the keypoints from a JSON file (mostly used when using InfluxDB data)
