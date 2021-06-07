@@ -21,6 +21,9 @@ import deep_neural_training
 import utils
 
 
+last_speed_registered = 0
+last_date_speed_registered = None
+
 class HumanStorage:
     def __init__(self, send_data_after=-1, db: InfluxDB_connection.ListicClientDB = None, cooldown=None):
         self.humans = {}
@@ -110,6 +113,10 @@ class HumanStorage:
                 #                                                                  motion_threshold=motion_threshold)
                 # footstep_width = feet_analysis.estimate_footsteps_width(data)
                 # walking_speed = feet_analysis.compute_walking_speed(data)
+                # global last_speed_registered, last_date_speed_registered
+                # last_speed_registered = walking_speed
+                # last_date_speed_registered = end_timestamp / 1000
+
                 # stride_length, right_length, left_length = feet_analysis.compute_stride_length(data)
                 #
                 # walking_direction = feet_analysis.get_walking_direction(data)
@@ -160,7 +167,10 @@ def update_datasets(use_cache=True):
                                        client=db_client,
                                        use_cache=use_cache)
     if pir_data is not None:
-        deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
+        global last_speed_registered, last_date_speed_registered
+        last_speed_registered = pir_data['walking_speed'].values[-1]
+        last_date_speed_registered = dateutil.parser.parse(pir_data['time'].values[-1]).timestamp()
+        # deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
 
 
 if __name__ == "__main__":
@@ -301,6 +311,15 @@ if __name__ == "__main__":
                     cv2.FONT_HERSHEY_SIMPLEX, 1, status_color, 2)
         cv2.putText(color_frame, "FPS: " + str(round(fps, 2)), (10, 50),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, status_color, 2)
+        if last_date_speed_registered is not None:
+            time_diff = time.time() - last_date_speed_registered
+            time_h = int((time_diff // 60) // 60)
+            time_m = int(time_diff // 60)
+            time_s = int(time_diff % 60)
+            str_time = f"{time_h}h{time_m}m{time_s}s" if time_h > 0 else f"{time_m}m{time_s}s" if time_m > 0 else f"{time_s}s"
+            speed_text = f"Last speed: {round(last_speed_registered, 2)}m/s ({str_time} ago)"
+            cv2.putText(color_frame, speed_text, (10, 70),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, status_color, 2)
 
         # color_frame = np.array(rs.colorizer().colorize(depth_frame).get_data())
         color_frame = cv2.resize(color_frame, (1200, 600))
