@@ -11,7 +11,11 @@ import human_skeleton
 import skeleton_tracker
 
 def visual_skeleton():
-    data = feet_analysis.get_data_from_db(139, time_between_sequences=1.0, server_side = True, start_time=1619395200000, ignore_small_sequences=0.2)
+    data = feet_analysis.get_data_from_db(-1, time_between_sequences=1.0,
+                                          server_side = True,
+                                          start_time=1619395200000,
+                                          ignore_small_sequences=0.2)
+    print(data)
     print(f"Data from {datetime.datetime.fromtimestamp(data['timestamps'][0]).strftime('%Y-%m-%d %H:%M:%S')} "
           f"to {datetime.datetime.fromtimestamp(data['timestamps'][-1]).strftime('%Y-%m-%d %H:%M:%S')}")
     fig = plt.figure()

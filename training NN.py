@@ -274,6 +274,16 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
             plt.axis('equal')
             abline(1)
             plt.show()
+
+            ratios = original_y / y_Predicted
+            # ratios = ratios[np.logical_and(ratios < 10, ratios > 1/10)]
+            _, bins = np.histogram(ratios, bins = 20)
+            print(bins)
+            # plt.show()
+            logbins = np.logspace(np.log10(bins[0]), np.log10(bins[-1]), len(bins))
+            plt.hist(ratios, bins = logbins)
+            plt.xscale('log')
+            plt.show()
             return
         # writeToJSONFile("predicted_data.json", predicted_data)
     else:
@@ -289,7 +299,7 @@ res, y1, y2 = NeuralNetwork("sequences_resumed.csv", .10,
                              "period_pir0", "period_pir0", "period_pir1", "period_pir2",
                              "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
                              "period_pir3", "delta_time_0_2",
-                             "delta_time_1_3", "corridor", "direction"], ["walking_speed"], None, data_multiplier=100)
+                             "delta_time_1_3", "corridor", "direction"], ["walking_speed"], None, data_multiplier=1)
 prediction("sequences_resumed.csv",
            ["time_pir0", "time_pir1", "time_pir2", "time_pir3",
             "period_pir0", "period_pir0", "period_pir1", "period_pir2",

@@ -52,8 +52,10 @@ def splitting_data(url, testsize, independent_variables, dependent_variable):
             "message": message,
             "X_train": X_train,
             "X_test": X_test,
+            "X": X,
             "y_train": y_train.values,
             "y_test": y_test.values,
+            "y": y
         }
     else:
         return {"message": message}
@@ -91,9 +93,9 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
         # else:
         params = {
             'hidden_layer_sizes': [10, 100, 500], # [10, 40, 100, 200, 500],
-            'activation': ['relu', 'tanh'], # ['identity', 'logistic', 'relu', 'tanh'],
-            'solver': ['adam'], # ['lbfgs', 'adam', 'sgd'],
-            'alpha': [0.001, 0.1], # [0.0001, 0.001, 0.01, 0.1],
+            'activation': ['identity', 'logistic', 'tanh'],  # ['relu', 'tanh'], # ['identity', 'logistic', 'relu', 'tanh'],
+            'solver': ['adam', 'sgd'], # 'lbfgs',
+            'alpha': [0.00001, 0.0001, 0.001],  # , 0.01, 0.1],
             'learning_rate': ['constant'], # ['constant', 'invscaling', 'adaptative'],
             'early_stopping': [True], # [True, False]
         }
@@ -108,11 +110,13 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
             'explained_variance',
             'max_error',
             'neg_median_absolute_error',
-        ], refit='neg_mean_squared_error', verbose=3)
+        ], refit='r2', verbose=3)
         cv.fit(X_train_std, np.ravel(y_train))
 
-        predictions = cv.best_estimator_.predict(X_test_std)
-        actual = y_test
+        # predictions = cv.best_estimator_.predict(X_test_std)
+        # actual = y_test
+        predictions = cv.best_estimator_.predict(response['X'])
+        actual = response['y']
 
         plt.plot([0, 2], [0, 2], '--', c=(0.5, 0.5, 0.5))
         plt.plot(predictions, actual, '.', c=(0, 0, 0))
@@ -136,7 +140,7 @@ if __name__ == '__main__':
     # plt.title("Prediction without 'direction'")
     res_without_dir = NeuralNetwork("sequences_resumed.csv", 0.3,
                                     ["period_pir0", "period_pir1", "period_pir2", "period_pir3", "delta_time_0_2",
-                                     "delta_time_1_3"],
+                                     "delta_time_1_3", "corridor", "direction"],
                                     ["walking_speed"], None)
 
     df_res_without_dir = pd.DataFrame(res_without_dir.cv_results_)
