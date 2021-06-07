@@ -98,71 +98,11 @@ def get_sequence_features(sequence, number_of_peaks):
 ##########################
 
 
-df_sequences = pd.read_csv("sequences_resumed.csv")
-df_sequences = df_sequences.dropna()
-input_cols = ['period_pir0', 'time_pir0', 'period_pir1', 'time_pir1', 'period_pir2', 'time_pir2', 'period_pir3', 'time_pir3', 'delta_time_0_2', 'delta_time_1_3']
-X = df_sequences[input_cols]
-Y = df_sequences['direction']
-
-
-# Split the data in 2 : training/testing
-train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
-
-# We use most of the regression methods provided by sklearn
-classifiers = [
-    sklearn.neighbors.KNeighborsClassifier(3),
-    sklearn.svm.SVC(kernel="linear", C=0.025),
-    sklearn.svm.SVC(gamma=2, C=1),
-    sklearn.gaussian_process.GaussianProcessClassifier(1.0 * sklearn.gaussian_process.kernels.RBF(1.0)),
-    sklearn.tree.DecisionTreeClassifier(max_depth=5),
-    sklearn.ensemble.RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-    sklearn.neural_network.MLPClassifier(alpha=1, max_iter=1000),
-    sklearn.ensemble.AdaBoostClassifier(),
-    sklearn.naive_bayes.GaussianNB(),
-    sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis()
-]
-
-pd.set_option('float_format', '{:.3f}'.format)
-# Display stats about the velocities of the sequences
-print("Directions:")
-print(pd.DataFrame(Y.values, columns=["Directions"]).describe())
-
-results = []
-# Train all regressors
-# Results are given using Cross-Validation with 5 folds
-for item in classifiers:
-    clf = item
-    clf.fit(train_X, train_y)
-    cv_score_accuracy = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'accuracy')
-    cv_score_precision = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'precision')
-    cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
-    results.append([item.__class__.__name__, np.mean(cv_score_accuracy), np.mean(cv_score_precision), np.mean(cv_score_r2)])
-
-# Display the results
-print(pd.DataFrame(results, columns=["Classifier's name", "Accuracy", "Precision", "R2 score"]))
-
-predictions = classifiers[-1].predict(X)
-ground_truth = Y.values
-
-predictions = [x for _, x in sorted(zip(Y.index, predictions))]
-ground_truth = [x for _, x in sorted(zip(Y.index, ground_truth))]
-
-plt.plot(predictions, label="Prediction")
-plt.plot(ground_truth, label="Ground Truth")
-plt.legend()
-plt.show()
-
-
-##########################
-### Part for corridor ###
-##########################
-
-#
 # df_sequences = pd.read_csv("sequences_resumed.csv")
 # df_sequences = df_sequences.dropna()
 # input_cols = ['period_pir0', 'time_pir0', 'period_pir1', 'time_pir1', 'period_pir2', 'time_pir2', 'period_pir3', 'time_pir3', 'delta_time_0_2', 'delta_time_1_3']
 # X = df_sequences[input_cols]
-# Y = df_sequences['corridor']
+# Y = df_sequences['direction']
 #
 #
 # # Split the data in 2 : training/testing
@@ -174,8 +114,8 @@ plt.show()
 #     sklearn.svm.SVC(kernel="linear", C=0.025),
 #     sklearn.svm.SVC(gamma=2, C=1),
 #     sklearn.gaussian_process.GaussianProcessClassifier(1.0 * sklearn.gaussian_process.kernels.RBF(1.0)),
-#     sklearn.tree.DecisionTreeClassifier(max_depth=10),
-#     sklearn.ensemble.RandomForestClassifier(max_depth=10, n_estimators=10, max_features=10),
+#     sklearn.tree.DecisionTreeClassifier(max_depth=5),
+#     sklearn.ensemble.RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
 #     sklearn.neural_network.MLPClassifier(alpha=1, max_iter=1000),
 #     sklearn.ensemble.AdaBoostClassifier(),
 #     sklearn.naive_bayes.GaussianNB(),
@@ -194,9 +134,9 @@ plt.show()
 #     clf = item
 #     clf.fit(train_X, train_y)
 #     cv_score_accuracy = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'accuracy')
-#     cv_score_precision = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'precision')
+#     # cv_score_precision = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'precision')
 #     cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
-#     results.append([item.__class__.__name__, np.mean(cv_score_accuracy), np.mean(cv_score_precision), np.mean(cv_score_r2)])
+#     results.append([item.__class__.__name__, np.mean(cv_score_accuracy), "np.mean(cv_score_precision)", np.mean(cv_score_r2)])
 #
 # # Display the results
 # print(pd.DataFrame(results, columns=["Classifier's name", "Accuracy", "Precision", "R2 score"]))
@@ -211,6 +151,66 @@ plt.show()
 # plt.plot(ground_truth, label="Ground Truth")
 # plt.legend()
 # plt.show()
+
+
+##########################
+### Part for corridor ###
+##########################
+
+
+df_sequences = pd.read_csv("sequences_resumed.csv")
+df_sequences = df_sequences.dropna()
+input_cols = ['period_pir0', 'time_pir0', 'period_pir1', 'time_pir1', 'period_pir2', 'time_pir2', 'period_pir3', 'time_pir3', 'delta_time_0_2', 'delta_time_1_3']
+X = df_sequences[input_cols]
+Y = df_sequences['corridor']
+
+
+# Split the data in 2 : training/testing
+train_X, test_X, train_y, test_y = sklearn.model_selection.train_test_split(X, Y, test_size = 0.5)
+
+# We use most of the regression methods provided by sklearn
+classifiers = [
+    sklearn.neighbors.KNeighborsClassifier(3),
+    sklearn.svm.SVC(kernel="linear", C=0.025),
+    sklearn.svm.SVC(gamma=2, C=1),
+    sklearn.gaussian_process.GaussianProcessClassifier(1.0 * sklearn.gaussian_process.kernels.RBF(1.0)),
+    sklearn.tree.DecisionTreeClassifier(max_depth=10),
+    sklearn.ensemble.RandomForestClassifier(max_depth=10, n_estimators=10, max_features=10),
+    sklearn.neural_network.MLPClassifier(alpha=1, max_iter=1000),
+    sklearn.ensemble.AdaBoostClassifier(),
+    sklearn.naive_bayes.GaussianNB(),
+    sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis()
+]
+
+pd.set_option('float_format', '{:.3f}'.format)
+# Display stats about the velocities of the sequences
+print("Corridor:")
+print(pd.DataFrame(Y.values, columns=["Corridor"]).describe())
+
+results = []
+# Train all regressors
+# Results are given using Cross-Validation with 5 folds
+for item in classifiers:
+    clf = item
+    clf.fit(train_X, train_y)
+    cv_score_accuracy = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'accuracy')
+    # cv_score_precision = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'precision')
+    cv_score_r2 = sklearn.model_selection.cross_val_score(clf, test_X, test_y, cv=5, scoring = 'r2')
+    results.append([item.__class__.__name__, np.mean(cv_score_accuracy), "np.mean(cv_score_precision)", np.mean(cv_score_r2)])
+
+# Display the results
+print(pd.DataFrame(results, columns=["Classifier's name", "Accuracy", "Precision", "R2 score"]))
+
+predictions = classifiers[-1].predict(X)
+ground_truth = Y.values
+
+predictions = [x for _, x in sorted(zip(Y.index, predictions))]
+ground_truth = [x for _, x in sorted(zip(Y.index, ground_truth))]
+
+plt.plot(predictions, label="Prediction")
+plt.plot(ground_truth, label="Ground Truth")
+plt.legend()
+plt.show()
 
 
 
@@ -267,7 +267,11 @@ ground_truth = Y.values
 predictions = [x for _, x in sorted(zip(Y.index, predictions))]
 ground_truth = [x for _, x in sorted(zip(Y.index, ground_truth))]
 
-plt.plot(predictions, label="Prediction")
-plt.plot(ground_truth, label="Ground Truth")
-plt.legend()
+plt.plot([0, 10], [0, 10], '--', color=(0, 0, 0, .5))
+plt.scatter(predictions, ground_truth)
+plt.xlim((0, 10))
+plt.ylim((0, 10))
+# plt.plot(predictions, label="Prediction")
+# plt.plot(ground_truth, label="Ground Truth")
+# plt.legend()
 plt.show()
