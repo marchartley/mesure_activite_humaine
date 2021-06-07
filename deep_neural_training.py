@@ -53,7 +53,7 @@ use_cuda = True
 
 
 class PretrainedModel(nn.Module):
-    def __init__(self, trained_model):
+    def __init__(self, trained_model, **useless):
         super(PretrainedModel, self).__init__()
         # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
         # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
@@ -142,7 +142,7 @@ class MultipleWaveletsModule(nn.Module):
                                                        dropout=dropout, lastActivation=None).to(device) for i in
                                          range(4)]
         # Create one unique module that take the 4 PIR data at once
-        self.unique_wavelet_module = WaveletModule(input_size=input_size * 4, output_size=mid_output_size,
+        self.unique_wavelet_module = WaveletModule(input_size=input_size, output_size=4 * mid_output_size,
                                                    kernel_size=kernel_size,
                                                    number_of_filters=number_of_filters,
                                                    number_of_layers=number_of_layers,
@@ -171,7 +171,7 @@ class MultipleWaveletsModule(nn.Module):
 
 class WaveletModule(nn.Module):
     def __init__(self, input_size: int, output_size: int, kernel_size: int = 3,
-                 number_of_filters: int = 2, number_of_layers: int = 1,
+                 number_of_filters: int = 2, number_of_layers: int = 1, use_concat = True,
                  hidden_cells=None, dropout: Union[float, bool] = False, lastActivation=None, **useless):
         super(WaveletModule, self).__init__()
         if hidden_cells is None:
@@ -186,7 +186,7 @@ class WaveletModule(nn.Module):
 
         padding = int(kernel_size / 2)
         # First, a convolution. Here we specified an image with a unique channel (no RGB)
-        elems = [nn.Conv2d(1, number_of_filters, kernel_size, padding=padding)]
+        elems = [nn.Conv2d(4 if use_concat else 1, number_of_filters, kernel_size, padding=padding)]
 
         # For every new \"layer\" (or block), we add a MaxPooling and a Convolution
         # The number of filters is not changed
@@ -839,12 +839,12 @@ def try_all_models(hyperparameters,
                 used_training_parameters['verbose'] = verbose
 
             # Save the training statistics (with the model itself), the testing statistics and the parameters used
-            current_model = {'training': train_model(trainloader=copy.deepcopy(train_set),
-                                                     validationloader=copy.deepcopy(validation_set),
+            current_model = {'training': train_model(trainloader=train_set,
+                                                     validationloader=validation_set,
                                                      **used_training_parameters)}
             if verbose:
                 print("Training ended, testing the model")
-            current_model['test'] = test_model(current_model['training']['model'], copy.deepcopy(testing_set))
+            current_model['test'] = test_model(current_model['training']['model'], testing_set)
             if verbose:
                 print(current_model['test'])
             current_model['parameters'] = parameters
@@ -993,16 +993,21 @@ def precompute_morlet_transforms(data, output_filename=None):
             continue
 
         with HiddenPrints():
-            seq = data[data['sequence_id'] == seq_id]
-            speed = seq['walking_speed'].median()
-            corridor = seq['corridor'].median()
-            direction = seq['direction'].median()
-            if speed < 10 and direction != 0 and not np.isnan(corridor):
-                pir0 = compute_morlet_transform(seq['pir0'])
-                pir1 = compute_morlet_transform(seq['pir1'])
-                pir2 = compute_morlet_transform(seq['pir2'])
-                pir3 = compute_morlet_transform(seq['pir3'])
-                all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction])
+            try:
+                seq = data[data['sequence_id'] == seq_id]
+                speed = seq['walking_speed'].median()
+                corridor = seq['corridor'].median()
+                direction = seq['direction'].median()
+                if speed < 10 and direction != 0 and not np.isnan(corridor):
+                    pir0 = compute_morlet_transform(seq['pir0'])
+                    pir1 = compute_morlet_transform(seq['pir1'])
+                    pir2 = compute_morlet_transform(seq['pir2'])
+                    pir3 = compute_morlet_transform(seq['pir3'])
+                    all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction])
+                else:
+                    print(speed, direction, corridor)
+            except:
+                pass
         time_estimation = (time.time() - start_time) * len(sequence_ids) / (i + 1)
         print(
             f"\tTime estimation: {int(time_estimation // 60)}min{round(time_estimation % 60, 2)}s ({time_estimation}s)")
@@ -1023,11 +1028,11 @@ def main():
     # All data comes from the CSV file created through fill_csv() in create_pir_csv.py
     data = pd.read_csv("gait_values.csv")
     # From the PIR values, apply a wavelet transform using Morlet waves and save them in a binary file
-    all_pirs_transformed = precompute_morlet_transforms(data, output_filename='all_pirs_transformed.data')
+    all_pirs_transformed = precompute_morlet_transforms(data) #, output_filename='all_pirs_transformed.data')
     # Required "resize" to fit the DNNs
     # input_size = 224
     # Required "resize" to fit the CNNs
-    input_size = 32
+    input_size = 128
 
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
@@ -1035,11 +1040,11 @@ def main():
         transforms.Resize((input_size, input_size)),
         # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
-        # transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
-        # transforms.Lambda(lambda x: transforms.GaussianBlur(
-        #     2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
+        transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
+        transforms.Lambda(lambda x: transforms.GaussianBlur(
+            2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
     ]),
-                             data_inflate=1.0)
+                             data_inflate=10.0)
     # Train size = 70%, Validation = 10%, Testing = 20%
     ratio_train_set = 70 / 100
     ratio_valid_set = 10 / 100
@@ -1050,8 +1055,16 @@ def main():
     training_set_PIR, validation_set_PIR, testing_set_PIR = torch.utils.data.random_split(dataset,
                                                                                           [train_size, valid_size,
                                                                                            test_size])
+    minibatch_size = 64
+    # We've chose high batch size to be more efficient in time
+    trainloader = torch.utils.data.DataLoader(training_set_PIR, batch_size=minibatch_size,
+                                                  shuffle=True, num_workers=0)
+    validationloader = torch.utils.data.DataLoader(validation_set_PIR, batch_size=2 * minibatch_size,
+                                                       shuffle=True, num_workers=0)
+    testingloader = torch.utils.data.DataLoader(testing_set_PIR, batch_size=2 * minibatch_size,
+                                                       shuffle=True, num_workers=0)
     # Number of epochs applied on our model during the training
-    num_epochs = 10
+    num_epochs = 50
 
     # Path to save the binary files containing the data about our trained models
     root_to_cnn = "trained_models/" + device.type + "/"
@@ -1069,9 +1082,9 @@ def main():
         'number_of_layers': [2, 3, 5, 6],
         'hidden_cells': [None, 100, (128, 256), (256, 128)],
         'dropout': [True, False],
-        'use_concat_pir': True,  # [True, False],
+        'use_concat_pir': [True, False],
         # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
-        # 'trained_model': list(all_pretrained_models.values())
+        'trained_model': list(all_pretrained_models.values())
     }
 
     # Those parameters modify the type of training used for each network
@@ -1082,20 +1095,20 @@ def main():
                       optim.Adamax, optim.AdamW],
         'learning_rate': [0.0001, 0.00001, 0.00005],
         'loss_function': [nn.MSELoss, nn.L1Loss],
-        'model_class': [MultipleWaveletsLinearModule, MultipleWaveletsModule]
+        'model_class': [MultipleWaveletsLinearModule, MultipleWaveletsModule, PretrainedModel]
         # PretrainedModel,  # [MultipleWaveletsLinearModule, MultipleWaveletsModule]
     }
 
     # Function that starts the training for all the models
     try_all_models(models_hyperparameters,
-                   training_set_PIR,
-                   validation_set_PIR,
-                   testing_set_PIR,
+                   trainloader,
+                   validationloader,
+                   testingloader,
                    training_parameters=training_parameters,
-                   model_class=MultipleWaveletsLinearModule,
-                   loss_function=nn.MSELoss,
+                   # model_class=MultipleWaveletsLinearModule,
+                   # loss_function=nn.MSELoss,
                    verbose=10,
-                   learning_rate=0.00005,
+                   # learning_rate=0.00005,
                    training_for_autoencoder=False,
                    save_as=path_to_save_cnn,
                    start_from_beginning=False,
