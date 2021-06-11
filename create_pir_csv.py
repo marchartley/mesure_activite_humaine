@@ -74,7 +74,7 @@ def fill_csv(create_CSV_from_scratch = False,
                 # Get PIR values for this sequence
                 pir_values = client.get_pir_values_from_walking_sequence(start_time=sequences_boundaries[id_sequence][0],
                                                                          end_time=sequences_boundaries[id_sequence][1],
-                                                                         time_offset=5.0)
+                                                                         time_offset=10.0)
                 print(end=".")
                 if len(pir_values['time']) == 0:
                     print(f"ignored, no PIR values")
@@ -85,6 +85,29 @@ def fill_csv(create_CSV_from_scratch = False,
                                                                    id_sequence=id_sequence,
                                                                    server_side=True, motion_threshold=0.8,
                                                                    start_time=start_time, ignore_small_sequences=0.2)
+                if gait_features['direction'] == 0:
+                    print(f"ignored, direction undefined")
+                    continue
+
+                speed = gait_features['walking_speed']
+                before_offset = 0
+                after_offset = 0
+                # Going from South to North, we are missing ~4m at the end of the recording and 1m before
+                if gait_features['direction'] == -1:
+                    before_offset = 1 / speed
+                    after_offset = 4 / speed
+                # Going from North to South, we are missing ~1m at the end of the recording and 4m before
+                else:
+                    before_offset = 4 / speed
+                    after_offset = 1 / speed
+
+                # We have data with 10s before and after, so we remove (10 - x) sec of data
+                # PIR values are recorded at 40Hz, so we remove (10 - x) * 40 lines of data
+                before_offset = int((10 - before_offset) * 40)
+                after_offset = int((10 - after_offset) * 40)
+                for measure in pir_values:
+                    pir_values[measure] = pir_values[measure][before_offset:(-after_offset)]
+
                 print(end=".", flush=True)
                 # Store these values in an array
                 sequence_data.append({
@@ -153,5 +176,6 @@ def fill_csv(create_CSV_from_scratch = False,
 if __name__ == '__main__':
     fill_csv(create_CSV_from_scratch = False,
              output_filename = 'gait_values.csv',
-             verbose = True)
+             verbose = True,
+             start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000)
 
