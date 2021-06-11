@@ -27,6 +27,8 @@ from PIL import Image
 import matplotlib.patheffects as PathEffects
 
 from utils import HiddenPrints
+from scipy.stats.stats import pearsonr
+
 
 all_pretrained_models = {
     'resnet18': torchvision.models.resnet18,
@@ -51,12 +53,50 @@ cuda = torch.device('cuda')
 device = cuda if torch.cuda.is_available() else cpu
 use_cuda = True
 
+def correlation_loss(x, y):
+    vx = x - torch.mean(x)
+    vy = y - torch.mean(y)
 
-class PretrainedModel(nn.Module):
+    cost = abs(torch.sum(vx * vy) / (torch.sqrt(torch.sum(vx ** 2)) * torch.sqrt(torch.sum(vy ** 2))) - 1)
+    # print(cost)
+    cost[cost!=cost] = 1
+    # if torch.isnan(cost):
+    #     print('NAAAAAN')
+    # print(cost)
+    # exit()
+    return cost
+
+class CustomModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.use_cuda = True
+        self.use_concat_pir = False
+
+    def update_device(self):
+        global device, use_cuda
+        if 'use_cuda' not in self.__dict__:
+            self.use_cuda = True
+        use_cuda = self.use_cuda
+        if self.use_cuda:
+            device = cuda
+        else:
+            device = cpu
+
+    def __str__(self):
+        var_name_length = 25
+        out = f"{self.__class__.__name__}:" + "\n\t"
+        out += "\n\t".join([
+                               f"{str(var_name).replace('_', ' ')}{' ' * (var_name_length - len(str(var_name)))} = {getattr(self, var_name)}"
+                               for var_name in self.__init__.__code__.co_varnames[1:] if var_name in self.__dict__])
+        return out
+
+    def __repr__(self):
+        return str(self)
+
+
+class PretrainedModel(CustomModel):
     def __init__(self, trained_model, **useless):
-        super(PretrainedModel, self).__init__()
-        # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
-        # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
+        super().__init__()
         try:
             self.module = trained_model(pretrained=False, init_weights=True)
         except:
@@ -64,8 +104,6 @@ class PretrainedModel(nn.Module):
         for param in self.module.parameters():
             param.requires_grad = False
 
-        global use_cuda
-        use_cuda = True
         self.num_ftrs = 0
         if trained_model is all_pretrained_models['resnet18'] or trained_model is all_pretrained_models['shufflenet']:
             self.num_ftrs = self.module.fc.in_features
@@ -82,11 +120,11 @@ class PretrainedModel(nn.Module):
             # self.module.classifier = nn.Identity()  # nn.Linear(self.module.classifier[-2].out_features, 1)
             self.module.classifier = nn.Conv2d(512, 1, kernel_size=(1, 1), stride=(1, 1))
         elif trained_model is all_pretrained_models['vgg16']:
-            use_cuda = False
+            self.use_cuda = False
             self.num_ftrs = self.module.classifier[0].in_features
             self.module.classifier = nn.Identity()
         elif trained_model is all_pretrained_models['densenet']:
-            use_cuda = False
+            self.use_cuda = False
             self.num_ftrs = self.module.classifier.in_features
             self.module.classifier = nn.Identity()
         # elif trained_model is all_pretrained_models['googlenet']:
@@ -94,28 +132,16 @@ class PretrainedModel(nn.Module):
         elif trained_model is all_pretrained_models['resnext50_32x4d'] or \
                 trained_model is all_pretrained_models['wide_resnet50_2']:
             # or trained_model is all_pretrained_models['inception']
-            use_cuda = False
+            self.use_cuda = False
             self.num_ftrs = self.module.fc.in_features
             self.module.fc = nn.Identity()
 
-        global device
-        self.use_cuda = use_cuda
-        if use_cuda:
-            device = cuda
-        else:
-            device = cpu
-
-        self.module.to(device)
-        self.first_conv = nn.Conv2d(4, 3, kernel_size=(3, 3), padding=1).to(device)
-
+        self.first_conv = nn.Conv2d(4, 3, kernel_size=(3, 3), padding=1)
         self.ending = nn.Linear(self.num_ftrs, 1)
 
-    def update_device(self):
-        global device
-        if self.use_cuda:
-            device = cuda
-        else:
-            device = cpu
+        self.use_concat_pir = True
+
+        self.update_device()
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
         final_tensor = self.first_conv(concat_pir)
@@ -124,36 +150,53 @@ class PretrainedModel(nn.Module):
 
         return final_tensor
 
+    def __str__(self):
+        return f"{self.__class__.__name__}:" + "\n" \
+                                               f"\tTrained model = {self.module.__class__.__name__}"
 
-class MultipleWaveletsModule(nn.Module):
+
+class MultipleWaveletsModule(CustomModel):
     def __init__(self, input_size=512, mid_output_size=10, kernel_size=3, number_of_filters=2,
-                 number_of_layers=8, hidden_cells=[], dropout=False, use_concat_pir=True, **useless):
-        super(MultipleWaveletsModule, self).__init__()
+                 number_of_layers=8, hidden_cells=[], dropout=False, use_concat_pir=True, number_of_conv_per_layer=1,
+                 pure_CNN=False, **useless):
+        super().__init__()
+        self.input_size = input_size
+        self.mid_output_size = mid_output_size
+        self.kernel_size = kernel_size
+        self.number_of_filters = number_of_filters
+        self.number_of_layers = number_of_layers
+        self.hidden_cells = hidden_cells
+        self.dropout = dropout
         self.use_concat_pir = use_concat_pir
-        # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
-        # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
+        self.number_of_conv_per_layer = number_of_conv_per_layer
+        # self.pure_CNN = pure_CNN
 
         # Create one module per PIR (used when not using the concat_pir version)
-        self.multiple_wavelet_modules = [WaveletModule(input_size=input_size, output_size=mid_output_size,
-                                                       kernel_size=kernel_size,
-                                                       number_of_filters=number_of_filters,
-                                                       number_of_layers=number_of_layers,
-                                                       hidden_cells=hidden_cells,
-                                                       dropout=dropout, lastActivation=None).to(device) for i in
-                                         range(4)]
+        self.multiple_wavelet_modules = nn.ModuleList([WaveletModule(input_size=input_size, output_size=mid_output_size,
+                                                                     kernel_size=kernel_size,
+                                                                     number_of_filters=number_of_filters,
+                                                                     number_of_layers=number_of_layers,
+                                                                     hidden_cells=hidden_cells,
+                                                                     dropout=dropout,
+                                                                     number_of_conv_per_layer=number_of_conv_per_layer,
+                                                                     use_concat=False,
+                                                                     lastActivation=None) for _ in
+                                                       range(4)])
         # Create one unique module that take the 4 PIR data at once
         self.unique_wavelet_module = WaveletModule(input_size=input_size, output_size=4 * mid_output_size,
                                                    kernel_size=kernel_size,
                                                    number_of_filters=number_of_filters,
                                                    number_of_layers=number_of_layers,
                                                    hidden_cells=hidden_cells,
-                                                   dropout=dropout, lastActivation=None).to(device)
+                                                   dropout=dropout,
+                                                   number_of_conv_per_layer=number_of_conv_per_layer,
+                                                   use_concat=True,
+                                                   lastActivation=None)
 
         # In any case, the activation is a Dense of shape (4*output x 1)
         self.activation_function = nn.Linear(4 * mid_output_size, 1)
 
-    def update_device(self):
-        pass
+        self.update_device()
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
         if self.use_concat_pir:
@@ -171,9 +214,19 @@ class MultipleWaveletsModule(nn.Module):
 
 class WaveletModule(nn.Module):
     def __init__(self, input_size: int, output_size: int, kernel_size: int = 3,
-                 number_of_filters: int = 2, number_of_layers: int = 1, use_concat = True,
-                 hidden_cells=None, dropout: Union[float, bool] = False, lastActivation=None, **useless):
-        super(WaveletModule, self).__init__()
+                 number_of_filters: int = 2, number_of_layers: int = 1, use_concat=True,
+                 hidden_cells=None, dropout: Union[float, bool] = False, number_of_conv_per_layer=1,
+                 lastActivation=None, **useless):
+        super().__init__()
+        self.input_size = input_size
+        self.kernel_size = kernel_size
+        self.number_of_filters = number_of_filters
+        self.number_of_layers = number_of_layers
+        self.hidden_cells = hidden_cells
+        self.dropout = dropout
+        self.use_concat = use_concat
+        self.number_of_conv_per_layer = number_of_conv_per_layer
+
         if hidden_cells is None:
             hidden_cells = []
         if isinstance(hidden_cells, int):
@@ -190,10 +243,11 @@ class WaveletModule(nn.Module):
 
         # For every new \"layer\" (or block), we add a MaxPooling and a Convolution
         # The number of filters is not changed
-        for i in range(1, number_of_layers):
+        for _ in range(1, number_of_layers):
             elems.append(nn.MaxPool2d(2))
             input_size = input_size // 2
-            elems.append(nn.Conv2d(number_of_filters, number_of_filters, kernel_size, padding=padding))
+            for _ in range(number_of_conv_per_layer):
+                elems.append(nn.Conv2d(number_of_filters, number_of_filters, kernel_size, padding=padding))
         self.cnn_layers = nn.Sequential(*elems)
 
         input_size = int(input_size ** 2 * number_of_filters)
@@ -231,40 +285,49 @@ class WaveletModule(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.linear_layers(x)
 
-        return x
+        return 10 ** x
 
 
-class MultipleWaveletsLinearModule(nn.Module):
+class MultipleWaveletsLinearModule(CustomModel):
     def __init__(self, input_size=512, mid_output_size=10, kernel_size=3, number_of_filters=2,
                  number_of_layers=8, hidden_cells=None, dropout=False, use_concat_pir=True, **useless):
-        super(MultipleWaveletsLinearModule, self).__init__()
+        super().__init__()
+
+        self.input_size = input_size
+        self.mid_output_size = mid_output_size
+        self.kernel_size = kernel_size
+        self.number_of_filters = number_of_filters
+        self.number_of_layers = number_of_layers
+        self.hidden_cells = hidden_cells
+        self.dropout = dropout
         self.use_concat_pir = use_concat_pir
+
         if hidden_cells is None:
             hidden_cells = []
         # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
         # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
 
         # Create one module per PIR (used when not using the concat_pir version)
-        self.multiple_wavelet_modules = [WaveletLinearModule(input_size=input_size, output_size=mid_output_size,
-                                                             kernel_size=kernel_size,
-                                                             number_of_filters=number_of_filters,
-                                                             number_of_layers=number_of_layers,
-                                                             hidden_cells=hidden_cells,
-                                                             dropout=dropout, lastActivation=None).to(device) for i in
-                                         range(4)]
+        self.multiple_wavelet_modules = nn.ModuleList(
+            [WaveletLinearModule(input_size=input_size, output_size=mid_output_size,
+                                 kernel_size=kernel_size,
+                                 number_of_filters=number_of_filters,
+                                 number_of_layers=number_of_layers,
+                                 hidden_cells=hidden_cells,
+                                 dropout=dropout, lastActivation=None) for i in
+             range(4)])
         # Create one unique module that take the 4 PIR data at once
         self.unique_wavelet_module = WaveletLinearModule(input_size=input_size * 2, output_size=mid_output_size * 4,
                                                          kernel_size=kernel_size,
                                                          number_of_filters=number_of_filters,
                                                          number_of_layers=number_of_layers,
                                                          hidden_cells=hidden_cells,
-                                                         dropout=dropout, lastActivation=None).to(device)
+                                                         dropout=dropout, lastActivation=None)
 
         # In any case, the activation is a Dense of shape (4*output x 1)
         self.activation_function = nn.Linear(4 * mid_output_size, 1)
 
-    def update_device(self):
-        pass
+        self.update_device()
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
         if self.use_concat_pir:
@@ -284,7 +347,15 @@ class WaveletLinearModule(nn.Module):
     def __init__(self, input_size: int, output_size: int, kernel_size: int = 3,
                  number_of_filters: int = 2, number_of_layers: int = 1,
                  hidden_cells=None, dropout: Union[float, bool] = False, lastActivation=None, **useless):
-        super(WaveletLinearModule, self).__init__()
+        super().__init__()
+
+        self.input_size = input_size
+        self.kernel_size = kernel_size
+        self.number_of_filters = number_of_filters
+        self.number_of_layers = number_of_layers
+        self.hidden_cells = hidden_cells
+        self.dropout = dropout
+
         if hidden_cells is None:
             hidden_cells = []
         if isinstance(hidden_cells, int):
@@ -330,7 +401,7 @@ class WaveletLinearModule(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.linear_layers(x)
 
-        return x
+        return 10 ** x
 
 
 # Train function, give it your dataset, the parameters of your model, and there you go.
@@ -351,7 +422,7 @@ class WaveletLinearModule(nn.Module):
 # - verbose : level of verbosity
 def train_model(trainloader,
                 validationloader,
-                model_class: Type[nn.Module] = MultipleWaveletsModule,
+                model_class: Type[CustomModel] = MultipleWaveletsModule,
                 model_parameters=None,
                 loss_function: Type[nn.Module] = nn.CrossEntropyLoss,
                 training_for_autoencoder=False,
@@ -365,7 +436,6 @@ def train_model(trainloader,
         raise Exception('No model parameters have been provided. Possible keys are: ' + '\n - '.join(
             model_class.__init__.__code__.co_varnames[1:]))
 
-    print(model_class)
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
     # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
     minibatch_size = 16
@@ -379,7 +449,10 @@ def train_model(trainloader,
                                                        shuffle=False, num_workers=0)
     # Create the CNN from the given parameters :
     net = model_class(**model_parameters)
+    net.update_device()
     net.to(device)  # move it to GPU if available
+    if verbose:
+        print(net)
 
     # Defining loss function and optimizer
     criterion = loss_function()
@@ -423,24 +496,28 @@ def train_model(trainloader,
             # get the inputs
             pirs0, pirs1, pirs2, pirs3, concat_pir, labels = data
             # if possible, move them to GPU
-            pirs0, pirs1, pirs2, pirs3, concat_pir, labels = pirs0.to(device), pirs1.to(device), \
-                                                             pirs2.to(device), pirs3.to(device), \
-                                                             concat_pir.to(device), labels.to(device)
+            if net.use_concat_pir:
+                concat_pir, labels = concat_pir.to(device), labels.to(device)
+            else:
+                pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
+                                                     pirs2.to(device), pirs3.to(device), labels.to(device)
 
             def closure():
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
-                _pirs0, _pirs1, _pirs2, _pirs3, _concat_pir, _labels = pirs0.clone(), pirs1.clone(), pirs2.clone(), pirs3.clone(), concat_pir.clone(), labels.clone()
+                # _pirs0, _pirs1, _pirs2, _pirs3, _concat_pir, _labels = pirs0.clone(), pirs1.clone(), pirs2.clone(), pirs3.clone(), concat_pir.clone(), labels.clone()
                 # forward + backward + optimize
-                outputs = net(_pirs0, _pirs1, _pirs2, _pirs3, _concat_pir)
+                outputs = net(pirs0, pirs1, pirs2, pirs3, concat_pir)
                 if training_for_autoencoder:  # If we train an autoencoder, set the input also as output
                     raise Exception("No autoencoder allowed in this program")
                     # loss = criterion(outputs, inputs)
                 else:
-                    loss = criterion(outputs.reshape(-1).float(),
-                                     _labels.reshape(-1).float())  # Otherwise, use the label
-                loss.backward()
+                    loss = correlation_loss(outputs.reshape(-1).float(), labels.reshape(-1).float()) #criterion(outputs.reshape(-1).float(), labels.reshape(-1).float())  # Otherwise, use the label
+                try:
+                    loss.backward()
+                except:
+                    pass
                 return loss
 
             # if isinstance(optimizer, optim.LBFGS) or isinstance(optimizer, optim.):
@@ -452,7 +529,8 @@ def train_model(trainloader,
 
             # count how many samples have been used during the training
             nb_used_sample += len(pirs0)
-            running_loss += float(loss)  # .item()
+            running_loss += float(loss.item())  # .item()
+            del pirs0, pirs1, pirs2, pirs3, concat_pir, labels
 
             next_print_in -= 1
             if next_print_in <= 0:  # print every ""print_every"" mini-batches
@@ -467,21 +545,24 @@ def train_model(trainloader,
                         # get the inputs
                         pirs0, pirs1, pirs2, pirs3, concat_pir, labels = data
                         # if possible, move them to GPU
-                        pirs0, pirs1, pirs2, pirs3, concat_pir, labels = pirs0.to(device), pirs1.to(device), \
-                                                                         pirs2.to(device), pirs3.to(device), \
-                                                                         concat_pir.to(device), labels.to(device)
+                        if net.use_concat_pir:
+                            concat_pir, labels = concat_pir.to(device), labels.to(device)
+                        else:
+                            pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
+                                                                 pirs2.to(device), pirs3.to(device), labels.to(device)
 
                         # zero the parameter gradients
                         optimizer.zero_grad()
 
-                        # forward + backward + optimize
-                        outputs = net(pirs0, pirs1, pirs2, pirs3, concat_pir)
-                        if training_for_autoencoder:  # If we train an autoencoder, set the input also as output
-                            raise Exception("No autoencoder allowed")
-                            # loss = criterion(outputs, images)
-                        else:
-                            loss = criterion(outputs.float(), labels.float())  # Otherwise, use the label
-                        totalValLoss += float(loss)  # .item()
+                        # # forward + backward + optimize
+                        # outputs = net(pirs0, pirs1, pirs2, pirs3, concat_pir)
+                        # if training_for_autoencoder:  # If we train an autoencoder, set the input also as output
+                        #     raise Exception("No autoencoder allowed")
+                        #     # loss = criterion(outputs, images)
+                        # else:
+                        #     loss = criterion(outputs.float(), labels.float())  # Otherwise, use the label
+                        totalValLoss += float(closure().item())  # .item()
+                        del pirs0, pirs1, pirs2, pirs3, concat_pir, labels  # , outputs
                 val_err = (totalValLoss / len(validationloader))
                 if verbose > 2:
                     print('\tEpoch %d batch %5d ' % (epoch + 1, i + 1))
@@ -539,18 +620,25 @@ def test_model(model, testloader):
     real = []
     predicted = []
 
+    model.update_device()
+    model.to(device)
+
     for i, data in enumerate(testloader, 0):
         # get the inputs
         pirs0, pirs1, pirs2, pirs3, concat_pir, labels = data
         # if possible, move them to GPU
-        pirs0, pirs1, pirs2, pirs3, concat_pir, labels = pirs0.to(device), pirs1.to(device), \
-                                                         pirs2.to(device), pirs3.to(device), \
-                                                         concat_pir.to(device), labels.to(device)
+        if model.use_concat_pir:
+            concat_pir, labels = concat_pir.to(device), labels.to(device)
+        else:
+            pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
+                                                 pirs2.to(device), pirs3.to(device), labels.to(device)
 
         outputs = model(pirs0, pirs1, pirs2, pirs3, concat_pir)
 
         real.extend(labels.cpu().detach().numpy().tolist())
         predicted.extend(outputs.cpu().detach().numpy().tolist())
+
+        del pirs0, pirs1, pirs2, pirs3, concat_pir, labels, outputs
 
         # mae += torch.abs(outputs.float() - labels.float()).sum().data
         # mse += ((outputs.float() - labels.float()) * (outputs.float() - labels.float())).sum().data
@@ -564,57 +652,9 @@ def test_model(model, testloader):
     mpe = abs((real - predicted) / real).mean() * 100
 
     return {'mae': mae, 'mse': mse, 'percent_error': mpe, 'correlation': corr}
-    #
-    # results = {'errors': [], 'mae': 0, 'mse': 0}
-    # with torch.no_grad():
-    #     for data in testloader:
-    #         # get the inputs
-    #         pirs0, pirs1, pirs2, pirs3, labels = data
-    #         # if possible, move them to GPU
-    #         pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
-    #                                              pirs2.to(device), pirs3.to(device), labels.to(device)
-    #
-    #         # zero the parameter gradients
-    #         optimizer.zero_grad()
-    #
-    #         # forward + backward + optimize
-    #         outputs = model(pirs0, pirs1, pirs2, pirs3)
-    #         _, predicted = torch.max(outputs, 1)  # Get the most probable prediction
-    #         c = (predicted == labels).squeeze()  # Check with ground truth
-    #         try:
-    #             len(c)  # If "c" is an array, it's good
-    #         except:
-    #             c = c.unsqueeze(0)  # otherwise we need to add a dimension
-    #
-    #         for i in range(len(labels)):  # Update the confusion matrix
-    #             label = labels[i]
-    #             class_correct[label] += c[i].item()
-    #             class_total[label] += 1
-    #             confusion[label, predicted[i]] += 1
-    #
-    # # compute results
-    # correct = 0
-    # total = 0
-    # for i in range(nb_classes):
-    #     if class_total[i] > 0:
-    #         correct += class_correct[i]
-    #         total += class_total[i]
-    #         results[i] = {
-    #             'acc': class_correct[i] / class_total[i],
-    #             'correct_samples': class_correct[i],
-    #             'total_samples': class_total[i]}  # Store the accuracy and the sample size for each class
-    #     else:
-    #         results[i] = {'acc': 0, 'correct_samples': 0, 'total_samples': 0}
-    #
-    # # Store the global accuracy and the confusion matrix and return everything
-    # results['global'] = {'acc': correct / total, 'correct_samples': correct, 'total_samples': total}
-    # results['confusion'] = confusion
-    # return results
 
 
-# For this dataset, you can provide the root directory for the "symbols" and the root of the "junk" and
-# it will label the symbols as 0 and the junk at 1
-# Note that we do not randomize our "x" and targets, so be sure to apply a random_split or something like this :)
+# Create a dataloader that applies the desired transformations to the data before sending them as Tensors
 class PIR_DataLoader(torch.utils.data.Dataset):
     def __init__(self, data_file, transform=None, data_inflate=1.0):
         self.data = data_file
@@ -622,8 +662,11 @@ class PIR_DataLoader(torch.utils.data.Dataset):
         self.inflate = data_inflate
 
     def __getitem__(self, index):
-        # Get the file, load the image, apply transformation
-        pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction = self.data[index % len(self.data)]
+        body_speed = 1000
+        while body_speed > 3.0:
+            # Get the file, load the image, apply transformation
+            pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction = self.data[index % len(self.data)]
+            index += 1
         if self.transform is not None:
             pir0 = self.transform(pir0)
             pir1 = self.transform(pir1)
@@ -689,8 +732,9 @@ def display_test_results(results, classes):
 
 
 def visualize_model(model, test_loader):
-    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
-    # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
+    model.update_device()
+    model.to(device)
+    print(model)
     if not isinstance(test_loader, torch.utils.data.DataLoader):
         test_loader = torch.utils.data.DataLoader(test_loader, batch_size=64,
                                                   shuffle=False, num_workers=0)
@@ -701,16 +745,22 @@ def visualize_model(model, test_loader):
         # get the inputs
         pirs0, pirs1, pirs2, pirs3, concat_pir, labels = data
         # if possible, move them to GPU
-        pirs0, pirs1, pirs2, pirs3, concat_pir, labels = pirs0.to(device), pirs1.to(device), \
-                                                         pirs2.to(device), pirs3.to(device), \
-                                                         concat_pir.to(device), labels.to(device)
+        if model.use_concat_pir:
+            concat_pir, labels = concat_pir.to(device), labels.to(device)
+        else:
+            pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
+                                                 pirs2.to(device), pirs3.to(device), labels.to(device)
 
         outputs = model(pirs0, pirs1, pirs2, pirs3, concat_pir)
         real.extend(labels.cpu().detach().numpy().tolist())
         predicted.extend(outputs.cpu().detach().numpy().tolist())
 
     real, predicted = np.array(real), np.array(predicted)[:, 0]
+    plt.plot([0, 3], [0, 3], '--', c=(0, 0, 0, .2))
     plt.scatter(real, predicted)
+    plt.ylabel('Predicted speed')
+    plt.xlabel('Real speed')
+    plt.title(f"Predictions (correlation : {round(pearsonr(real, predicted)[0], 2)})")
 
 
 # From a set of parameters, create all the combinations possible
@@ -764,6 +814,7 @@ def try_all_models(hyperparameters,
                    save_as: Union[bool, str] = False,
                    start_from_beginning=True,
                    verbose=3,
+                   ignored_files = '_useless_',
                    max_number_of_models=math.inf):
     models = []
     combinations = create_all_combinaisons(hyperparameters)  # Get all possible combinations
@@ -784,7 +835,8 @@ def try_all_models(hyperparameters,
                 models = pickle.load(open(file, "rb"))
                 for model in models:
                     combinations_done.append(model['parameters'])
-                models = []  # save a little bit of memory
+                del models  # save a little bit of memory
+                torch.cuda.empty_cache()
 
             if verbose > 1:
                 print(len(combinations_done), "models have been retrieved and ignored")
@@ -792,24 +844,21 @@ def try_all_models(hyperparameters,
     if len(combinations_done) >= min(max_number_of_models, len(combinations)):  # If there is nothing to train
         if verbose > 0:
             print("No new model to train")
-        return models
+        return []
 
     random.shuffle(combinations)  # Shuffle to train in a random order,
     # so that you can stop early and still have interesting data
     current_combination_number = 0
     for i, parameters in enumerate(combinations, 1):
+        torch.cuda.empty_cache()
         try:
             if len(combinations_done) + current_combination_number >= max_number_of_models:
-                return models
+                return []
             current_combination_number += 1
-            models = []
             start_time = time.time()
             if verbose > 0:
                 print(
                     F"Trying combination {current_combination_number} / {len(combinations) - len(combinations_done)} ...")
-            if verbose > 1:
-                for param in parameters:
-                    print("    %15s" % param, " : ", parameters[param])
             if parameters in combinations_done:
                 current_combination_number -= 1
                 if verbose > 0:
@@ -844,12 +893,12 @@ def try_all_models(hyperparameters,
                                                      **used_training_parameters)}
             if verbose:
                 print("Training ended, testing the model")
+            torch.cuda.empty_cache()
             current_model['test'] = test_model(current_model['training']['model'], testing_set)
             if verbose:
                 print(current_model['test'])
             current_model['parameters'] = parameters
             current_model['training_parameters'] = used_training_parameters
-            models.append(current_model)
 
             # if verbose > 1:
             #     print("Found an accuracy of ", current_model['test']['global']['acc'], "(",
@@ -858,20 +907,20 @@ def try_all_models(hyperparameters,
 
             # Save file at every iteration to by able to stop anytime
             if save_as:
-                if len(models) > 0:
-                    file = os.path.split(os.path.splitext(save_as)[0])[-1]
-                    ext = os.path.splitext(save_as)[1]
-                    directory = os.path.join(*os.path.split(os.path.splitext(save_as)[0])[:-1])
-                    if not os.path.exists(directory):
-                        os.makedirs(directory)
-                    pickle.dump(models, open(os.path.join(directory, file + "_" + str(time.time()) + ext), "wb+"))
-                else:
-                    print("No model to save")
+                file = os.path.split(os.path.splitext(save_as)[0])[-1]
+                ext = os.path.splitext(save_as)[1]
+                directory = os.path.join(*os.path.split(os.path.splitext(save_as)[0])[:-1])
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+                pickle.dump([current_model], open(os.path.join(directory, file + "_" + str(time.time()) + ext), "wb+"))
+            del current_model
+            torch.cuda.empty_cache()
             if verbose > 1:
                 print("Trained in", round(time.time() - start_time), "seconds")
         except Exception as e:
+            raise e
             print('Exception occured : ', e)
-    return models
+    return []
 
 
 #
@@ -894,56 +943,75 @@ def try_all_models(hyperparameters,
 
 
 def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_if_val_err_higher=math.inf,
-                   max_y_val=0.20):
+                   max_y_val=0.20, ignored_files = '_useless_'):
     models_results = []
     validation_results = []
     best_results = None
 
-    plt.subplot(2, 1, 1)
     all_models = []
     for file in glob.glob(os.path.splitext(filename)[0] + "*" + os.path.splitext(filename)[1]):
+        if ignored_files in file:
+            continue
         models = pickle.load(open(file, "rb"))
         all_models.extend(models)
         for model in models:
-            plt.plot(np.array(model['training']['nb_samples']) / 1000, model['training']['val_err'])
-            if model['training']['val_err'][-1] <= max_y_val:
-                plt.text(model['training']['nb_samples'][-1] / 1000, model['training']['val_err'][-1],
-                         str(round(model['test']['correlation'], 2)) + "%", horizontalalignment="left",
-                         # str(round(model['test']['global']['acc'] * 100, 2)) + "%", horizontalalignment="left",
-                         fontsize="x-small", path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")])
-            _models_results = {**model['parameters'], 'number_of_samples': f"{model['training']['best_nb_samples']:,}",
-                               'test_results': model['test']['correlation'], 'mae': model['test']['mae'],
-                               'mse': model['test']['mse'], 'percent_error': model['test']['percent_error'],
-                               **model['training_parameters']}
-            # 'test_results': model['test']['global']['acc']}
-            models_results.append(copy.deepcopy(_models_results))
-            for attr in _models_results:
-                if hasattr(_models_results[attr], 'dec') and hasattr(_models_results[attr], 'enc'):
-                    models_results[-1]['number_of_layers'] = len(_models_results[attr].enc) // 3
-                    models_results[-1]['kernel_size'] = str(
-                        list(_models_results[attr].enc[0].parameters())[0][0].size(1))
-                    models_results[-1] = dict(models_results[-1])
-                    del models_results[-1][attr]
+            try:
+                plt.plot(np.array(model['training']['nb_samples']) / 1000, model['training']['val_err'])
+                if model['training']['val_err'][-1] <= max_y_val:
+                    plt.text(model['training']['nb_samples'][-1] / 1000, model['training']['val_err'][-1],
+                             str(round(model['test']['correlation'], 2)), horizontalalignment="left",
+                             # str(round(model['test']['global']['acc'] * 100, 2)) + "%", horizontalalignment="left",
+                             fontsize="x-small", path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")])
+                _models_results = {**model['parameters'],
+                                   'number_of_samples': f"{model['training']['best_nb_samples']:,}",
+                                   'test_results': model['test']['correlation'], 'mae': model['test']['mae'],
+                                   'mse': model['test']['mse'], 'percent_error': model['test']['percent_error'],
+                                   **model['training_parameters']}
+                # 'test_results': model['test']['global']['acc']}
+                models_results.append(copy.deepcopy(_models_results))
+                for attr in _models_results:
+                    if hasattr(_models_results[attr], 'dec') and hasattr(_models_results[attr], 'enc'):
+                        models_results[-1]['number_of_layers'] = len(_models_results[attr].enc) // 3
+                        models_results[-1]['kernel_size'] = str(
+                            list(_models_results[attr].enc[0].parameters())[0][0].size(1))
+                        models_results[-1] = dict(models_results[-1])
+                        del models_results[-1][attr]
 
-            # if best_results is None or best_results['test']['mse'] > model['test']['mse']:
-            #     best_results = model
+                # if best_results is None or best_results['test']['mse'] > model['test']['mse']:
+                #     best_results = model
+            except:
+                pass
+    plt.yscale('log')
+    plt.show()
 
     df = pd.DataFrame(models_results)
-    plt.ylim((0, min(max_y_val, plt.ylim()[1])))
-    plt.xlabel("Number of samples (x1000)")
-    plt.ylabel("Validation loss")
+    df[['test_results', 'mae', 'mse', 'percent_error']] = round(df[['test_results', 'mae', 'mse', 'percent_error']], 3)
+    df = df[['mid_output_size', 'kernel_size', 'number_of_filters', 'number_of_layers', 'number_of_conv_per_layer',
+             'hidden_cells', 'dropout',
+             'use_concat_pir', 'model_class', 'trained_model', 'test_results', 'mae', 'mse', 'percent_error']]
 
-    # global device
-    # device = cpu
-    # best_results = all_models[1]
-    # visualize_model(best_results['training']['model'], test_loader=test_loader)
-    for i in range(len(all_models)):
-        try:
-            plt.subplot(2, len(all_models), i + 1)
-            best_results = all_models[i]
-            visualize_model(best_results['training']['model'], test_loader=test_loader)
-        except Exception as e:
-            print(e)
+    df['model_class'] = df['model_class'].apply(lambda model: model.__name__)
+    df['trained_model'] = df.apply(axis=1, func=
+    lambda row: row['trained_model'].__name__ if row['model_class'] == 'PretrainedModel'
+                                                 and hasattr(row['trained_model'], '__name__') else None)
+    df.rename(columns={'kernel_size': 'kernel', 'number_of_filters': 'filters', 'number_of_layers': 'layers',
+                       'test_results': 'corr', 'number_of_conv_per_layer': 'conv/layer',
+                       'use_concat_pir': 'concat_pirs', 'percent_error': '%err'},
+              inplace=True)
+
+
+    no_na = df.dropna(subset=['corr'])
+    index_index = abs(no_na['corr'] - max(no_na['corr'])) < 1
+    index = no_na.index[index_index][0]
+    best_results = all_models[52]  # [index]
+
+    # Must delete all variables that may contain models on CUDA, to avoid falling out of memory!
+    del all_models
+    del models
+    torch.cuda.empty_cache()
+    visualize_model(best_results['training']['model'], test_loader=test_loader)
+    plt.show()
+
     return df
 
 
@@ -960,11 +1028,14 @@ def display_morlet(pir_data):
 def compute_morlet_transform(pir_data):
     data_norm = waipy.normalize(pir_data)
     alpha = np.corrcoef(data_norm[0:-1], data_norm[1:])[0, 1]
-    result = waipy.cwt(data_norm, 1 / 3.2, 1, 1 / 100, 2, 4 / 0.25, alpha, 6, mother='Morlet', name='name')
-    # print(result)
-    # exit()
+    dt = 1 / 40
+    dj = 1 / 100
+    lowerPeriod = 2 * dt
+    upperPeriod = len(data_norm) * dt / 3
+    result = waipy.cwt(data_norm, dt, 1, dj, lowerPeriod, upperPeriod, alpha, 6, mother='Morlet', name='name')
     powers = np.array(result['power']).astype('uint8')
     tmp_img = Image.fromarray(powers)
+    # plt.imshow(tmp_img)
     res = Image.fromarray(np.zeros((1024, 1024)))
     res.paste(tmp_img, (0, 1024 - tmp_img.height))
     res.resize((128, 128))
@@ -992,22 +1063,32 @@ def precompute_morlet_transforms(data, output_filename=None):
             print("Ignored")
             continue
 
-        with HiddenPrints():
-            try:
-                seq = data[data['sequence_id'] == seq_id]
-                speed = seq['walking_speed'].median()
-                corridor = seq['corridor'].median()
-                direction = seq['direction'].median()
-                if speed < 10 and direction != 0 and not np.isnan(corridor):
+        try:
+            seq = data[data['sequence_id'] == seq_id]
+            speed = seq['walking_speed'].median()
+            corridor = seq['corridor'].median()
+            direction = seq['direction'].median()
+            if speed < 10 and direction != 0 and not np.isnan(corridor):
+                # print(speed, seq['time'].iloc[0], seq['time'].iloc[-1])
+                with HiddenPrints(False):
+                    # plt.subplot(2, 2, 1)
+                    # plt.title("pir0")
                     pir0 = compute_morlet_transform(seq['pir0'])
+                    # plt.subplot(2, 2, 3)
+                    # plt.title("pir1")
                     pir1 = compute_morlet_transform(seq['pir1'])
+                    # plt.subplot(2, 2, 2)
+                    # plt.title("pir2")
                     pir2 = compute_morlet_transform(seq['pir2'])
+                    # plt.subplot(2, 2, 4)
+                    # plt.title("pir3")
                     pir3 = compute_morlet_transform(seq['pir3'])
+                    # plt.show()
                     all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction])
-                else:
-                    print(speed, direction, corridor)
-            except:
-                pass
+            else:
+                print(speed, direction, corridor)
+        except Exception as e:
+            pass
         time_estimation = (time.time() - start_time) * len(sequence_ids) / (i + 1)
         print(
             f"\tTime estimation: {int(time_estimation // 60)}min{round(time_estimation % 60, 2)}s ({time_estimation}s)")
@@ -1020,15 +1101,8 @@ def precompute_morlet_transforms(data, output_filename=None):
     return all_pirs_transformed
 
 
-def main():
-    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
-    print(f"Using {device.type}")
-    # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
-
-    # All data comes from the CSV file created through fill_csv() in create_pir_csv.py
-    data = pd.read_csv("gait_values.csv")
-    # From the PIR values, apply a wavelet transform using Morlet waves and save them in a binary file
-    all_pirs_transformed = precompute_morlet_transforms(data) #, output_filename='all_pirs_transformed.data')
+def training(path_to_save_cnn):
+    all_pirs_transformed = pickle.load(open('all_pirs_transformed.data', 'rb'))
     # Required "resize" to fit the DNNs
     # input_size = 224
     # Required "resize" to fit the CNNs
@@ -1040,11 +1114,11 @@ def main():
         transforms.Resize((input_size, input_size)),
         # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
-        transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
+        transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.01 + 0.005)),
         transforms.Lambda(lambda x: transforms.GaussianBlur(
             2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
     ]),
-                             data_inflate=10.0)
+                             data_inflate=3.0)
     # Train size = 70%, Validation = 10%, Testing = 20%
     ratio_train_set = 70 / 100
     ratio_valid_set = 10 / 100
@@ -1058,31 +1132,28 @@ def main():
     minibatch_size = 64
     # We've chose high batch size to be more efficient in time
     trainloader = torch.utils.data.DataLoader(training_set_PIR, batch_size=minibatch_size,
-                                                  shuffle=True, num_workers=0)
-    validationloader = torch.utils.data.DataLoader(validation_set_PIR, batch_size=2 * minibatch_size,
-                                                       shuffle=True, num_workers=0)
-    testingloader = torch.utils.data.DataLoader(testing_set_PIR, batch_size=2 * minibatch_size,
-                                                       shuffle=True, num_workers=0)
+                                              shuffle=True, num_workers=0)
+    validationloader = torch.utils.data.DataLoader(validation_set_PIR, batch_size=minibatch_size,
+                                                   shuffle=True, num_workers=0)
+    testingloader = torch.utils.data.DataLoader(testing_set_PIR, batch_size=minibatch_size,
+                                                shuffle=True, num_workers=0)
     # Number of epochs applied on our model during the training
-    num_epochs = 50
-
-    # Path to save the binary files containing the data about our trained models
-    root_to_cnn = "trained_models/" + device.type + "/"
-    # root_to_cnn = "trained_models/transfer_learning/"
-    path_to_save_cnn = root_to_cnn + "convolution_network.model"
+    num_epochs = 10
 
     # Parameters to vary on the models
     # Be careful to avoid having too much params as the number of models is greatly increasing
     models_hyperparameters = {
         # Those params are for the CNNs (MultipleWaveletsModule and MultipleWaveletsLinearModule)
         'input_size': input_size,
-        'mid_output_size': [10, 20],
+        'mid_output_size': [20, 30, 40],
         'kernel_size': [3, 5],
-        'number_of_filters': [2, 4, 8],
+        'number_of_filters': [2, 4, 8, 16, 32],
         'number_of_layers': [2, 3, 5, 6],
-        'hidden_cells': [None, 100, (128, 256), (256, 128)],
+        'number_of_conv_per_layer': [1, 2, 3, 4],
+        'hidden_cells': [None, 10, 100, (10, 10, 10), (40, 40, 40)],
         'dropout': [True, False],
         'use_concat_pir': [True, False],
+        # 'pure_CNN': [True, False],
         # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
         'trained_model': list(all_pretrained_models.values())
     }
@@ -1095,8 +1166,8 @@ def main():
                       optim.Adamax, optim.AdamW],
         'learning_rate': [0.0001, 0.00001, 0.00005],
         'loss_function': [nn.MSELoss, nn.L1Loss],
-        'model_class': [MultipleWaveletsLinearModule, MultipleWaveletsModule, PretrainedModel]
-        # PretrainedModel,  # [MultipleWaveletsLinearModule, MultipleWaveletsModule]
+        'model_class': [MultipleWaveletsLinearModule, MultipleWaveletsModule, PretrainedModel],
+        # [MultipleWaveletsLinearModule, MultipleWaveletsModule, PretrainedModel]
     }
 
     # Function that starts the training for all the models
@@ -1116,7 +1187,40 @@ def main():
                    early_stopping=10,
                    num_epochs=num_epochs)
 
+
+def display(path_to_save_cnn):
+    # Required "resize" to fit the DNNs
+    # input_size = 224
+    # Required "resize" to fit the CNNs
+    input_size = 128
+
+    all_pirs_transformed = pickle.load(open('all_pirs_transformed.data', 'rb'))
+
+    # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
+    # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
+    dataset = PIR_DataLoader(all_pirs_transformed, transform=transforms.Compose([
+        transforms.Resize((input_size, input_size)),
+        transforms.RandomRotation([-1.0, 1.0]),
+        transforms.ToTensor(),
+        transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
+        transforms.Lambda(lambda x: transforms.GaussianBlur(
+            2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
+    ]),
+                             data_inflate=2.0)
+    del all_pirs_transformed
+
+    # Train size = 70%, Validation = 10%, Testing = 20%
+    ratio_train_set = 70 / 100
+    ratio_valid_set = 10 / 100
+
+    train_size = int(ratio_train_set * len(dataset))
+    valid_size = int(ratio_valid_set * len(dataset))
+    test_size = len(dataset) - (train_size + valid_size)
+    training_set_PIR, validation_set_PIR, testing_set_PIR = torch.utils.data.random_split(dataset,
+                                                                                          [train_size, valid_size,
+                                                                                           test_size])
     pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
     pd.set_option('expand_frame_repr', False)
 
     # Display the results with a learning curve (just to get an idea of the efficiency)
@@ -1126,10 +1230,98 @@ def main():
     #    models that return a coef "NaN" = return same value, regardless of input
     # plt.title("Training of %d models for the speed estimator" % len(results_data))
     results_data = display_models(path_to_save_cnn, test_loader=testing_set_PIR, max_y_val=math.inf) \
-        .sort_values(by="test_results", ascending=False)
+        .sort_values(by="corr", ascending=False)
     print(results_data)
-    plt.show()
+    
+def merge_models_in_one_file(path_to_cnn, ignored_files = '_useless_'):
+    filename = os.path.split(os.path.splitext(path_to_cnn)[0])[-1]
+    ext = os.path.splitext(path_to_cnn)[1]
+    directory = os.path.join(*os.path.split(os.path.splitext(path_to_cnn)[0])[:-1])
 
+    models = []
+    ignored_models = []
+    files_to_delete = []
+    all_files = glob.glob(os.path.splitext(path_to_cnn)[0] + "*" + os.path.splitext(path_to_cnn)[1])
+    for i, file in enumerate(all_files):
+        print(f"{round(100 * (i + 1) / len(all_files), 1)}% ({i + 1} / {len(all_files)})")
+        if ignored_files in file:
+            continue
+        try:
+            these_models = pickle.load(open(file, "rb"))
+            ignored_models = list(filter(lambda model: np.isnan(model['test']['correlation']), these_models))
+            pickle.dump(ignored_models, open(os.path.join(directory, filename + ignored_files + str(i) +
+                                                          '_' + str(time.time()) + ext), "wb+"))
+            these_models = list(filter(lambda model: not np.isnan(model['test']['correlation']), these_models))
+            models.extend(these_models)
+            files_to_delete.append(file)
+        except Exception as e:
+            print(e)
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    print(f"Saving {len(models)} models...")
+    pickle.dump(models, open(os.path.join(directory, filename + "_" + str(time.time()) + ext), "wb+"))
+
+    print('Merging useless models...')
+    models = []
+    files_to_delete = []
+    all_files = glob.glob(os.path.splitext(path_to_cnn)[0] + ignored_files + "*" + os.path.splitext(path_to_cnn)[1])
+    for i, file in enumerate(all_files):
+        print(f"{round(100 * (i + 1) / len(all_files), 1)}% ({i + 1} / {len(all_files)})")
+        try:
+            these_models = pickle.load(open(file, "rb"))
+            models.extend(these_models)
+            files_to_delete.append(file)
+        except Exception as e:
+            print(e)
+    pickle.dump(models, open(os.path.join(directory, filename + ignored_files + str(time.time()) + ext), "wb+"))
+
+    print('Cleaning')
+    for file in files_to_delete:
+        os.remove(file)
+
+    print('Done.')
 
 if __name__ == '__main__':
-    main()
+
+    # Example of usage: python direct_camera_to_db.py --local
+    #  or
+    #                   python direct_camera_to_db.py --remote
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Train neural networks to estimate walking speed from the Wavelet '
+                                                 'transform of the PIR sensors')
+    parser.add_argument('--train', dest='train', help='Train the neural networks', action='store_true')
+    parser.add_argument('--display', dest='display', help='Display the results of the trained neural networks',
+                        action='store_true')
+    parser.add_argument('--update-data', dest='update_data', help='Update the dataset (coming from `gait_values.csv`)',
+                        action='store_true')
+    parser.add_argument('--merge-files', dest='merge_files', help='Merge all the files into a single one',
+                        action='store_true')
+
+    args = parser.parse_args()
+    do_training = args.train
+    do_display = args.display
+    update_data = args.update_data
+    merge_files = args.merge_files
+
+    # Path to save the binary files containing the data about our trained models
+    root_to_cnn = "trained_models/" + device.type + "/"
+    # root_to_cnn = "trained_models/transfer_learning/"
+    path_to_save_cnn = root_to_cnn + "convolution_network.model"
+
+    if update_data:
+        # All data comes from the CSV file created through fill_csv() in create_pir_csv.py
+        data = pd.read_csv("gait_values.csv")
+        # From the PIR values, apply a wavelet transform using Morlet waves and save them in a binary file
+        precompute_morlet_transforms(data, output_filename='all_pirs_transformed.data')
+
+    if do_training:
+        training(path_to_save_cnn)
+
+    if do_display:
+        display(path_to_save_cnn)
+
+    if merge_files:
+        merge_models_in_one_file(path_to_save_cnn)
