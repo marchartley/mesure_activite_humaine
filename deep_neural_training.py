@@ -29,7 +29,6 @@ import matplotlib.patheffects as PathEffects
 from utils import HiddenPrints
 from scipy.stats.stats import pearsonr
 
-
 all_pretrained_models = {
     'resnet18': torchvision.models.resnet18,
     'alexnet': torchvision.models.alexnet,
@@ -53,18 +52,20 @@ cuda = torch.device('cuda')
 device = cuda if torch.cuda.is_available() else cpu
 use_cuda = True
 
+
 def correlation_loss(x, y):
     vx = x - torch.mean(x)
     vy = y - torch.mean(y)
 
     cost = abs(torch.sum(vx * vy) / (torch.sqrt(torch.sum(vx ** 2)) * torch.sqrt(torch.sum(vy ** 2))) - 1)
     # print(cost)
-    cost[cost!=cost] = 1
+    cost[cost != cost] = 1
     # if torch.isnan(cost):
     #     print('NAAAAAN')
     # print(cost)
     # exit()
     return cost
+
 
 class CustomModel(nn.Module):
     def __init__(self):
@@ -86,8 +87,8 @@ class CustomModel(nn.Module):
         var_name_length = 25
         out = f"{self.__class__.__name__}:" + "\n\t"
         out += "\n\t".join([
-                               f"{str(var_name).replace('_', ' ')}{' ' * (var_name_length - len(str(var_name)))} = {getattr(self, var_name)}"
-                               for var_name in self.__init__.__code__.co_varnames[1:] if var_name in self.__dict__])
+            f"{str(var_name).replace('_', ' ')}{' ' * (var_name_length - len(str(var_name)))} = {getattr(self, var_name)}"
+            for var_name in self.__init__.__code__.co_varnames[1:] if var_name in self.__dict__])
         return out
 
     def __repr__(self):
@@ -148,7 +149,7 @@ class PretrainedModel(CustomModel):
         final_tensor = self.module(final_tensor)
         final_tensor = self.ending(final_tensor)
 
-        return final_tensor
+        return 2 **final_tensor
 
     def __str__(self):
         return f"{self.__class__.__name__}:" + "\n" \
@@ -285,7 +286,7 @@ class WaveletModule(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.linear_layers(x)
 
-        return 10 ** x
+        return 2 ** x
 
 
 class MultipleWaveletsLinearModule(CustomModel):
@@ -401,7 +402,7 @@ class WaveletLinearModule(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.linear_layers(x)
 
-        return 10 ** x
+        return 2 ** x
 
 
 # Train function, give it your dataset, the parameters of your model, and there you go.
@@ -513,7 +514,9 @@ def train_model(trainloader,
                     raise Exception("No autoencoder allowed in this program")
                     # loss = criterion(outputs, inputs)
                 else:
-                    loss = correlation_loss(outputs.reshape(-1).float(), labels.reshape(-1).float()) #criterion(outputs.reshape(-1).float(), labels.reshape(-1).float())  # Otherwise, use the label
+                    # loss = correlation_loss(outputs.reshape(-1).float(), labels.reshape(-1).float())
+                    loss = criterion(outputs.reshape(-1).float(),
+                                     labels.reshape(-1).float())  # Otherwise, use the label
                 try:
                     loss.backward()
                 except:
@@ -665,7 +668,10 @@ class PIR_DataLoader(torch.utils.data.Dataset):
         body_speed = 1000
         while body_speed > 3.0:
             # Get the file, load the image, apply transformation
-            pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction = self.data[index % len(self.data)]
+            try:
+                pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction, raw = self.data[index % len(self.data)]
+            except:
+                pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction = self.data[index % len(self.data)]
             index += 1
         if self.transform is not None:
             pir0 = self.transform(pir0)
@@ -814,7 +820,7 @@ def try_all_models(hyperparameters,
                    save_as: Union[bool, str] = False,
                    start_from_beginning=True,
                    verbose=3,
-                   ignored_files = '_useless_',
+                   ignored_files='_useless_',
                    max_number_of_models=math.inf):
     models = []
     combinations = create_all_combinaisons(hyperparameters)  # Get all possible combinations
@@ -918,7 +924,7 @@ def try_all_models(hyperparameters,
             if verbose > 1:
                 print("Trained in", round(time.time() - start_time), "seconds")
         except Exception as e:
-            raise e
+            # raise e
             print('Exception occured : ', e)
     return []
 
@@ -943,31 +949,34 @@ def try_all_models(hyperparameters,
 
 
 def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_if_val_err_higher=math.inf,
-                   max_y_val=0.20, ignored_files = '_useless_'):
+                   max_y_val=0.20, ignored_files='_useless_') -> pd.DataFrame:
     models_results = []
     validation_results = []
     best_results = None
 
-    all_models = []
-    for file in glob.glob(os.path.splitext(filename)[0] + "*" + os.path.splitext(filename)[1]):
+    all_plots = []
+    top_plots = []
+
+    top_models = []
+    min_score_of_tops = math.inf
+
+    for i, file in enumerate(glob.glob(os.path.splitext(filename)[0] + "*" + os.path.splitext(filename)[1])):
         if ignored_files in file:
             continue
         models = pickle.load(open(file, "rb"))
-        all_models.extend(models)
         for model in models:
             try:
-                plt.plot(np.array(model['training']['nb_samples']) / 1000, model['training']['val_err'])
                 if model['training']['val_err'][-1] <= max_y_val:
-                    plt.text(model['training']['nb_samples'][-1] / 1000, model['training']['val_err'][-1],
-                             str(round(model['test']['correlation'], 2)), horizontalalignment="left",
-                             # str(round(model['test']['global']['acc'] * 100, 2)) + "%", horizontalalignment="left",
-                             fontsize="x-small", path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")])
+                    all_plots.append({'x': np.array(model['training']['nb_samples']) / 1000,
+                                      'y': model['training']['val_err'],
+                                      'y_train': model['training']['train_err'],
+                                      'result': model['test']['correlation'],
+                                      })
                 _models_results = {**model['parameters'],
                                    'number_of_samples': f"{model['training']['best_nb_samples']:,}",
                                    'test_results': model['test']['correlation'], 'mae': model['test']['mae'],
                                    'mse': model['test']['mse'], 'percent_error': model['test']['percent_error'],
                                    **model['training_parameters']}
-                # 'test_results': model['test']['global']['acc']}
                 models_results.append(copy.deepcopy(_models_results))
                 for attr in _models_results:
                     if hasattr(_models_results[attr], 'dec') and hasattr(_models_results[attr], 'enc'):
@@ -977,11 +986,42 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                         models_results[-1] = dict(models_results[-1])
                         del models_results[-1][attr]
 
-                # if best_results is None or best_results['test']['mse'] > model['test']['mse']:
-                #     best_results = model
-            except:
+                if (best_results is None or np.isnan(best_results['test']['correlation'])) or \
+                        (not np.isnan(model['test']['correlation']) and
+                         model['test']['correlation'] > best_results['test']['correlation']):
+                    best_results = model
+
+                if len(top_models) < 10:
+                    top_models.append(model)
+                    min_score_of_tops = min([m['test']['correlation'] for m in top_models])
+                elif not np.isnan(model['test']['correlation']) and model['test']['correlation'] > min_score_of_tops:
+                    top_models.remove([m for m in top_models if m['test']['correlation'] == min_score_of_tops][0])
+                    top_models.append(model)
+                    min_score_of_tops = min([m['test']['correlation'] for m in top_models])
+
+            except Exception as e:
+                print(e)
                 pass
+
+    for model in top_models:
+        if model['training']['val_err'][-1] <= max_y_val:
+            top_plots.append({'x': np.array(model['training']['nb_samples']) / 1000,
+                              'y': model['training']['val_err'],
+                              'y_train': model['training']['train_err'],
+                              'result': model['test']['correlation'],
+                              'name': model['training']['model'].__class__.__name__,
+                              })
+    top_plots.sort(key = lambda x: x['result'], reverse=True)
+    for plot in top_plots:
+        color = next(plt.gca()._get_lines.prop_cycler)['color']
+        plt.plot(plot['x'], plot['y_train'], color=color, alpha=.4)
+        plt.plot(plot['x'], plot['y'], color=color, label = plot['name'])
+        plt.text(plot['x'][-1], plot['y'][-1],
+                 str(round(plot['result'], 2)), horizontalalignment="left",
+                 # str(round(model['test']['global']['acc'] * 100, 2)) + "%", horizontalalignment="left",
+                 fontsize="x-small", path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")])
     plt.yscale('log')
+    plt.legend()
     plt.show()
 
     df = pd.DataFrame(models_results)
@@ -999,14 +1039,13 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                        'use_concat_pir': 'concat_pirs', 'percent_error': '%err'},
               inplace=True)
 
-
-    no_na = df.dropna(subset=['corr'])
-    index_index = abs(no_na['corr'] - max(no_na['corr'])) < 1
-    index = no_na.index[index_index][0]
-    best_results = all_models[52]  # [index]
+    # no_na = df.dropna(subset=['corr'])
+    # index_index = abs(no_na['corr'] - max(no_na['corr'])) < 1
+    # index = no_na.index[index_index][0]
+    # best_results = all_models[0]  # [index]
 
     # Must delete all variables that may contain models on CUDA, to avoid falling out of memory!
-    del all_models
+    # del all_models
     del models
     torch.cuda.empty_cache()
     visualize_model(best_results['training']['model'], test_loader=test_loader)
@@ -1034,11 +1073,14 @@ def compute_morlet_transform(pir_data):
     upperPeriod = len(data_norm) * dt / 3
     result = waipy.cwt(data_norm, dt, 1, dj, lowerPeriod, upperPeriod, alpha, 6, mother='Morlet', name='name')
     powers = np.array(result['power']).astype('uint8')
-    tmp_img = Image.fromarray(powers)
-    # plt.imshow(tmp_img)
-    res = Image.fromarray(np.zeros((1024, 1024)))
+    tmp_img = Image.fromarray(powers) #, mode = 'I;16')
+    # if(powers.max() > 255):
+    #     plt.imshow(tmp_img)
+    #     tmp_img.show()
+    #     plt.show()
+    res = Image.fromarray(np.zeros((1024, 2048))) #, dtype=np.uint16), mode='I;16')
     res.paste(tmp_img, (0, 1024 - tmp_img.height))
-    res.resize((128, 128))
+    res = res.resize((512, 512), resample=Image.NEAREST)
     return res
 
 
@@ -1068,6 +1110,12 @@ def precompute_morlet_transforms(data, output_filename=None):
             speed = seq['walking_speed'].median()
             corridor = seq['corridor'].median()
             direction = seq['direction'].median()
+            raw = {
+                'pir0': seq['pir0'],
+                'pir1': seq['pir1'],
+                'pir2': seq['pir2'],
+                'pir3': seq['pir3'],
+            }
             if speed < 10 and direction != 0 and not np.isnan(corridor):
                 # print(speed, seq['time'].iloc[0], seq['time'].iloc[-1])
                 with HiddenPrints(False):
@@ -1084,18 +1132,21 @@ def precompute_morlet_transforms(data, output_filename=None):
                     # plt.title("pir3")
                     pir3 = compute_morlet_transform(seq['pir3'])
                     # plt.show()
-                    all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction])
+                    all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction, raw])
             else:
                 print(speed, direction, corridor)
         except Exception as e:
             pass
         time_estimation = (time.time() - start_time) * len(sequence_ids) / (i + 1)
+        time_left = time_estimation - (time.time() - start_time)
         print(
-            f"\tTime estimation: {int(time_estimation // 60)}min{round(time_estimation % 60, 2)}s ({time_estimation}s)")
+            f"\tETA {int(time_left // 60)}min{round(time_left % 60, 2)}s -- "
+            f"Full time estimation: {int(time_estimation // 60)}min{round(time_estimation % 60, 2)}s "
+            f"({round(time_estimation, 2)}s)")
     print('100%')
 
     if output_filename is not None:
-        print(f"Saving into {output_filename}")
+        print(f"Saving {len(all_pirs_transformed)} sequences into {output_filename}")
         pickle.dump(all_pirs_transformed, open(output_filename, 'wb+'))
         print('Done.')
     return all_pirs_transformed
@@ -1199,8 +1250,9 @@ def display(path_to_save_cnn):
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
     dataset = PIR_DataLoader(all_pirs_transformed, transform=transforms.Compose([
-        transforms.Resize((input_size, input_size)),
+        transforms.Resize((input_size, input_size), interpolation=transforms.InterpolationMode.NEAREST),
         transforms.RandomRotation([-1.0, 1.0]),
+        # transforms.Lambda(lambda im: im.convert('L')),
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
         transforms.Lambda(lambda x: transforms.GaussianBlur(
@@ -1231,9 +1283,11 @@ def display(path_to_save_cnn):
     # plt.title("Training of %d models for the speed estimator" % len(results_data))
     results_data = display_models(path_to_save_cnn, test_loader=testing_set_PIR, max_y_val=math.inf) \
         .sort_values(by="corr", ascending=False)
+    print(results_data.describe(include='all'))
     print(results_data)
-    
-def merge_models_in_one_file(path_to_cnn, ignored_files = '_useless_'):
+
+
+def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
     filename = os.path.split(os.path.splitext(path_to_cnn)[0])[-1]
     ext = os.path.splitext(path_to_cnn)[1]
     directory = os.path.join(*os.path.split(os.path.splitext(path_to_cnn)[0])[:-1])
@@ -1283,6 +1337,66 @@ def merge_models_in_one_file(path_to_cnn, ignored_files = '_useless_'):
 
     print('Done.')
 
+
+def remove_useless_models(path_to_cnn, ignored_files='_useless_'):
+    filename = os.path.split(os.path.splitext(path_to_cnn)[0])[-1]
+    ext = os.path.splitext(path_to_cnn)[1]
+    directory = os.path.join(*os.path.split(os.path.splitext(path_to_cnn)[0])[:-1])
+
+    models = []
+    models_ignored = 0
+    models_kept = 0
+    all_files = glob.glob(os.path.splitext(path_to_cnn)[0] + "*" + os.path.splitext(path_to_cnn)[1])
+    for i, file in enumerate(all_files):
+        print(f"{round(100 * (i + 1) / len(all_files), 1)}% ({i + 1} / {len(all_files)})")
+        if ignored_files in file:
+            continue
+        try:
+            these_models = pickle.load(open(file, "rb"))
+            ignored_models = list(filter(lambda model: np.isnan(model['test']['correlation']), these_models))
+            if len(ignored_models) > 0:
+                pickle.dump(ignored_models, open(os.path.join(directory, filename + ignored_files + str(i) +
+                                                              '_' + str(time.time()) + ext), "wb+"))
+                models_ignored += 1
+
+            these_models = list(filter(lambda model: not np.isnan(model['test']['correlation']), these_models))
+            these_models = list(filter(lambda model: model['training']['model'].__class__.__name__ != 'PretrainedModel', these_models))
+            if len(these_models) > 0:
+                pickle.dump(these_models, open(file, "wb+"))
+                models_kept += 1
+            else:
+                os.remove(file)
+        except Exception as e:
+            print(e)
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    if models_ignored == 0:
+        print('No model to ignore. Done.')
+        return
+
+    print(f"Merging {models_ignored} useless models...")
+    models = []
+    files_to_delete = []
+    all_files = glob.glob(os.path.splitext(path_to_cnn)[0] + ignored_files + "*" + os.path.splitext(path_to_cnn)[1])
+    for i, file in enumerate(all_files):
+        print(f"{round(100 * (i + 1) / len(all_files), 1)}% ({i + 1} / {len(all_files)})")
+        try:
+            these_models = pickle.load(open(file, "rb"))
+            models.extend(these_models)
+            files_to_delete.append(file)
+        except Exception as e:
+            print(e)
+    pickle.dump(models, open(os.path.join(directory, filename + ignored_files + str(time.time()) + ext), "wb+"))
+
+    print('Cleaning')
+    for file in files_to_delete:
+        os.remove(file)
+
+    print('Done.')
+
+
 if __name__ == '__main__':
 
     # Example of usage: python direct_camera_to_db.py --local
@@ -1299,12 +1413,15 @@ if __name__ == '__main__':
                         action='store_true')
     parser.add_argument('--merge-files', dest='merge_files', help='Merge all the files into a single one',
                         action='store_true')
+    parser.add_argument('--clean-files', dest='clean_files', help='Clean all useless models into a single file',
+                        action='store_true')
 
     args = parser.parse_args()
     do_training = args.train
     do_display = args.display
     update_data = args.update_data
     merge_files = args.merge_files
+    clean_files = args.clean_files
 
     # Path to save the binary files containing the data about our trained models
     root_to_cnn = "trained_models/" + device.type + "/"
@@ -1325,3 +1442,6 @@ if __name__ == '__main__':
 
     if merge_files:
         merge_models_in_one_file(path_to_save_cnn)
+
+    if clean_files:
+        remove_useless_models(path_to_save_cnn)
