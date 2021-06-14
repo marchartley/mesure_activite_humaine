@@ -74,7 +74,7 @@ def fill_csv(create_CSV_from_scratch = False,
                 # Get PIR values for this sequence
                 pir_values = client.get_pir_values_from_walking_sequence(start_time=sequences_boundaries[id_sequence][0],
                                                                          end_time=sequences_boundaries[id_sequence][1],
-                                                                         time_offset=10.0)
+                                                                         time_offset=15.0)
                 print(end=".")
                 if len(pir_values['time']) == 0:
                     print(f"ignored, no PIR values")
@@ -94,12 +94,12 @@ def fill_csv(create_CSV_from_scratch = False,
                 after_offset = 0
                 # Going from South to North, we are missing ~4m at the end of the recording and 1m before
                 if gait_features['direction'] == -1:
-                    before_offset = 1 / speed
-                    after_offset = 4 / speed
+                    before_offset = 3 / speed
+                    after_offset = 5 / speed
                 # Going from North to South, we are missing ~1m at the end of the recording and 4m before
                 else:
-                    before_offset = 4 / speed
-                    after_offset = 1 / speed
+                    before_offset = 3 / speed
+                    after_offset = 5 / speed
 
                 # We have data with 10s before and after, so we remove (10 - x) sec of data
                 # PIR values are recorded at 40Hz, so we remove (10 - x) * 40 lines of data
