@@ -298,12 +298,11 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
         print(pd.Series((ratios.values - 1) * 100).describe())
 
         # calc the trendline
-        z = np.polyfit(original_y, y_Predicted, 3)
-        p = np.poly1d(z)
-        # abline(p(0) / p(1), p(0))
-        plt.plot(sorted(original_y), p(sorted(original_y)), c=(0, 0, 0, .5))
+        # z = np.polyfit(original_y, y_Predicted, 3)
+        # p = np.poly1d(z)
+        # plt.plot(sorted(original_y), p(sorted(original_y)), c=(0, 0, 0, .5))
         # the line equation:
-        print(f"y = {round(z[-4], 2)}x3 + {round(z[-3], 2)}x2 + {round(z[-2], 2)}x + {round(z[-1], 2)}")
+        # print(f"y = {round(z[-4], 2)}x3 + {round(z[-3], 2)}x2 + {round(z[-2], 2)}x + {round(z[-1], 2)}")
 
         plt.show()
 
@@ -331,14 +330,14 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
 #                              "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
 #                              "period_pir3", "delta_time_0_2",
 #                              "delta_time_1_3", "corridor", "direction"]
-res, y1, y2 = NeuralNetwork("sequences_resumed.csv", .10,
+res, y1, y2 = NeuralNetwork("sequences_resumed.csv", .50,
                             [
                                 "time_pir0", "time_pir1", "time_pir2", "time_pir3",
                                 "period_pir0", "period_pir1", "period_pir2", "period_pir3",
                                 "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
                                 "delta_time_0_2", "delta_time_1_3",
                                 "corridor", "direction"
-                            ], ["walking_speed"], None, data_multiplier=1)
+                            ], ["walking_speed"], None, data_multiplier=10)
 prediction("sequences_resumed.csv",
            [
                "time_pir0", "time_pir1", "time_pir2", "time_pir3",
