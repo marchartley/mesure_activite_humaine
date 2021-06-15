@@ -1,0 +1,33 @@
+Best CNN model:
+
+Errors:
+mean       0.326624
+std        0.310099
+min        0.003088
+25%        0.107066
+50%        0.230820
+75%        0.458245
+max        1.563319
+
+
+%Errors:
+mean       8.585035
+std        8.897344
+min        0.079587
+25%        2.998736
+50%        6.521981
+75%       11.499894
+max       68.804342
+
+Architecture:
+{
+	Conv2D(1 -> 8)
+	Max-pool
+	Conv2D(8 -> 8)
+	Conv2D(8 -> 8)
+	Conv2D(8 -> 8)
+	Dense(32768 -> 100)
+	Dense(100 -> 10)
+} x 4
+Dense(40 -> 100)
+Dense(100 -> 1)
