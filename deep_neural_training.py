@@ -5,13 +5,13 @@ import itertools
 import pickle
 import random
 import time
-from typing import Union, Any, cast, Type
+from typing import Union, Any, cast, Type, Tuple
 import os
 import sys
 
 import torchvision
+
 import waipy
-import pywt
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -58,12 +58,7 @@ def correlation_loss(x, y):
     vy = y - torch.mean(y)
 
     cost = abs(torch.sum(vx * vy) / (torch.sqrt(torch.sum(vx ** 2)) * torch.sqrt(torch.sum(vy ** 2))) - 1)
-    # print(cost)
     cost[cost != cost] = 1
-    # if torch.isnan(cost):
-    #     print('NAAAAAN')
-    # print(cost)
-    # exit()
     return cost
 
 
@@ -93,7 +88,6 @@ class CustomModel(nn.Module):
 
     def __repr__(self):
         return str(self)
-
 
 class PretrainedModel(CustomModel):
     def __init__(self, trained_model, **useless):
@@ -149,7 +143,7 @@ class PretrainedModel(CustomModel):
         final_tensor = self.module(final_tensor)
         final_tensor = self.ending(final_tensor)
 
-        return 2 **final_tensor
+        return 2 ** final_tensor
 
     def __str__(self):
         return f"{self.__class__.__name__}:" + "\n" \
@@ -159,7 +153,7 @@ class PretrainedModel(CustomModel):
 class MultipleWaveletsModule(CustomModel):
     def __init__(self, input_size=512, mid_output_size=10, kernel_size=3, number_of_filters=2,
                  number_of_layers=8, hidden_cells=[], dropout=False, use_concat_pir=True, number_of_conv_per_layer=1,
-                 pure_CNN=False, **useless):
+                 pure_CNN=False, reduce_last_conv=0, **useless):
         super().__init__()
         self.input_size = input_size
         self.mid_output_size = mid_output_size
@@ -171,6 +165,7 @@ class MultipleWaveletsModule(CustomModel):
         self.use_concat_pir = use_concat_pir
         self.number_of_conv_per_layer = number_of_conv_per_layer
         # self.pure_CNN = pure_CNN
+        self.reduce_last_conv = reduce_last_conv
 
         # Create one module per PIR (used when not using the concat_pir version)
         self.multiple_wavelet_modules = nn.ModuleList([WaveletModule(input_size=input_size, output_size=mid_output_size,
@@ -181,6 +176,7 @@ class MultipleWaveletsModule(CustomModel):
                                                                      dropout=dropout,
                                                                      number_of_conv_per_layer=number_of_conv_per_layer,
                                                                      use_concat=False,
+                                                                     reduce_last_conv = reduce_last_conv,
                                                                      lastActivation=None) for _ in
                                                        range(4)])
         # Create one unique module that take the 4 PIR data at once
@@ -192,6 +188,7 @@ class MultipleWaveletsModule(CustomModel):
                                                    dropout=dropout,
                                                    number_of_conv_per_layer=number_of_conv_per_layer,
                                                    use_concat=True,
+                                                   reduce_last_conv = reduce_last_conv,
                                                    lastActivation=None)
 
         # In any case, the activation is a Dense of shape (4*output x 1)
@@ -217,7 +214,7 @@ class WaveletModule(nn.Module):
     def __init__(self, input_size: int, output_size: int, kernel_size: int = 3,
                  number_of_filters: int = 2, number_of_layers: int = 1, use_concat=True,
                  hidden_cells=None, dropout: Union[float, bool] = False, number_of_conv_per_layer=1,
-                 lastActivation=None, **useless):
+                 lastActivation=None, reduce_last_conv = 0, **useless):
         super().__init__()
         self.input_size = input_size
         self.kernel_size = kernel_size
@@ -227,6 +224,7 @@ class WaveletModule(nn.Module):
         self.dropout = dropout
         self.use_concat = use_concat
         self.number_of_conv_per_layer = number_of_conv_per_layer
+        self.reduce_last_conv = reduce_last_conv
 
         if hidden_cells is None:
             hidden_cells = []
@@ -249,6 +247,9 @@ class WaveletModule(nn.Module):
             input_size = input_size // 2
             for _ in range(number_of_conv_per_layer):
                 elems.append(nn.Conv2d(number_of_filters, number_of_filters, kernel_size, padding=padding))
+        if reduce_last_conv > 0:
+            elems.append(nn.Conv2d(number_of_filters, reduce_last_conv, kernel_size, padding=padding))
+            number_of_filters = reduce_last_conv
         self.cnn_layers = nn.Sequential(*elems)
 
         input_size = int(input_size ** 2 * number_of_filters)
@@ -761,12 +762,48 @@ def visualize_model(model, test_loader):
         real.extend(labels.cpu().detach().numpy().tolist())
         predicted.extend(outputs.cpu().detach().numpy().tolist())
 
-    real, predicted = np.array(real), np.array(predicted)[:, 0]
-    plt.plot([0, 3], [0, 3], '--', c=(0, 0, 0, .2))
+    real, predicted = np.array(real) * 3.6, np.array(predicted)[:, 0] * 3.6
+    errors = abs(real - predicted)
+    errors_percent = abs(100 * (real - predicted) / real)
+    sorted_errors = pd.Series([e for _, e in sorted(zip(real, errors))], name='Errors')
+    sorted_errors_percent = pd.Series([e for _, e in sorted(zip(real, errors_percent))], name='Error (%)')
+
+    plt.subplot(2, 2, 1)
     plt.scatter(real, predicted)
-    plt.ylabel('Predicted speed')
-    plt.xlabel('Real speed')
+    plt.plot(list(plt.xlim()), list(plt.xlim()), '--', c=(0, 0, 0, .2))
+    plt.ylabel('Predicted speed (km/h)')
+    plt.xlabel('Real speed (km/h)')
     plt.title(f"Predictions (correlation : {round(pearsonr(real, predicted)[0], 2)})")
+
+    plt.subplot(2, 2, 2)
+    plt.title('Error distribution')
+    plt.hist(errors, bins = 30)
+    plt.xlabel("Error in km/h")
+    plt.ylabel('Frequency')
+
+    plt.subplot(2, 2, 3)
+    plt.scatter(real, errors)
+    plt.title('Error depending on the real speed')
+    plt.xlabel('Speed')
+    plt.ylabel('Error in km/h')
+    plt.plot(sorted(real), sorted_errors.rolling(3).mean(), c=(1., 0., 0., .5), zorder = -1)
+    plt.fill([min(real)] + list(sorted(real)) + [max(real)],
+             [0] + list(sorted_errors.rolling(3).mean().fillna(0)) + [0],
+             c=(1., 0., 0., .5), zorder = -2)
+    print(sorted_errors.describe())
+
+    plt.subplot(2, 2, 4)
+    plt.scatter(real, errors_percent)
+    plt.title('% Error depending on the real speed')
+    plt.xlabel('Speed')
+    plt.ylabel('% Error')
+    plt.plot(sorted(real), sorted_errors_percent.rolling(3).mean(), c=(1., 0., 0., .5), zorder = -1)
+    plt.fill([min(real)] + list(sorted(real)) + [max(real)],
+             [0] + list(sorted_errors_percent.rolling(3).mean().fillna(0)) + [0],
+             c=(1., 0., 0., .5), zorder = -2)
+    print(sorted_errors_percent.describe())
+    print(",".join([str(e) for e in sorted_errors_percent]))
+
 
 
 # From a set of parameters, create all the combinations possible
@@ -949,7 +986,7 @@ def try_all_models(hyperparameters,
 
 
 def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_if_val_err_higher=math.inf,
-                   max_y_val=0.20, ignored_files='_useless_') -> pd.DataFrame:
+                   max_y_val=0.20, ignored_files='_useless_') -> Tuple[Any, pd.DataFrame]:
     models_results = []
     validation_results = []
     best_results = None
@@ -991,7 +1028,7 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                          model['test']['correlation'] > best_results['test']['correlation']):
                     best_results = model
 
-                if len(top_models) < 10:
+                if len(top_models) < 10 and not np.isnan(model['test']['correlation']):
                     top_models.append(model)
                     min_score_of_tops = min([m['test']['correlation'] for m in top_models])
                 elif not np.isnan(model['test']['correlation']) and model['test']['correlation'] > min_score_of_tops:
@@ -1011,11 +1048,11 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                               'result': model['test']['correlation'],
                               'name': model['training']['model'].__class__.__name__,
                               })
-    top_plots.sort(key = lambda x: x['result'], reverse=True)
+    top_plots.sort(key=lambda x: x['result'], reverse=True)
     for plot in top_plots:
         color = next(plt.gca()._get_lines.prop_cycler)['color']
         plt.plot(plot['x'], plot['y_train'], color=color, alpha=.4)
-        plt.plot(plot['x'], plot['y'], color=color, label = plot['name'])
+        plt.plot(plot['x'], plot['y'], color=color, label=plot['name'])
         plt.text(plot['x'][-1], plot['y'][-1],
                  str(round(plot['result'], 2)), horizontalalignment="left",
                  # str(round(model['test']['global']['acc'] * 100, 2)) + "%", horizontalalignment="left",
@@ -1026,18 +1063,22 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
 
     df = pd.DataFrame(models_results)
     df[['test_results', 'mae', 'mse', 'percent_error']] = round(df[['test_results', 'mae', 'mse', 'percent_error']], 3)
-    df = df[['mid_output_size', 'kernel_size', 'number_of_filters', 'number_of_layers', 'number_of_conv_per_layer',
-             'hidden_cells', 'dropout',
-             'use_concat_pir', 'model_class', 'trained_model', 'test_results', 'mae', 'mse', 'percent_error']]
-
     df['model_class'] = df['model_class'].apply(lambda model: model.__name__)
     df['trained_model'] = df.apply(axis=1, func=
-    lambda row: row['trained_model'].__name__ if row['model_class'] == 'PretrainedModel'
+                                    lambda row: row['trained_model'].__name__ if 'trained_model' in row
+                                                and row['model_class'] == 'PretrainedModel'
                                                  and hasattr(row['trained_model'], '__name__') else None)
+
     df.rename(columns={'kernel_size': 'kernel', 'number_of_filters': 'filters', 'number_of_layers': 'layers',
                        'test_results': 'corr', 'number_of_conv_per_layer': 'conv/layer',
                        'use_concat_pir': 'concat_pirs', 'percent_error': '%err'},
               inplace=True)
+    full_df = df
+    df = df[['mid_output_size', 'kernel', 'filters', 'layers', 'conv/layer',
+             'hidden_cells', 'dropout',
+             'concat_pirs', 'model_class', 'corr', 'mae', 'mse', '%err'] +
+            (['trained_model'] if 'trained_model' in df.columns else [])]
+
 
     # no_na = df.dropna(subset=['corr'])
     # index_index = abs(no_na['corr'] - max(no_na['corr'])) < 1
@@ -1048,10 +1089,11 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
     # del all_models
     del models
     torch.cuda.empty_cache()
+    print(best_results['test'])
     visualize_model(best_results['training']['model'], test_loader=test_loader)
     plt.show()
 
-    return df
+    return df, full_df
 
 
 def display_morlet(pir_data):
@@ -1073,23 +1115,23 @@ def compute_morlet_transform(pir_data):
     upperPeriod = len(data_norm) * dt / 3
     result = waipy.cwt(data_norm, dt, 1, dj, lowerPeriod, upperPeriod, alpha, 6, mother='Morlet', name='name')
     powers = np.array(result['power']).astype('uint8')
-    tmp_img = Image.fromarray(powers) #, mode = 'I;16')
+    tmp_img = Image.fromarray(powers)  # , mode = 'I;16')
     # if(powers.max() > 255):
     #     plt.imshow(tmp_img)
     #     tmp_img.show()
     #     plt.show()
-    res = Image.fromarray(np.zeros((1024, 2048))) #, dtype=np.uint16), mode='I;16')
+    res = Image.fromarray(np.zeros((1024, 2048)))  # , dtype=np.uint16), mode='I;16')
     res.paste(tmp_img, (0, 1024 - tmp_img.height))
     res = res.resize((512, 512), resample=Image.NEAREST)
     return res
 
 
-def precompute_morlet_transforms(data, output_filename=None):
+def precompute_morlet_transforms(data, pir_transforms_filename='all_pirs_transformed.data', output_filename=None):
     start_time = time.time()
     sequence_ids = pd.unique(data['sequence_id'])
     all_pirs_transformed = []
-    if os.path.exists('all_pirs_transformed.data'):
-        all_pirs_transformed = pickle.load(open('all_pirs_transformed.data', 'rb'))
+    if os.path.exists(pir_transforms_filename):
+        all_pirs_transformed = pickle.load(open(pir_transforms_filename, 'rb'))
     all_pirs_transformed = list(filter(lambda seq: seq[5] < 10 and not np.isnan(seq[6]) and seq[7] != 0,
                                        all_pirs_transformed))
     ignored_sequences = set([seq[4] for seq in list(filter(lambda seq: seq[5] > 10 or np.isnan(seq[6]) or seq[7] == 0,
@@ -1152,8 +1194,8 @@ def precompute_morlet_transforms(data, output_filename=None):
     return all_pirs_transformed
 
 
-def training(path_to_save_cnn):
-    all_pirs_transformed = pickle.load(open('all_pirs_transformed.data', 'rb'))
+def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data'):
+    all_pirs_transformed = pickle.load(open(pir_transforms_filename, 'rb'))
     # Required "resize" to fit the DNNs
     # input_size = 224
     # Required "resize" to fit the CNNs
@@ -1162,9 +1204,10 @@ def training(path_to_save_cnn):
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
     dataset = PIR_DataLoader(all_pirs_transformed, transform=transforms.Compose([
-        transforms.Resize((input_size, input_size)),
+        transforms.Resize((input_size, input_size), transforms.InterpolationMode.NEAREST),
         # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
+        transforms.Lambda(lambda x: x.float()),
         transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.01 + 0.005)),
         transforms.Lambda(lambda x: transforms.GaussianBlur(
             2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
@@ -1200,13 +1243,14 @@ def training(path_to_save_cnn):
         'kernel_size': [3, 5],
         'number_of_filters': [2, 4, 8, 16, 32],
         'number_of_layers': [2, 3, 5, 6],
-        'number_of_conv_per_layer': [1, 2, 3, 4],
+        'number_of_conv_per_layer': [3, 4, 5],
         'hidden_cells': [None, 10, 100, (10, 10, 10), (40, 40, 40)],
         'dropout': [True, False],
         'use_concat_pir': [True, False],
+        'reduce_last_conv': [0, 1, 2, 3],
         # 'pure_CNN': [True, False],
         # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
-        'trained_model': list(all_pretrained_models.values())
+        # 'trained_model': list(all_pretrained_models.values())
     }
 
     # Those parameters modify the type of training used for each network
@@ -1217,7 +1261,7 @@ def training(path_to_save_cnn):
                       optim.Adamax, optim.AdamW],
         'learning_rate': [0.0001, 0.00001, 0.00005],
         'loss_function': [nn.MSELoss, nn.L1Loss],
-        'model_class': [MultipleWaveletsLinearModule, MultipleWaveletsModule, PretrainedModel],
+        'model_class': [MultipleWaveletsLinearModule, MultipleWaveletsModule],
         # [MultipleWaveletsLinearModule, MultipleWaveletsModule, PretrainedModel]
     }
 
@@ -1239,24 +1283,24 @@ def training(path_to_save_cnn):
                    num_epochs=num_epochs)
 
 
-def display(path_to_save_cnn):
+def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data'):
     # Required "resize" to fit the DNNs
     # input_size = 224
     # Required "resize" to fit the CNNs
     input_size = 128
 
-    all_pirs_transformed = pickle.load(open('all_pirs_transformed.data', 'rb'))
+    all_pirs_transformed = pickle.load(open(pir_transforms_filename, 'rb'))
 
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
     dataset = PIR_DataLoader(all_pirs_transformed, transform=transforms.Compose([
         transforms.Resize((input_size, input_size), interpolation=transforms.InterpolationMode.NEAREST),
-        transforms.RandomRotation([-1.0, 1.0]),
-        # transforms.Lambda(lambda im: im.convert('L')),
+        # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
-        transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
-        transforms.Lambda(lambda x: transforms.GaussianBlur(
-            2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
+        transforms.Lambda(lambda x: x.float()),
+        # transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
+        # transforms.Lambda(lambda x: transforms.GaussianBlur(
+        #     2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
     ]),
                              data_inflate=2.0)
     del all_pirs_transformed
@@ -1281,10 +1325,11 @@ def display(path_to_save_cnn):
     #    "test_results" of 1 = perfect match, 0 = no significant match, -1 = what?, NaN = model is rubbish
     #    models that return a coef "NaN" = return same value, regardless of input
     # plt.title("Training of %d models for the speed estimator" % len(results_data))
-    results_data = display_models(path_to_save_cnn, test_loader=testing_set_PIR, max_y_val=math.inf) \
-        .sort_values(by="corr", ascending=False)
-    print(results_data.describe(include='all'))
-    print(results_data)
+    short_results, full_results = display_models(path_to_save_cnn, test_loader=testing_set_PIR, max_y_val=math.inf)
+    short_results.sort_values(by="corr", ascending=False, inplace=True)
+    full_results.sort_values(by="corr", ascending=False, inplace=True)
+    # print(full_results)
+    print(short_results)
 
 
 def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
@@ -1360,7 +1405,8 @@ def remove_useless_models(path_to_cnn, ignored_files='_useless_'):
                 models_ignored += 1
 
             these_models = list(filter(lambda model: not np.isnan(model['test']['correlation']), these_models))
-            these_models = list(filter(lambda model: model['training']['model'].__class__.__name__ != 'PretrainedModel', these_models))
+            these_models = list(
+                filter(lambda model: model['training']['model'].__class__.__name__ != 'PretrainedModel', these_models))
             if len(these_models) > 0:
                 pickle.dump(these_models, open(file, "wb+"))
                 models_kept += 1
@@ -1424,21 +1470,24 @@ if __name__ == '__main__':
     clean_files = args.clean_files
 
     # Path to save the binary files containing the data about our trained models
-    root_to_cnn = "trained_models/" + device.type + "/"
+    root_to_cnn = "trained_models/" + device.type + "_16_bits_with_data_reduction/"
     # root_to_cnn = "trained_models/transfer_learning/"
     path_to_save_cnn = root_to_cnn + "convolution_network.model"
+    pir_transforms_filename = 'all_pirs_transformed_16_bits.data'
 
     if update_data:
         # All data comes from the CSV file created through fill_csv() in create_pir_csv.py
         data = pd.read_csv("gait_values.csv")
         # From the PIR values, apply a wavelet transform using Morlet waves and save them in a binary file
-        precompute_morlet_transforms(data, output_filename='all_pirs_transformed.data')
+        precompute_morlet_transforms(data,
+                                     pir_transforms_filename=pir_transforms_filename,
+                                     output_filename=pir_transforms_filename)
 
     if do_training:
-        training(path_to_save_cnn)
+        training(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename)
 
     if do_display:
-        display(path_to_save_cnn)
+        display(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename)
 
     if merge_files:
         merge_models_in_one_file(path_to_save_cnn)

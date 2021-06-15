@@ -1,8 +1,11 @@
+import os
 import pickle
 
 import matplotlib.gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+import typing
+
 from profilestats import profile
 import pandas as pd
 from PIL import Image, ImageOps
@@ -42,7 +45,11 @@ from PIL import Image, ImageOps
 # plt.show()
 # exit()
 
+
 all_data = pickle.load(open('all_pirs_transformed_not_scaled.data', 'rb'))
+directory = 'pir_images_16_bits'
+
+os.makedirs(directory, exist_ok=True)
 
 mean_data = {
     'ENS': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
@@ -85,16 +92,37 @@ for i, data in enumerate(all_data):
     pir3 = pir3.convert('L')
     pirs = [pir0, pir1, pir2, pir3]
 
-    fig, ((p0, p2), (s0, s2), (p1, p3), (s1, s3)) = plt.subplots(4, 2, gridspec_kw={
-        'height_ratios': [2, .3, 2, .3],
+    grid_kw = {
+        'height_ratios': [2, .3, 2, .3, .5],
         'hspace': 0,
         'wspace': -0.1,
-    },
-                                                                 sharex='all')
-    x_vals = [pir0.size[0] * (x / len(raw['pir0'])) for x in range(len(raw['pir0']))]
-    fig.suptitle(f"Category: {category}" + '\n' + f"Speed: {round(speed * 3.6, 2)} km/h")
+    }
+    gs = matplotlib.gridspec.GridSpec(5, 2, **grid_kw)
+    fig, ((p0, p2), (s0, s2), (p1, p3), (s1, s3), (f_bottom1, f_bottom2)) = plt.subplots(5, 2, gridspec_kw=grid_kw,
+                                                                                            sharex='all',
+                                                                                         figsize = (12.8, 9.6))
 
-    p0.set_title(f"PIR 0")
+    fig = typing.cast(plt.Figure, fig)
+    p0 = typing.cast(plt.Axes, p0)
+    p2 = typing.cast(plt.Axes, p2)
+    s0 = typing.cast(plt.Axes, s0)
+    s2 = typing.cast(plt.Axes, s2)
+    p1 = typing.cast(plt.Axes, p1)
+    p3 = typing.cast(plt.Axes, p3)
+    s1 = typing.cast(plt.Axes, s1)
+    s3 = typing.cast(plt.Axes, s3)
+    f_bottom1 = typing.cast(plt.Axes, f_bottom1)
+    f_bottom2 = typing.cast(plt.Axes, f_bottom2)
+
+    f_bottom1.axis('off')
+    f_bottom2.axis('off')
+
+    x_vals = [pir0.size[0] * (x / len(raw['pir0'])) for x in range(len(raw['pir0']))]
+    fig.suptitle(f"Direction:\n{'North-South' if direction == 1 else 'South-North'}\n\n"
+                 f"Corridor:\n{'East' if corridor == -1 else 'West' if corridor == 1 else 'Center'}\n\n"
+                 f"Speed:\n{round(speed * 3.6, 2)} km/h")
+
+    p0.set_title(f"PIR 0 (North - East)")
     p0.imshow(pirs[0])
     p0.axis('off')
 
@@ -102,38 +130,48 @@ for i, data in enumerate(all_data):
     s0.axis('off')
     s0.set_xlim((-300, 1000))
 
-    p1.set_title(f"PIR 1")
+    p1.set_title(f"PIR 1 (North - West)")
     p1.imshow(pirs[1])
     p1.axis('off')
 
     s1.plot(x_vals, raw['pir1'])
     s1.axis('off')
 
-    p2.set_title(f"PIR 2")
+    p2.set_title(f"PIR 2 (South - East)")
     p2.imshow(pirs[2])
     p2.axis('off')
 
     s2.plot(x_vals, raw['pir2'])
     s2.axis('off')
 
-    p3.set_title(f"PIR 3")
+    p3.set_title(f"PIR 3 (South - West)")
     p3.imshow(pirs[3])
     p3.axis('off')
 
     s3.plot(x_vals, raw['pir3'])
     s3.axis('off')
 
-    # fig.tight_layout()
-    plt.show()
+    ax = fig.add_subplot(gs[4, :])
+    ax.plot(raw['pir0'])
+    ax.plot(raw['pir1'])
+    ax.plot(raw['pir2'])
+    ax.plot(raw['pir3'])
+    ax.axis('off')
 
-    # plt.savefig(f"pir_images/{category}_{str(format(speed, '.6f')).replace('.', '-').replace(',', '-')}.png")
-    # plt.clf()
+    fig.subplots_adjust(bottom=0.10, right=0.96, left=0.08, top=0.95, wspace=0.10)
+    # fig.tight_layout()
+    # figManager = plt.get_current_fig_manager()
+    # figManager.window.showMaximized()
+    # plt.show()
+
+    plt.savefig(f"{directory}/{category}_{str(format(speed, '.6f')).replace('.', '-').replace(',', '-')}.png")
+    plt.close()
 
     if mean_data[category]['pir0'] is None:
-        mean_data[category]['pir0'] = np.array(pir0, dtype=np.uint64)
-        mean_data[category]['pir1'] = np.array(pir1, dtype=np.uint64)
-        mean_data[category]['pir2'] = np.array(pir2, dtype=np.uint64)
-        mean_data[category]['pir3'] = np.array(pir3, dtype=np.uint64)
+        mean_data[category]['pir0'] = np.array(pir0, dtype=np.uint32)
+        mean_data[category]['pir1'] = np.array(pir1, dtype=np.uint32)
+        mean_data[category]['pir2'] = np.array(pir2, dtype=np.uint32)
+        mean_data[category]['pir3'] = np.array(pir3, dtype=np.uint32)
     else:
         mean_data[category]['pir0'] += np.asarray(pir0)
         mean_data[category]['pir1'] += np.asarray(pir1)
@@ -162,7 +200,7 @@ for category in mean_data:
             plt.title(f"PIR {pir}")
             plt.imshow(mean_data[category][f"pir{pir}"])
             plt.axis('off')
-        plt.savefig('pir_images/' + category + '.png', )
+        plt.savefig(f'{directory}/{category}.png', )
         # plt.show()
     except:
         print(category)
