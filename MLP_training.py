@@ -220,8 +220,8 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
         Y_ac = (y_actual)
         Y_pr = (y_predict)
 
-        y_actual = abs(y_actual)
-        y_predict = abs(y_predict)
+        y_actual = abs(y_actual) * 3.6
+        y_predict = abs(y_predict) * 3.6
 
         plt.scatter(y_actual, y_predict)
         abline(1)
@@ -282,8 +282,8 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
         #     data[y_name] = y
         #     predicted_data.append(data)
         # plt.plot(y_Predicted,color='red')
-        original_y = np.array(original_y)[:, 0]
-        y_Predicted = np.array(y_Predicted)
+        original_y = np.array(original_y)[:, 0] * 3.6
+        y_Predicted = np.array(y_Predicted) * 3.6
 
         plt.scatter(original_y, y_Predicted, c='black', marker='.')
         pearson_coef, p_value = pearsonr(original_y, y_Predicted)
@@ -295,7 +295,7 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
 
         ratios = pd.Series(original_y / y_Predicted)
         ratios[ratios.values < 1.0] = 1 / ratios[ratios.values < 1.0]
-        print(pd.Series((ratios.values - 1) * 100).describe())
+        print(pd.Series((ratios.values - 1) * 100, name="Error (%)").describe())
 
         # calc the trendline
         # z = np.polyfit(original_y, y_Predicted, 3)
@@ -330,15 +330,15 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
 #                              "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
 #                              "period_pir3", "delta_time_0_2",
 #                              "delta_time_1_3", "corridor", "direction"]
-res, y1, y2 = NeuralNetwork("sequences_resumed.csv", .50,
-                            [
-                                "time_pir0", "time_pir1", "time_pir2", "time_pir3",
-                                "period_pir0", "period_pir1", "period_pir2", "period_pir3",
-                                "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
-                                "delta_time_0_2", "delta_time_1_3",
-                                "corridor", "direction"
-                            ], ["walking_speed"], None, data_multiplier=10)
-prediction("sequences_resumed.csv",
+# res, y1, y2 = NeuralNetwork("sequences_resumed.csv", .10,
+#                             [
+#                                 "time_pir0", "time_pir1", "time_pir2", "time_pir3",
+#                                 "period_pir0", "period_pir1", "period_pir2", "period_pir3",
+#                                 "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
+#                                 "delta_time_0_2", "delta_time_1_3",
+#                                 "corridor", "direction"
+#                             ], ["walking_speed"], None, data_multiplier=10)
+prediction("sequences_resumed_for_tests.csv",
            [
                "time_pir0", "time_pir1", "time_pir2", "time_pir3",
                "period_pir0", "period_pir1", "period_pir2", "period_pir3",
