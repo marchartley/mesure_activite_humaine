@@ -9,7 +9,9 @@ from typing import Union, Any, cast, Type, Tuple
 import os
 import sys
 
+import matplotlib
 import torchvision
+from matplotlib.legend_handler import HandlerTuple
 
 import waipy
 import pandas as pd
@@ -89,6 +91,7 @@ class CustomModel(nn.Module):
     def __repr__(self):
         return str(self)
 
+
 class PretrainedModel(CustomModel):
     def __init__(self, trained_model, **useless):
         super().__init__()
@@ -153,7 +156,7 @@ class PretrainedModel(CustomModel):
 class MultipleWaveletsModule(CustomModel):
     def __init__(self, input_size=512, mid_output_size=10, kernel_size=3, number_of_filters=2,
                  number_of_layers=8, hidden_cells=[], dropout=False, use_concat_pir=True, number_of_conv_per_layer=1,
-                 pure_CNN=False, reduce_last_conv=0, **useless):
+                 pure_CNN=False, layer_relu = None, reduce_last_conv=0, **useless):
         super().__init__()
         self.input_size = input_size
         self.mid_output_size = mid_output_size
@@ -164,6 +167,7 @@ class MultipleWaveletsModule(CustomModel):
         self.dropout = dropout
         self.use_concat_pir = use_concat_pir
         self.number_of_conv_per_layer = number_of_conv_per_layer
+        self.layer_relu = layer_relu
         # self.pure_CNN = pure_CNN
         self.reduce_last_conv = reduce_last_conv
 
@@ -176,7 +180,8 @@ class MultipleWaveletsModule(CustomModel):
                                                                      dropout=dropout,
                                                                      number_of_conv_per_layer=number_of_conv_per_layer,
                                                                      use_concat=False,
-                                                                     reduce_last_conv = reduce_last_conv,
+                                                                     reduce_last_conv=reduce_last_conv,
+                                                                     layer_relu = layer_relu,
                                                                      lastActivation=None) for _ in
                                                        range(4)])
         # Create one unique module that take the 4 PIR data at once
@@ -188,7 +193,8 @@ class MultipleWaveletsModule(CustomModel):
                                                    dropout=dropout,
                                                    number_of_conv_per_layer=number_of_conv_per_layer,
                                                    use_concat=True,
-                                                   reduce_last_conv = reduce_last_conv,
+                                                   reduce_last_conv=reduce_last_conv,
+                                                   layer_relu = layer_relu,
                                                    lastActivation=None)
 
         # In any case, the activation is a Dense of shape (4*output x 1)
@@ -209,13 +215,26 @@ class MultipleWaveletsModule(CustomModel):
 
         return final_tensor
 
+    # def __str__(self):
+    #     var_name_length = 25
+    #     out = super().__str__()
+    #     out += "\n\t" \
+    #            f"{str('layer_relu').replace('_', ' ')}{' ' * (var_name_length - len(str('layer_relu')))} = " \
+    #            f"{self.layer_relu.__class__.__name__} "
+    #     return out
+
+
 
 class WaveletModule(nn.Module):
     def __init__(self, input_size: int, output_size: int, kernel_size: int = 3,
                  number_of_filters: int = 2, number_of_layers: int = 1, use_concat=True,
                  hidden_cells=None, dropout: Union[float, bool] = False, number_of_conv_per_layer=1,
-                 lastActivation=None, reduce_last_conv = 0, **useless):
+                 layer_relu = None,
+                 lastActivation=None, reduce_last_conv=0, **useless):
         super().__init__()
+
+        if lastActivation is None:
+            lastActivation = layer_relu
         self.input_size = input_size
         self.kernel_size = kernel_size
         self.number_of_filters = number_of_filters
@@ -225,6 +244,7 @@ class WaveletModule(nn.Module):
         self.use_concat = use_concat
         self.number_of_conv_per_layer = number_of_conv_per_layer
         self.reduce_last_conv = reduce_last_conv
+        self.layer_relu = layer_relu
 
         if hidden_cells is None:
             hidden_cells = []
@@ -247,6 +267,8 @@ class WaveletModule(nn.Module):
             input_size = input_size // 2
             for _ in range(number_of_conv_per_layer):
                 elems.append(nn.Conv2d(number_of_filters, number_of_filters, kernel_size, padding=padding))
+                if layer_relu:
+                    elems.append(layer_relu)
         if reduce_last_conv > 0:
             elems.append(nn.Conv2d(number_of_filters, reduce_last_conv, kernel_size, padding=padding))
             number_of_filters = reduce_last_conv
@@ -440,7 +462,7 @@ def train_model(trainloader,
 
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
     # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
-    minibatch_size = 16
+    minibatch_size = 1
     # If not done, transform datasets in dataLoader
     # We've chose high batch size to be more efficient in time
     if isinstance(trainloader, torch.utils.data.Dataset):
@@ -667,7 +689,7 @@ class PIR_DataLoader(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         body_speed = 1000
-        while body_speed > 3.0:
+        while 0.45 > body_speed or body_speed > 3.0:
             # Get the file, load the image, apply transformation
             try:
                 pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction, raw = self.data[index % len(self.data)]
@@ -682,7 +704,7 @@ class PIR_DataLoader(torch.utils.data.Dataset):
 
         concat_pir = torch.cat((pir0, pir1, pir2, pir3), 0)
 
-        return pir0, pir1, pir2, pir3, concat_pir, body_speed
+        return pir0, pir1, pir2, pir3, concat_pir, body_speed, [corridor, direction]
 
     def __len__(self):
         return int(len(self.data) * self.inflate)
@@ -741,16 +763,19 @@ def display_test_results(results, classes):
 def visualize_model(model, test_loader):
     model.update_device()
     model.to(device)
+    model.eval()
     print(model)
     if not isinstance(test_loader, torch.utils.data.DataLoader):
-        test_loader = torch.utils.data.DataLoader(test_loader, batch_size=64,
+        test_loader = torch.utils.data.DataLoader(test_loader, batch_size=4,
                                                   shuffle=False, num_workers=0)
 
     real = []
     predicted = []
+    corridors = []
+    directions = []
     for i, data in enumerate(test_loader, 0):
         # get the inputs
-        pirs0, pirs1, pirs2, pirs3, concat_pir, labels = data
+        pirs0, pirs1, pirs2, pirs3, concat_pir, labels, additional_data = data
         # if possible, move them to GPU
         if model.use_concat_pir:
             concat_pir, labels = concat_pir.to(device), labels.to(device)
@@ -762,48 +787,89 @@ def visualize_model(model, test_loader):
         real.extend(labels.cpu().detach().numpy().tolist())
         predicted.extend(outputs.cpu().detach().numpy().tolist())
 
+        corridor, direction = additional_data
+        corridors.extend(corridor.cpu().detach().numpy().tolist())
+        directions.extend(direction.cpu().detach().numpy().tolist())
+
     real, predicted = np.array(real) * 3.6, np.array(predicted)[:, 0] * 3.6
     errors = abs(real - predicted)
     errors_percent = abs(100 * (real - predicted) / real)
     sorted_errors = pd.Series([e for _, e in sorted(zip(real, errors))], name='Errors')
     sorted_errors_percent = pd.Series([e for _, e in sorted(zip(real, errors_percent))], name='Error (%)')
+    pearson_coef, p_value = pearsonr(real, predicted)
 
-    plt.subplot(2, 2, 1)
-    plt.scatter(real, predicted)
+    plt.subplot(3, 2, 1)
+    colors = [(1, 0, 0, 1) if c == -1 else (0, 1, 0, 1) if c == 0 else (0, 0, 1, 1) for c in corridors]
+    directions = np.array(directions)
+    corridors = np.array(corridors)
+    colors = np.array(colors)
+    plt.scatter(real, predicted, marker = ".", c="black")
+    # plt.scatter(real[directions < 0], predicted[directions < 0], marker="<", c=colors[directions < 0])
+    # plt.scatter(real[directions > 0], predicted[directions > 0], marker=">", c=colors[directions > 0])
     plt.plot(list(plt.xlim()), list(plt.xlim()), '--', c=(0, 0, 0, .2))
     plt.ylabel('Predicted speed (km/h)')
     plt.xlabel('Real speed (km/h)')
-    plt.title(f"Predictions (correlation : {round(pearsonr(real, predicted)[0], 2)})")
+    plt.title(f"Predictions (correlation : {round(pearson_coef, 2)} | "
+              f"{'p < 0.001' if p_value < 0.001 else 'p = ' + round(p_value, 4)})")
+    # plt.legend([(plt.plot([], 'b<')[0], plt.plot([], 'b>')[0]),
+    #             matplotlib.patches.Patch(color=(1, 0, 0)),
+    #             matplotlib.patches.Patch(color=(0, 1, 0)),
+    #             matplotlib.patches.Patch(color=(0, 0, 1))],
+    #            ['Direction', 'East', 'Center', 'West'], handler_map={tuple: HandlerTuple(ndivide=None)})
 
-    plt.subplot(2, 2, 2)
+    plt.subplot(3, 2, 2)
     plt.title('Error distribution')
-    plt.hist(errors, bins = 30)
+    plt.hist(errors, bins=30, color=(237 / 255, 190 / 255, 36 / 255, 1), density=1)
+    # Calculate percentiles
+    quant_25, quant_50, quant_75, quant_95 = np.percentile(errors, [25, 50, 75, 95])
+    quants = [[quant_25, 2, 25], [quant_50, 1.8, 50], [quant_75, 1.6, 75],
+              [quant_95, 1.4, 95]]
+    for i in quants:
+        plt.plot([i[0], i[0]], [0, i[1]], ':', c='blue')
+        plt.text(i[0], i[1] * 1.05, f"{i[2]}th", size=11, alpha=0.85, ha='center', va='bottom')
+
     plt.xlabel("Error in km/h")
     plt.ylabel('Frequency')
 
-    plt.subplot(2, 2, 3)
-    plt.scatter(real, errors)
+    plt.subplot(3, 2, 3)
+    plt.axhline(np.median(errors), color=(0, 0, 0, .5), linestyle='--')
+    plt.text(4, np.median(errors), f"median = {round(np.median(errors), 2)}km/h", va='bottom', ha='center')
+    plt.scatter(real, errors, marker='.', c='black')
+    # plt.scatter(real[directions < 0], errors[directions < 0], marker='<', c=colors[directions < 0])
+    # plt.scatter(real[directions > 0], errors[directions > 0], marker='>', c=colors[directions > 0])
     plt.title('Error depending on the real speed')
-    plt.xlabel('Speed')
+    plt.xlabel('Real speed')
     plt.ylabel('Error in km/h')
-    plt.plot(sorted(real), sorted_errors.rolling(3).mean(), c=(1., 0., 0., .5), zorder = -1)
-    plt.fill([min(real)] + list(sorted(real)) + [max(real)],
-             [0] + list(sorted_errors.rolling(3).mean().fillna(0)) + [0],
-             c=(1., 0., 0., .5), zorder = -2)
-    print(sorted_errors.describe())
 
-    plt.subplot(2, 2, 4)
-    plt.scatter(real, errors_percent)
+    plt.subplot(3, 2, 4)
+    plt.axhline(np.median(errors_percent), color=(0, 0, 0, .5), linestyle='--')
+    plt.text(4, np.median(errors_percent), f"median = {round(np.median(errors_percent), 2)}%", va='bottom', ha='center')
+    plt.scatter(real, errors_percent, marker='.', c='black')
+    # plt.scatter(real[directions < 0], errors_percent[directions < 0], marker='<', c=colors[directions < 0])
+    # plt.scatter(real[directions > 0], errors_percent[directions > 0], marker='>', c=colors[directions > 0])
     plt.title('% Error depending on the real speed')
-    plt.xlabel('Speed')
+    plt.xlabel('Real speed')
     plt.ylabel('% Error')
-    plt.plot(sorted(real), sorted_errors_percent.rolling(3).mean(), c=(1., 0., 0., .5), zorder = -1)
-    plt.fill([min(real)] + list(sorted(real)) + [max(real)],
-             [0] + list(sorted_errors_percent.rolling(3).mean().fillna(0)) + [0],
-             c=(1., 0., 0., .5), zorder = -2)
-    print(sorted_errors_percent.describe())
-    print(",".join([str(e) for e in sorted_errors_percent]))
+    plt.tight_layout()
 
+    plt.subplot(3, 2, 5)
+    plt.title('Error distribution (%)')
+    plt.hist(errors_percent, bins=30, color=(237 / 255, 190 / 255, 36 / 255, 1), density=1)
+    quant_25, quant_50, quant_75, quant_95 = np.percentile(errors_percent, [25, 50, 75, 95])
+    quants = [[quant_25, .10, 25], [quant_50, .09, 50], [quant_75, .08, 75],
+              [quant_95, .07, 95]]
+    for i in quants:
+        plt.plot([i[0], i[0]], [0, i[1]], ':', c='blue')
+        plt.text(i[0], i[1] * 1.05, f"{i[2]}th", size=11, alpha=0.85, ha='center', va='bottom')
+    plt.xlabel("Error in %")
+    plt.ylabel('Frequency')
+
+    print(pd.concat([sorted_errors, sorted_errors_percent,
+                     pd.Series(sorted_errors_percent.values[directions < 0], name='Error (%) South-North'),
+                     pd.Series(sorted_errors_percent.values[directions > 0], name='Error (%) North-South'),
+                     pd.Series(sorted_errors_percent.values[corridors == -1], name='Error (%) East'),
+                     pd.Series(sorted_errors_percent.values[corridors == 0], name='Error (%) Center'),
+                     pd.Series(sorted_errors_percent.values[corridors == 1], name='Error (%) West')], axis=1).describe())
 
 
 # From a set of parameters, create all the combinations possible
@@ -990,6 +1056,7 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
     models_results = []
     validation_results = []
     best_results = None
+    best_index = 0
 
     all_plots = []
     top_plots = []
@@ -1013,6 +1080,7 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                                    'number_of_samples': f"{model['training']['best_nb_samples']:,}",
                                    'test_results': model['test']['correlation'], 'mae': model['test']['mae'],
                                    'mse': model['test']['mse'], 'percent_error': model['test']['percent_error'],
+                                   'id': i,
                                    **model['training_parameters']}
                 models_results.append(copy.deepcopy(_models_results))
                 for attr in _models_results:
@@ -1027,6 +1095,20 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                         (not np.isnan(model['test']['correlation']) and
                          model['test']['correlation'] > best_results['test']['correlation']):
                     best_results = model
+                    best_index = i
+
+                # try:
+                #     print(best_results['test'])
+                #     visualize_model(best_results['training']['model'], test_loader=test_loader)
+                #     plt.show()
+                # except:
+                #     print("Whoops, CUDA error out of memory")
+                #     pass
+
+                    # print(i)
+                    # print(best_results['test'])
+                    # print(best_results['training']['model'])
+                    # print()
 
                 if len(top_models) < 10 and not np.isnan(model['test']['correlation']):
                     top_models.append(model)
@@ -1049,36 +1131,44 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                               'name': model['training']['model'].__class__.__name__,
                               })
     top_plots.sort(key=lambda x: x['result'], reverse=True)
+    legend_train_val = plt.legend([plt.plot([], c=(1, 0, 0, 1))[0], plt.plot([], c=(1, 0, 0, .4))[0]],
+                                  ['Validation', 'Training'], loc=3)
     for plot in top_plots:
         color = next(plt.gca()._get_lines.prop_cycler)['color']
         plt.plot(plot['x'], plot['y_train'], color=color, alpha=.4)
         plt.plot(plot['x'], plot['y'], color=color, label=plot['name'])
         plt.text(plot['x'][-1], plot['y'][-1],
                  str(round(plot['result'], 2)), horizontalalignment="left",
-                 # str(round(model['test']['global']['acc'] * 100, 2)) + "%", horizontalalignment="left",
                  fontsize="x-small", path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")])
+        plt.xlabel('Number of samples (x1000)')
+        plt.ylabel('L2 Loss')
+        plt.title('Learning curve for training and validation\nWith resulting correlation on the test set')
     plt.yscale('log')
     plt.legend()
+    plt.gca().add_artist(legend_train_val)
+    plt.tight_layout()
     plt.show()
 
     df = pd.DataFrame(models_results)
     df[['test_results', 'mae', 'mse', 'percent_error']] = round(df[['test_results', 'mae', 'mse', 'percent_error']], 3)
     df['model_class'] = df['model_class'].apply(lambda model: model.__name__)
     df['trained_model'] = df.apply(axis=1, func=
-                                    lambda row: row['trained_model'].__name__ if 'trained_model' in row
-                                                and row['model_class'] == 'PretrainedModel'
+    lambda row: row['trained_model'].__name__ if 'trained_model' in row
+                                                 and row['model_class'] == 'PretrainedModel'
                                                  and hasattr(row['trained_model'], '__name__') else None)
 
     df.rename(columns={'kernel_size': 'kernel', 'number_of_filters': 'filters', 'number_of_layers': 'layers',
-                       'test_results': 'corr', 'number_of_conv_per_layer': 'conv/layer',
+                       'test_results': 'corr', 'number_of_conv_per_layer': 'conv/layer', 'reduce_last_conv': 'reduce',
                        'use_concat_pir': 'concat_pirs', 'percent_error': '%err'},
               inplace=True)
     full_df = df
     df = df[['mid_output_size', 'kernel', 'filters', 'layers', 'conv/layer',
              'hidden_cells', 'dropout',
              'concat_pirs', 'model_class', 'corr', 'mae', 'mse', '%err'] +
-            (['trained_model'] if 'trained_model' in df.columns else [])]
-
+            (['trained_model'] if 'trained_model' in df.columns else []) +
+            (['reduce'] if 'reduce' in df.columns else []) +
+            (['layer_relu'] if 'layer_relu' in df.columns else [])
+            ]
 
     # no_na = df.dropna(subset=['corr'])
     # index_index = abs(no_na['corr'] - max(no_na['corr'])) < 1
@@ -1127,6 +1217,8 @@ def compute_morlet_transform(pir_data):
 
 
 def precompute_morlet_transforms(data, pir_transforms_filename='all_pirs_transformed.data', output_filename=None):
+    if isinstance(output_filename, bool) and output_filename is True:
+        output_filename = pir_transforms_filename
     start_time = time.time()
     sequence_ids = pd.unique(data['sequence_id'])
     all_pirs_transformed = []
@@ -1223,7 +1315,7 @@ def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.dat
     training_set_PIR, validation_set_PIR, testing_set_PIR = torch.utils.data.random_split(dataset,
                                                                                           [train_size, valid_size,
                                                                                            test_size])
-    minibatch_size = 64
+    minibatch_size = 1
     # We've chose high batch size to be more efficient in time
     trainloader = torch.utils.data.DataLoader(training_set_PIR, batch_size=minibatch_size,
                                               shuffle=True, num_workers=0)
@@ -1232,26 +1324,47 @@ def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.dat
     testingloader = torch.utils.data.DataLoader(testing_set_PIR, batch_size=minibatch_size,
                                                 shuffle=True, num_workers=0)
     # Number of epochs applied on our model during the training
-    num_epochs = 10
+    num_epochs = 20
+
 
     # Parameters to vary on the models
     # Be careful to avoid having too much params as the number of models is greatly increasing
     models_hyperparameters = {
         # Those params are for the CNNs (MultipleWaveletsModule and MultipleWaveletsLinearModule)
         'input_size': input_size,
-        'mid_output_size': [20, 30, 40],
-        'kernel_size': [3, 5],
-        'number_of_filters': [2, 4, 8, 16, 32],
-        'number_of_layers': [2, 3, 5, 6],
-        'number_of_conv_per_layer': [3, 4, 5],
-        'hidden_cells': [None, 10, 100, (10, 10, 10), (40, 40, 40)],
-        'dropout': [True, False],
+        'mid_output_size': [30, 40],
+        'kernel_size': [3, 5, 15],
+        'number_of_filters': [8, 16, 32],
+        'number_of_layers': [2, 5, 6],
+        'number_of_conv_per_layer': [4, 5],
+        'hidden_cells': [None, 10, 100, (40, 40, 40)],
+        'dropout': False,
         'use_concat_pir': [True, False],
-        'reduce_last_conv': [0, 1, 2, 3],
+        'reduce_last_conv': [0, 2],
         # 'pure_CNN': [True, False],
+        'layer_relu': [None, nn.ReLU(), nn.Tanh(), nn.Sigmoid()],
         # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
         # 'trained_model': list(all_pretrained_models.values())
     }
+
+    # # Parameters to vary on the models
+    # # Be careful to avoid having too much params as the number of models is greatly increasing
+    # models_hyperparameters = {
+    #     # Those params are for the CNNs (MultipleWaveletsModule and MultipleWaveletsLinearModule)
+    #     'input_size': input_size,
+    #     'mid_output_size': [20, 30, 40],
+    #     'kernel_size': [3, 5],
+    #     'number_of_filters': [2, 4, 8, 16, 32],
+    #     'number_of_layers': [2, 3, 5, 6],
+    #     'number_of_conv_per_layer': [3, 4, 5],
+    #     'hidden_cells': [None, 10, 100, (10, 10, 10), (40, 40, 40)],
+    #     'dropout': [True, False],
+    #     'use_concat_pir': [True, False],
+    #     'reduce_last_conv': [0, 1, 2, 3],
+    #     # 'pure_CNN': [True, False],
+    #     # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
+    #     # 'trained_model': list(all_pretrained_models.values())
+    # }
 
     # Those parameters modify the type of training used for each network
     # The parameters used for a model are chosen randomly and thus, does not increase the number of trainings
@@ -1261,7 +1374,7 @@ def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.dat
                       optim.Adamax, optim.AdamW],
         'learning_rate': [0.0001, 0.00001, 0.00005],
         'loss_function': [nn.MSELoss, nn.L1Loss],
-        'model_class': [MultipleWaveletsLinearModule, MultipleWaveletsModule],
+        'model_class': MultipleWaveletsModule,
         # [MultipleWaveletsLinearModule, MultipleWaveletsModule, PretrainedModel]
     }
 
@@ -1302,7 +1415,7 @@ def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data
         # transforms.Lambda(lambda x: transforms.GaussianBlur(
         #     2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
     ]),
-                             data_inflate=2.0)
+                             data_inflate=1.0)
     del all_pirs_transformed
 
     # Train size = 70%, Validation = 10%, Testing = 20%
@@ -1325,11 +1438,10 @@ def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data
     #    "test_results" of 1 = perfect match, 0 = no significant match, -1 = what?, NaN = model is rubbish
     #    models that return a coef "NaN" = return same value, regardless of input
     # plt.title("Training of %d models for the speed estimator" % len(results_data))
-    short_results, full_results = display_models(path_to_save_cnn, test_loader=testing_set_PIR, max_y_val=math.inf)
-    short_results.sort_values(by="corr", ascending=False, inplace=True)
-    full_results.sort_values(by="corr", ascending=False, inplace=True)
+    short_results, full_results = display_models(path_to_save_cnn, test_loader=dataset, max_y_val=math.inf)
+    # full_results.sort_values(by="corr", ascending=False, inplace=True)
     # print(full_results)
-    print(short_results)
+    print(short_results.sort_values(by="corr", ascending=False).head(500))
 
 
 def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
@@ -1361,6 +1473,8 @@ def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
 
     print(f"Saving {len(models)} models...")
     pickle.dump(models, open(os.path.join(directory, filename + "_" + str(time.time()) + ext), "wb+"))
+    for file in files_to_delete:
+        os.remove(file)
 
     print('Merging useless models...')
     models = []
@@ -1469,15 +1583,19 @@ if __name__ == '__main__':
     merge_files = args.merge_files
     clean_files = args.clean_files
 
+    torch.manual_seed(42)
+
     # Path to save the binary files containing the data about our trained models
     root_to_cnn = "trained_models/" + device.type + "_16_bits_with_data_reduction/"
+    # root_to_cnn = "trained_models/" + device.type + "_16_bits_maximum_data/"
     # root_to_cnn = "trained_models/transfer_learning/"
     path_to_save_cnn = root_to_cnn + "convolution_network.model"
-    pir_transforms_filename = 'all_pirs_transformed_16_bits.data'
+    # pir_transforms_filename = 'all_pirs_transformed_16_bits.data'
+    pir_transforms_filename = 'all_pirs_transformed_all.data'
 
     if update_data:
         # All data comes from the CSV file created through fill_csv() in create_pir_csv.py
-        data = pd.read_csv("gait_values.csv")
+        data = pd.read_csv("gait_values_all_data.csv")
         # From the PIR values, apply a wavelet transform using Morlet waves and save them in a binary file
         precompute_morlet_transforms(data,
                                      pir_transforms_filename=pir_transforms_filename,
