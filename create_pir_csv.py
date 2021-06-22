@@ -6,6 +6,7 @@ import time
 import dateutil
 
 import InfluxDB_connection as db
+import deep_neural_training
 import feet_analysis
 import pandas as pd
 
@@ -34,9 +35,9 @@ def fill_csv(create_CSV_from_scratch = False,
             start_time = (dateutil.parser.isoparse(old_data.iloc[-1]['time']).timestamp()) * 1000
             starting_sequence_id = old_data.iloc[-1]['sequence_id'] + 1
 
-        # Get all walking sequences (split sequences if there is at least 1 sec between them)
+        # Get all walking sequences (split sequences if there is at least 3 sec between them)
         print('Segmenting sequences from Database...')
-        time_between_sequences = 1.0
+        time_between_sequences = 3.0
         if not use_cache:
             client.get_splitted_sequences_boundaries.cache_clear()
             client.get_skeletons_in_splitted_sequences.cache_clear()
@@ -115,7 +116,7 @@ def fill_csv(create_CSV_from_scratch = False,
                     'PIR': pir_values,
                     'gait': gait_features
                 })
-                print(f"OK")
+                print(f"OK ({round(len(pir_values['pir0']) / 40)}s)")
             except Exception as e:
                 fetching_errors.append({'id_sequence': id_sequence + starting_sequence_id, 'error': e})
                 if isinstance(e, KeyError):
@@ -174,8 +175,9 @@ def fill_csv(create_CSV_from_scratch = False,
 
 
 if __name__ == '__main__':
-    fill_csv(create_CSV_from_scratch = False,
-             output_filename = 'gait_values.csv',
+    pir_data = fill_csv(create_CSV_from_scratch = False,
+             output_filename = 'gait_values_all_data.csv',
              verbose = True,
              start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000)
+    deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed_all.data', output_filename=True)
 
