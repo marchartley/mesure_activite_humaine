@@ -10,24 +10,43 @@ from profilestats import profile
 import pandas as pd
 from PIL import Image, ImageOps
 
-# data = pd.read_csv('sequences_resumed.csv')
-# data = data[data['walking_speed'] < 2.0]
-#
-# plt.subplot(1, 3, 1)
-# plt.title("Walking speed")
-# plt.hist(data['walking_speed'])
-#
-# plt.subplot(1, 3, 2)
+data = pd.read_csv('sequences_resumed_ankles.csv')
+data = data[data['walking_speed'] < 2.0]
+
+data = data[['walking_speed', 'corridor_position', 'direction', 'footstep_width', 'stride_length', 'cycle_time']]
+print(data.describe())
+
+plt.subplot(2, 3, 1)
+plt.title("Walking speed (km/h)")
+plt.hist(data['walking_speed'] * 3.6)
+
+plt.subplot(2, 3, 2)
 # plt.title('Corridor used')
 # plt.hist(data['corridor'], bins = 3)
 # plt.xticks([-1, 0, 1], ['East', 'Center', 'West'])
-#
-# plt.subplot(1, 3, 3)
-# plt.title('Direction')
-# plt.hist(data['direction'], bins = 3)
-# plt.xticks([-1, 0, 1], ['South-North', 'Error', 'North-South'])
-# plt.show()
+plt.title('Corridor position')
+plt.hist(-data['corridor_position'] - (1.7/2), bins = 10)
+# plt.xticks([-1, 0, 1], ['East', 'Center', 'West'])
 
+plt.subplot(2, 3, 3)
+plt.title('Direction')
+plt.hist(data['direction'], bins = 3)
+plt.xticks([-1, 0, 1], ['South-North', 'Error', 'North-South'])
+
+plt.subplot(2, 3, 4)
+plt.title('Footstep width (cm)')
+plt.hist(data['footstep_width'] * 100, bins = 20)
+
+plt.subplot(2, 3, 5)
+plt.title('Stride length (cm)')
+plt.hist(data['stride_length'] * 100, bins = 20)
+
+plt.subplot(2, 3, 6)
+plt.title('Cycle time (s)')
+plt.hist(data['cycle_time'], bins = 20)
+
+plt.show()
+exit()
 
 
 # im_label_1 = 'ENS'
@@ -46,25 +65,26 @@ from PIL import Image, ImageOps
 # exit()
 
 
-all_data = pickle.load(open('all_pirs_transformed_not_scaled.data', 'rb'))
-directory = 'pir_images_16_bits'
+all_data = pickle.load(open('all_pirs_transformed_ankles.data', 'rb'))
+directory = 'pir_images_16_bits_ankles'
 
 os.makedirs(directory, exist_ok=True)
 
 mean_data = {
-    'ENS': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
-    'ONS': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
-    'CNS': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
+    'ENS': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
+    'ONS': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
+    'CNS': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
 
-    'ESN': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
-    'OSN': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
-    'CSN': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
+    'ESN': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
+    'OSN': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
+    'CSN': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
 }
 
 for i, data in enumerate(all_data):
     print(f"{round(100 * i / len(all_data), 1)}% ({i} / {len(all_data)})")
 
-    pir0, pir1, pir2, pir3, id_seq, speed, corridor, direction, raw = data
+    pir0, pir1, pir2, pir3, id_seq, speed, corridor, direction, \
+    footstep_width, cycle_time, stride_length, corridor_distance, raw = data
     corridor = round(corridor)
     direction = round(direction)
     category = ''
@@ -99,8 +119,8 @@ for i, data in enumerate(all_data):
     }
     gs = matplotlib.gridspec.GridSpec(5, 2, **grid_kw)
     fig, ((p0, p2), (s0, s2), (p1, p3), (s1, s3), (f_bottom1, f_bottom2)) = plt.subplots(5, 2, gridspec_kw=grid_kw,
-                                                                                            sharex='all',
-                                                                                         figsize = (12.8, 9.6))
+                                                                                         sharex='all',
+                                                                                         figsize=(12.8, 9.6))
 
     fig = typing.cast(plt.Figure, fig)
     p0 = typing.cast(plt.Axes, p0)
@@ -128,7 +148,7 @@ for i, data in enumerate(all_data):
 
     s0.plot(x_vals, raw['pir0'])
     s0.axis('off')
-    s0.set_xlim((-300, 1000))
+    s0.set_xlim(-300, 1000)
 
     p1.set_title(f"PIR 1 (North - West)")
     p1.imshow(pirs[1])
@@ -191,12 +211,11 @@ for category in mean_data:
     except Exception as e:
         print("Error on", category)
 
-
 for category in mean_data:
     try:
         plt.suptitle(f"Category: {category}")
         for pir in range(4):
-            plt.subplot(2, 2, pir+1)
+            plt.subplot(2, 2, pir + 1)
             plt.title(f"PIR {pir}")
             plt.imshow(mean_data[category][f"pir{pir}"])
             plt.axis('off')

@@ -162,15 +162,17 @@ class HumanStorage:
 
 def update_datasets(use_cache=True):
     pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
-                                       output_filename='gait_values.csv',
-                                       start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000,
+                                       output_filename='gait_values_ankles.csv',
+                                       # start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000,
+                                       start_time=datetime.datetime(year=2021, month=6, day=16).timestamp() * 1000,
                                        client=db_client,
-                                       use_cache=use_cache)
+                                       use_cache=use_cache,
+                                       sensor_height='ankles')
     if pir_data is not None:
         global last_speed_registered, last_date_speed_registered
         last_speed_registered = pir_data['walking_speed'].values[-1]
         last_date_speed_registered = dateutil.parser.parse(pir_data['time'].values[-1]).timestamp()
-        # deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed.data')
+        deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed_ankles.data', output_filename=True)
 
 
 if __name__ == "__main__":
@@ -198,6 +200,10 @@ if __name__ == "__main__":
                                                                             'internally converted as a number of '
                                                                             'frames. 10 seconds is a recommendation.',
                         default=10.0, type=float)
+    parser.add_argument('--test-model', dest='test_model', help='Use a pretrained deep learning model to check on '
+                                                                'live data', action='store_true')
+    parser.add_argument('--model', dest='model_folder', help='Type of model used. It\'s the name of the folder in '
+                                                             'which it\'s stored')
 
     args = parser.parse_args()
     local = args.local
@@ -208,9 +214,11 @@ if __name__ == "__main__":
     password = args.password
     database = args.database
     calibration_time = args.calibration_time
+    test_model = args.test_model
+    model_folder = args.model_folder
 
-    number_of_aruco_calibration_needed = calibration_time * 20  # 10 is an arbitrary value, estimating that
-    #                                                               we catch the aruco cube 10 times per second
+    number_of_aruco_calibration_needed = calibration_time * 20  # 20 is an arbitrary value, estimating that
+    #                                                               we catch the aruco cube 20 times per second
 
     if address is None:
         if local:

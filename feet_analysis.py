@@ -717,19 +717,22 @@ def get_walking_direction(data):
     else:
         return 0
 
-def get_corridor_used(data):
+def get_corridor_position(data):
     mean_pos = []
-    percent_stripped = 0.2
+    percent_stripped = 0.0
     for i in range(len(data['frames'])):
         human = human_skeleton.HumanSkeleton().from_feet_analytics(data['coordinates'], i)
         if human.get_center_of_gravity() is not None:
             mean_pos.append(human.get_center_of_gravity())
 
     stripped_part = round(len(mean_pos) * percent_stripped)
-    position = np.median(mean_pos[stripped_part: -stripped_part], axis = 0)
+    position = np.median(mean_pos[stripped_part: -max(1, stripped_part)], axis = 0)
 
     # Estimate the corridor used by the X position
-    x_pos = position[0]
+    return position[0]
+
+def get_corridor_used(data):
+    x_pos = get_corridor_position(data)
     # If it's on the West side, code it as 1
     if -2.5 <= x_pos <= -1.6:
         return 1
@@ -760,6 +763,7 @@ def get_walking_features(data = None, id_sequence = None, time_between_sequences
     stride_length, right_length, left_length = compute_stride_length(data)
     direction = get_walking_direction(data)
     corridor = get_corridor_used(data)
+    corridor_pos = get_corridor_position(data)
 
     params = {'nb_steps_motion': footsteps_motion,
               'nb_steps_distance': footsteps_distance,
@@ -775,6 +779,7 @@ def get_walking_features(data = None, id_sequence = None, time_between_sequences
               'stride_length_left': left_length,
               'direction': direction,
               'corridor': corridor,
+              'corridor_position': corridor_pos,
               }
     return params
 
