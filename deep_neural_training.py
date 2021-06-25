@@ -9,7 +9,7 @@ from typing import Union, Any, cast, Type, Tuple
 import os
 import sys
 
-import matplotlib
+import sklearn.preprocessing
 import torchvision
 from matplotlib.legend_handler import HandlerTuple
 
@@ -48,6 +48,44 @@ all_pretrained_models = {
     'mnasnet': torchvision.models.mnasnet1_0
 }
 
+estimable_parameters = {
+    'body_speed': {
+        'index': 0,
+        'name': 'speed',
+        'unit': 'km/h',
+        'multiplier': 3.6,
+        'scaler_name': 'walking_speed'
+    },
+    'footstep_width': {
+        'index': 1,
+        'name': 'footstep width',
+        'unit': 'cm',
+        'multiplier': 100.0,
+        'scaler_name': 'footstep_width'
+    },
+    'cycle_time': {
+        'index': 2,
+        'name': 'cycle time',
+        'unit': 's',
+        'multiplier': 1.0,
+        'scaler_name': 'cycle_time'
+    },
+    'stride_length': {
+        'index': 3,
+        'name': 'stride length',
+        'unit': 'cm',
+        'multiplier': 100.0,
+        'scaler_name': 'stride_length'
+    },
+    'corridor_distance': {
+        'index': 4,
+        'name': 'distance from corridor',
+        'unit': 'cm',
+        'multiplier': -100.0,
+        'scaler_name': 'corridor_position'
+    },
+}
+
 cpu = torch.device('cpu')
 cuda = torch.device('cuda')
 
@@ -69,6 +107,7 @@ class CustomModel(nn.Module):
         super().__init__()
         self.use_cuda = True
         self.use_concat_pir = False
+        self.number_of_outputs = 1
 
     def update_device(self):
         global device, use_cuda
@@ -93,8 +132,14 @@ class CustomModel(nn.Module):
 
 
 class PretrainedModel(CustomModel):
-    def __init__(self, trained_model, **useless):
+    def __init__(self, trained_model, use_exponential=False, number_of_outputs=1, **useless):
         super().__init__()
+        self.number_of_outputs = number_of_outputs
+        if not isinstance(use_exponential, Iterable):
+            use_exponential = [use_exponential] * number_of_outputs
+        self.use_exponential = use_exponential
+        self.trained_model = trained_model.__class__.__name__
+
         try:
             self.module = trained_model(pretrained=False, init_weights=True)
         except:
@@ -135,28 +180,29 @@ class PretrainedModel(CustomModel):
             self.module.fc = nn.Identity()
 
         self.first_conv = nn.Conv2d(4, 3, kernel_size=(3, 3), padding=1)
-        self.ending = nn.Linear(self.num_ftrs, 1)
+        self.endings = nn.ModuleList([nn.Linear(self.num_ftrs, 1) for _ in range(number_of_outputs)])
 
         self.use_concat_pir = True
 
         self.update_device()
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
-        final_tensor = self.first_conv(concat_pir)
-        final_tensor = self.module(final_tensor)
-        final_tensor = self.ending(final_tensor)
+        x = self.first_conv(concat_pir)
+        x = self.module(x)
 
-        return 2 ** final_tensor
-
-    def __str__(self):
-        return f"{self.__class__.__name__}:" + "\n" \
-                                               f"\tTrained model = {self.module.__class__.__name__}"
+        final_tensor = [2 ** self.endings[i](x) if self.use_exponential[i] else self.endings[i](x) for i in
+                        range(self.number_of_outputs)]
+        if len(final_tensor) == 1:
+            return final_tensor[0]
+        else:
+            return final_tensor
 
 
 class MultipleWaveletsModule(CustomModel):
     def __init__(self, input_size=512, mid_output_size=10, kernel_size=3, number_of_filters=2,
                  number_of_layers=8, hidden_cells=[], dropout=False, use_concat_pir=True, number_of_conv_per_layer=1,
-                 pure_CNN=False, layer_relu = None, reduce_last_conv=0, **useless):
+                 pure_CNN=False, layer_relu=None, reduce_last_conv=0, use_exponential=False, number_of_outputs=1,
+                 **useless):
         super().__init__()
         self.input_size = input_size
         self.mid_output_size = mid_output_size
@@ -170,6 +216,10 @@ class MultipleWaveletsModule(CustomModel):
         self.layer_relu = layer_relu
         # self.pure_CNN = pure_CNN
         self.reduce_last_conv = reduce_last_conv
+        self.number_of_outputs = number_of_outputs
+        if not isinstance(use_exponential, Iterable):
+            use_exponential = [use_exponential] * number_of_outputs
+        self.use_exponential = use_exponential
 
         # Create one module per PIR (used when not using the concat_pir version)
         self.multiple_wavelet_modules = nn.ModuleList([WaveletModule(input_size=input_size, output_size=mid_output_size,
@@ -181,7 +231,7 @@ class MultipleWaveletsModule(CustomModel):
                                                                      number_of_conv_per_layer=number_of_conv_per_layer,
                                                                      use_concat=False,
                                                                      reduce_last_conv=reduce_last_conv,
-                                                                     layer_relu = layer_relu,
+                                                                     layer_relu=layer_relu,
                                                                      lastActivation=None) for _ in
                                                        range(4)])
         # Create one unique module that take the 4 PIR data at once
@@ -194,26 +244,34 @@ class MultipleWaveletsModule(CustomModel):
                                                    number_of_conv_per_layer=number_of_conv_per_layer,
                                                    use_concat=True,
                                                    reduce_last_conv=reduce_last_conv,
-                                                   layer_relu = layer_relu,
+                                                   layer_relu=layer_relu,
                                                    lastActivation=None)
 
         # In any case, the activation is a Dense of shape (4*output x 1)
-        self.activation_function = nn.Linear(4 * mid_output_size, 1)
+        self.activation_functions = nn.ModuleList([nn.Linear(4 * mid_output_size, 1) for _ in range(number_of_outputs)])
 
         self.update_device()
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
         if self.use_concat_pir:
-            final_tensor = self.unique_wavelet_module(concat_pir)
+            x = self.unique_wavelet_module(concat_pir)
         else:
             pirs = [pir0, pir1, pir2, pir3]
             for i in range(4):
                 pirs[i] = self.multiple_wavelet_modules[i](pirs[i])
-            final_tensor = torch.cat(tuple([tens for tens in pirs]), 1)
+            x = torch.cat(tuple([tens for tens in pirs]), 1)
 
-        final_tensor = self.activation_function(final_tensor)
+        # Need this because I created the "number of outputs" variable after creating some models...
+        if not hasattr(self, 'number_of_outputs'):
+            return 2 ** self.activation_function(x) if self.use_exponential else self.activation_function(x)
 
-        return final_tensor
+        final_tensor = [
+            2 ** self.activation_functions[i](x) if self.use_exponential[i] else self.activation_functions[i](x)
+            for i in range(self.number_of_outputs)]
+        if len(final_tensor) == 1:
+            return final_tensor[0]
+        else:
+            return final_tensor
 
     # def __str__(self):
     #     var_name_length = 25
@@ -224,12 +282,11 @@ class MultipleWaveletsModule(CustomModel):
     #     return out
 
 
-
 class WaveletModule(nn.Module):
     def __init__(self, input_size: int, output_size: int, kernel_size: int = 3,
                  number_of_filters: int = 2, number_of_layers: int = 1, use_concat=True,
                  hidden_cells=None, dropout: Union[float, bool] = False, number_of_conv_per_layer=1,
-                 layer_relu = None,
+                 layer_relu=None,
                  lastActivation=None, reduce_last_conv=0, **useless):
         super().__init__()
 
@@ -301,7 +358,7 @@ class WaveletModule(nn.Module):
         if is_binary:
             linear.append(nn.Softmax(dim=1))
         elif lastActivation:
-            linear.append(lastActivation())
+            linear.append(lastActivation)
         self.linear_layers = nn.Sequential(*linear)
 
     def forward(self, x):
@@ -309,12 +366,13 @@ class WaveletModule(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.linear_layers(x)
 
-        return 2 ** x
+        return x
 
 
 class MultipleWaveletsLinearModule(CustomModel):
     def __init__(self, input_size=512, mid_output_size=10, kernel_size=3, number_of_filters=2,
-                 number_of_layers=8, hidden_cells=None, dropout=False, use_concat_pir=True, **useless):
+                 number_of_layers=8, hidden_cells=None, dropout=False, use_concat_pir=True,
+                 use_exponential=False, number_of_outputs=1, **useless):
         super().__init__()
 
         self.input_size = input_size
@@ -325,6 +383,10 @@ class MultipleWaveletsLinearModule(CustomModel):
         self.hidden_cells = hidden_cells
         self.dropout = dropout
         self.use_concat_pir = use_concat_pir
+        self.number_of_outputs = number_of_outputs
+        if not isinstance(use_exponential, Iterable):
+            use_exponential = [use_exponential] * number_of_outputs
+        self.use_exponential = use_exponential
 
         if hidden_cells is None:
             hidden_cells = []
@@ -355,16 +417,20 @@ class MultipleWaveletsLinearModule(CustomModel):
 
     def forward(self, pir0, pir1, pir2, pir3, concat_pir):
         if self.use_concat_pir:
-            final_tensor = self.unique_wavelet_module(concat_pir)
+            x = self.unique_wavelet_module(concat_pir)
         else:
             pirs = [pir0, pir1, pir2, pir3]
             for i in range(4):
                 pirs[i] = self.multiple_wavelet_modules[i](pirs[i])
-            final_tensor = torch.cat(tuple([tens for tens in pirs]), 1)
+            x = torch.cat(tuple([tens for tens in pirs]), 1)
 
-        final_tensor = self.activation_function(final_tensor)
-
-        return final_tensor
+        final_tensor = [
+            2 ** self.activation_functions[i](x) if self.use_exponential[i] else self.activation_functions[i](x)
+            for i in range(self.number_of_outputs)]
+        if len(final_tensor) == 1:
+            return final_tensor[0]
+        else:
+            return final_tensor
 
 
 class WaveletLinearModule(nn.Module):
@@ -425,7 +491,7 @@ class WaveletLinearModule(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.linear_layers(x)
 
-        return 2 ** x
+        return x
 
 
 # Train function, give it your dataset, the parameters of your model, and there you go.
@@ -455,10 +521,13 @@ def train_model(trainloader,
                 num_epochs=5,
                 early_stopping=False,
                 display_precision: float = 100,
-                verbose: Union[bool, int] = True):
+                verbose: Union[bool, int] = True,
+                estimated_parameter='body_speed'):
     if model_parameters is None:
         raise Exception('No model parameters have been provided. Possible keys are: ' + '\n - '.join(
             model_class.__init__.__code__.co_varnames[1:]))
+
+    estimated_parameter_index = estimable_parameters[estimated_parameter]['index']
 
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
     # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
@@ -479,6 +548,7 @@ def train_model(trainloader,
         print(net)
 
     # Defining loss function and optimizer
+    # criteria = [loss_function() for _ in range(net.number_of_outputs)]
     criterion = loss_function()
     optimizer = optimizer(net.parameters(), lr=learning_rate)
     # if not optimizer:
@@ -516,19 +586,26 @@ def train_model(trainloader,
         for i, data in enumerate(trainloader, 0):
             if is_overfitting:
                 break
-
             # get the inputs
-            pirs0, pirs1, pirs2, pirs3, concat_pir, labels = data
+            pirs0, pirs1, pirs2, pirs3, concat_pir, body_speed, \
+            _, _, footstep_width, cycle_time, stride_length, corridor_distance = data
+
             # if possible, move them to GPU
+            body_speed, footstep_width, cycle_time, stride_length, corridor_distance = \
+                body_speed.to(device), footstep_width.to(device), cycle_time.to(device), stride_length.to(device), \
+                corridor_distance.to(device)
             if net.use_concat_pir:
-                concat_pir, labels = concat_pir.to(device), labels.to(device)
+                concat_pir = concat_pir.to(device)
             else:
-                pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
-                                                     pirs2.to(device), pirs3.to(device), labels.to(device)
+                pirs0, pirs1, pirs2, pirs3 = pirs0.to(device), pirs1.to(device), \
+                                             pirs2.to(device), pirs3.to(device)
+
+            targets = [body_speed, footstep_width, cycle_time, stride_length, corridor_distance]
 
             def closure():
                 # zero the parameter gradients
                 optimizer.zero_grad()
+                current_loss = 0
 
                 # _pirs0, _pirs1, _pirs2, _pirs3, _concat_pir, _labels = pirs0.clone(), pirs1.clone(), pirs2.clone(), pirs3.clone(), concat_pir.clone(), labels.clone()
                 # forward + backward + optimize
@@ -537,14 +614,16 @@ def train_model(trainloader,
                     raise Exception("No autoencoder allowed in this program")
                     # loss = criterion(outputs, inputs)
                 else:
-                    # loss = correlation_loss(outputs.reshape(-1).float(), labels.reshape(-1).float())
-                    loss = criterion(outputs.reshape(-1).float(),
-                                     labels.reshape(-1).float())  # Otherwise, use the label
+                    # for output, target, criterion in zip(outputs, targets, criteria):
+                    #     current_loss = current_loss + criterion(output, target)
+                    current_loss = criterion(outputs.reshape(-1).float(),
+                                             targets[estimated_parameter_index].reshape(
+                                                 -1).float())  # Otherwise, use the label
                 try:
-                    loss.backward()
+                    current_loss.backward()
                 except:
                     pass
-                return loss
+                return current_loss
 
             # if isinstance(optimizer, optim.LBFGS) or isinstance(optimizer, optim.):
             #     optimizer.step(closure)
@@ -556,7 +635,8 @@ def train_model(trainloader,
             # count how many samples have been used during the training
             nb_used_sample += len(pirs0)
             running_loss += float(loss.item())  # .item()
-            del pirs0, pirs1, pirs2, pirs3, concat_pir, labels
+            del pirs0, pirs1, pirs2, pirs3, concat_pir, body_speed, footstep_width, \
+                cycle_time, stride_length, corridor_distance
 
             next_print_in -= 1
             if next_print_in <= 0:  # print every ""print_every"" mini-batches
@@ -569,13 +649,21 @@ def train_model(trainloader,
                 with torch.no_grad():
                     for data in validationloader:
                         # get the inputs
-                        pirs0, pirs1, pirs2, pirs3, concat_pir, labels = data
+                        pirs0, pirs1, pirs2, pirs3, concat_pir, body_speed, \
+                        _, _, footstep_width, cycle_time, stride_length, corridor_distance = data
+
                         # if possible, move them to GPU
+                        body_speed, footstep_width, cycle_time, stride_length, corridor_distance = \
+                            body_speed.to(device), footstep_width.to(device), cycle_time.to(device), stride_length.to(
+                                device), \
+                            corridor_distance.to(device)
                         if net.use_concat_pir:
-                            concat_pir, labels = concat_pir.to(device), labels.to(device)
+                            concat_pir = concat_pir.to(device)
                         else:
-                            pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
-                                                                 pirs2.to(device), pirs3.to(device), labels.to(device)
+                            pirs0, pirs1, pirs2, pirs3 = pirs0.to(device), pirs1.to(device), \
+                                                         pirs2.to(device), pirs3.to(device)
+
+                        targets = [body_speed, footstep_width, cycle_time, stride_length, corridor_distance]
 
                         # zero the parameter gradients
                         optimizer.zero_grad()
@@ -588,7 +676,9 @@ def train_model(trainloader,
                         # else:
                         #     loss = criterion(outputs.float(), labels.float())  # Otherwise, use the label
                         totalValLoss += float(closure().item())  # .item()
-                        del pirs0, pirs1, pirs2, pirs3, concat_pir, labels  # , outputs
+                        del pirs0, pirs1, pirs2, pirs3, concat_pir, body_speed, footstep_width, \
+                            cycle_time, stride_length, corridor_distance
+
                 val_err = (totalValLoss / len(validationloader))
                 if verbose > 2:
                     print('\tEpoch %d batch %5d ' % (epoch + 1, i + 1))
@@ -633,12 +723,14 @@ def train_model(trainloader,
 
 
 # Testing the model : we need the model and a dataset
-def test_model(model, testloader):
+def test_model(model, testloader, estimated_parameter='body_speed'):
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
     # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
     if not isinstance(testloader, torch.utils.data.DataLoader):
         testloader = torch.utils.data.DataLoader(testloader, batch_size=16,
                                                  shuffle=False, num_workers=0)
+
+    estimated_parameter_index = estimable_parameters[estimated_parameter]['index']
 
     mae = 0
     mse = 0
@@ -651,20 +743,29 @@ def test_model(model, testloader):
 
     for i, data in enumerate(testloader, 0):
         # get the inputs
-        pirs0, pirs1, pirs2, pirs3, concat_pir, labels = data
+        pirs0, pirs1, pirs2, pirs3, concat_pir, body_speed, \
+        _, _, footstep_width, cycle_time, stride_length, corridor_distance = data
+
         # if possible, move them to GPU
+        body_speed, footstep_width, cycle_time, stride_length, corridor_distance = \
+            body_speed.to(device), footstep_width.to(device), cycle_time.to(device), stride_length.to(device), \
+            corridor_distance.to(device)
         if model.use_concat_pir:
-            concat_pir, labels = concat_pir.to(device), labels.to(device)
+            concat_pir = concat_pir.to(device)
         else:
-            pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
-                                                 pirs2.to(device), pirs3.to(device), labels.to(device)
+            pirs0, pirs1, pirs2, pirs3 = pirs0.to(device), pirs1.to(device), \
+                                         pirs2.to(device), pirs3.to(device)
+
+        targets = [body_speed, footstep_width, cycle_time, stride_length, corridor_distance]
 
         outputs = model(pirs0, pirs1, pirs2, pirs3, concat_pir)
 
-        real.extend(labels.cpu().detach().numpy().tolist())
+        # real.append([targets[i].cpu().detach().numpy().tolist() for i in range(len(targets))])
+        # predicted.append([outputs[i].cpu().detach().numpy().tolist() for i in range(len(targets))])
+        real.extend(targets[estimated_parameter_index].cpu().detach().numpy().tolist())
         predicted.extend(outputs.cpu().detach().numpy().tolist())
 
-        del pirs0, pirs1, pirs2, pirs3, concat_pir, labels, outputs
+        del pirs0, pirs1, pirs2, pirs3, concat_pir, body_speed, outputs
 
         # mae += torch.abs(outputs.float() - labels.float()).sum().data
         # mse += ((outputs.float() - labels.float()) * (outputs.float() - labels.float())).sum().data
@@ -692,7 +793,13 @@ class PIR_DataLoader(torch.utils.data.Dataset):
         while 0.45 > body_speed or body_speed > 3.0:
             # Get the file, load the image, apply transformation
             try:
-                pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction, raw = self.data[index % len(self.data)]
+                try:
+                    pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction, \
+                    footstep_width, cycle_time, stride_length, corridor_distance, raw = self.data[
+                        index % len(self.data)]
+                except Exception as e:
+                    pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction, raw = self.data[
+                        index % len(self.data)]
             except:
                 pir0, pir1, pir2, pir3, id_seq, body_speed, corridor, direction = self.data[index % len(self.data)]
             index += 1
@@ -704,7 +811,7 @@ class PIR_DataLoader(torch.utils.data.Dataset):
 
         concat_pir = torch.cat((pir0, pir1, pir2, pir3), 0)
 
-        return pir0, pir1, pir2, pir3, concat_pir, body_speed, [corridor, direction]
+        return pir0, pir1, pir2, pir3, concat_pir, body_speed, corridor, direction, footstep_width, cycle_time, stride_length, corridor_distance
 
     def __len__(self):
         return int(len(self.data) * self.inflate)
@@ -760,38 +867,53 @@ def display_test_results(results, classes):
     plot_confusion_matrix(results['confusion'], classes)
 
 
-def visualize_model(model, test_loader):
+def visualize_model(model, testloader, estimated_parameter='body_speed', scalers = None):
+    parameter_data = estimable_parameters[estimated_parameter]
     model.update_device()
     model.to(device)
     model.eval()
     print(model)
-    if not isinstance(test_loader, torch.utils.data.DataLoader):
-        test_loader = torch.utils.data.DataLoader(test_loader, batch_size=4,
-                                                  shuffle=False, num_workers=0)
+    if not isinstance(testloader, torch.utils.data.DataLoader):
+        testloader = torch.utils.data.DataLoader(testloader, batch_size=4,
+                                                 shuffle=False, num_workers=0)
 
     real = []
     predicted = []
     corridors = []
     directions = []
-    for i, data in enumerate(test_loader, 0):
+    for i, data in enumerate(testloader, 0):
         # get the inputs
-        pirs0, pirs1, pirs2, pirs3, concat_pir, labels, additional_data = data
+        pirs0, pirs1, pirs2, pirs3, concat_pir, body_speed, \
+        corridor, direction, footstep_width, cycle_time, stride_length, corridor_distance = data
+
         # if possible, move them to GPU
+        body_speed, footstep_width, cycle_time, stride_length, corridor_distance = \
+            body_speed.to(device), footstep_width.to(device), cycle_time.to(device), stride_length.to(device), \
+            corridor_distance.to(device)
         if model.use_concat_pir:
-            concat_pir, labels = concat_pir.to(device), labels.to(device)
+            concat_pir = concat_pir.to(device)
         else:
-            pirs0, pirs1, pirs2, pirs3, labels = pirs0.to(device), pirs1.to(device), \
-                                                 pirs2.to(device), pirs3.to(device), labels.to(device)
+            pirs0, pirs1, pirs2, pirs3 = pirs0.to(device), pirs1.to(device), \
+                                         pirs2.to(device), pirs3.to(device)
+
+        targets = [body_speed, footstep_width, cycle_time, stride_length, corridor_distance]
 
         outputs = model(pirs0, pirs1, pirs2, pirs3, concat_pir)
-        real.extend(labels.cpu().detach().numpy().tolist())
+
+        # real.append([targets[i].cpu().detach().numpy().tolist() for i in range(len(targets))])
+        # predicted.append([outputs[i].cpu().detach().numpy().tolist() for i in range(len(targets))])
+        real.extend(targets[parameter_data['index']].cpu().detach().numpy().tolist())
         predicted.extend(outputs.cpu().detach().numpy().tolist())
 
-        corridor, direction = additional_data
+        del pirs0, pirs1, pirs2, pirs3, concat_pir, body_speed, outputs
+
         corridors.extend(corridor.cpu().detach().numpy().tolist())
         directions.extend(direction.cpu().detach().numpy().tolist())
 
-    real, predicted = np.array(real) * 3.6, np.array(predicted)[:, 0] * 3.6
+    real, predicted = np.array(real) * parameter_data['multiplier'], np.array(predicted)[:, 0] * parameter_data[
+        'multiplier']
+    if scalers is not None: # and parameter_data['scaler_name'] in scalers:
+        predicted = scalers[parameter_data['scaler_name']].inverse_transform(predicted.reshape(1, -1))
     errors = abs(real - predicted)
     errors_percent = abs(100 * (real - predicted) / real)
     sorted_errors = pd.Series([e for _, e in sorted(zip(real, errors))], name='Errors')
@@ -803,14 +925,14 @@ def visualize_model(model, test_loader):
     directions = np.array(directions)
     corridors = np.array(corridors)
     colors = np.array(colors)
-    plt.scatter(real, predicted, marker = ".", c="black")
+    plt.scatter(real, predicted, marker=".", c="black")
     # plt.scatter(real[directions < 0], predicted[directions < 0], marker="<", c=colors[directions < 0])
     # plt.scatter(real[directions > 0], predicted[directions > 0], marker=">", c=colors[directions > 0])
     plt.plot(list(plt.xlim()), list(plt.xlim()), '--', c=(0, 0, 0, .2))
-    plt.ylabel('Predicted speed (km/h)')
-    plt.xlabel('Real speed (km/h)')
+    plt.ylabel(f"Predicted {parameter_data['name']} ({parameter_data['unit']})")
+    plt.xlabel(f"Real {parameter_data['name']} ({parameter_data['unit']})")
     plt.title(f"Predictions (correlation : {round(pearson_coef, 2)} | "
-              f"{'p < 0.001' if p_value < 0.001 else 'p = ' + round(p_value, 4)})")
+              f"{'p < 0.001' if p_value < 0.001 else 'p = ' + str(round(p_value, 4))})")
     # plt.legend([(plt.plot([], 'b<')[0], plt.plot([], 'b>')[0]),
     #             matplotlib.patches.Patch(color=(1, 0, 0)),
     #             matplotlib.patches.Patch(color=(0, 1, 0)),
@@ -828,29 +950,30 @@ def visualize_model(model, test_loader):
         plt.plot([i[0], i[0]], [0, i[1]], ':', c='blue')
         plt.text(i[0], i[1] * 1.05, f"{i[2]}th", size=11, alpha=0.85, ha='center', va='bottom')
 
-    plt.xlabel("Error in km/h")
+    plt.xlabel(f"Error in {parameter_data['unit']}")
     plt.ylabel('Frequency')
 
     plt.subplot(3, 2, 3)
     plt.axhline(np.median(errors), color=(0, 0, 0, .5), linestyle='--')
-    plt.text(4, np.median(errors), f"median = {round(np.median(errors), 2)}km/h", va='bottom', ha='center')
+    plt.text((min(real) + max(real)) / 2, np.median(errors),
+             f"median = {round(np.median(errors), 2)}{parameter_data['unit']}", va='bottom', ha='center')
     plt.scatter(real, errors, marker='.', c='black')
     # plt.scatter(real[directions < 0], errors[directions < 0], marker='<', c=colors[directions < 0])
     # plt.scatter(real[directions > 0], errors[directions > 0], marker='>', c=colors[directions > 0])
-    plt.title('Error depending on the real speed')
-    plt.xlabel('Real speed')
-    plt.ylabel('Error in km/h')
+    plt.title(f"Error depending on the real {parameter_data['name']}")
+    plt.xlabel(f"Real {parameter_data['name']}")
+    plt.ylabel(f"Error in {parameter_data['unit']}")
 
     plt.subplot(3, 2, 4)
     plt.axhline(np.median(errors_percent), color=(0, 0, 0, .5), linestyle='--')
-    plt.text(4, np.median(errors_percent), f"median = {round(np.median(errors_percent), 2)}%", va='bottom', ha='center')
+    plt.text((min(real) + max(real)) / 2, np.median(errors_percent), f"median = {round(np.median(errors_percent), 2)}%",
+             va='bottom', ha='center')
     plt.scatter(real, errors_percent, marker='.', c='black')
     # plt.scatter(real[directions < 0], errors_percent[directions < 0], marker='<', c=colors[directions < 0])
     # plt.scatter(real[directions > 0], errors_percent[directions > 0], marker='>', c=colors[directions > 0])
-    plt.title('% Error depending on the real speed')
-    plt.xlabel('Real speed')
+    plt.title(f"% Error depending on the real {parameter_data['name']}")
+    plt.xlabel(f"Real {parameter_data['name']}")
     plt.ylabel('% Error')
-    plt.tight_layout()
 
     plt.subplot(3, 2, 5)
     plt.title('Error distribution (%)')
@@ -864,12 +987,15 @@ def visualize_model(model, test_loader):
     plt.xlabel("Error in %")
     plt.ylabel('Frequency')
 
+    plt.tight_layout()
+
     print(pd.concat([sorted_errors, sorted_errors_percent,
                      pd.Series(sorted_errors_percent.values[directions < 0], name='Error (%) South-North'),
                      pd.Series(sorted_errors_percent.values[directions > 0], name='Error (%) North-South'),
                      pd.Series(sorted_errors_percent.values[corridors == -1], name='Error (%) East'),
                      pd.Series(sorted_errors_percent.values[corridors == 0], name='Error (%) Center'),
-                     pd.Series(sorted_errors_percent.values[corridors == 1], name='Error (%) West')], axis=1).describe())
+                     pd.Series(sorted_errors_percent.values[corridors == 1], name='Error (%) West')],
+                    axis=1).describe())
 
 
 # From a set of parameters, create all the combinations possible
@@ -924,7 +1050,8 @@ def try_all_models(hyperparameters,
                    start_from_beginning=True,
                    verbose=3,
                    ignored_files='_useless_',
-                   max_number_of_models=math.inf):
+                   max_number_of_models=math.inf,
+                   estimated_parameter='body_speed'):
     models = []
     combinations = create_all_combinaisons(hyperparameters)  # Get all possible combinations
     combinations_done = []
@@ -974,7 +1101,7 @@ def try_all_models(hyperparameters,
                     print("Ignored (pretrained)")
                 continue
 
-            used_training_parameters = random.choice(parameters_combinations)
+            used_training_parameters = copy.deepcopy(random.choice(parameters_combinations))
             if 'model_class' not in used_training_parameters:
                 used_training_parameters['model_class'] = model_class
             if 'model_parameters' not in used_training_parameters:
@@ -995,19 +1122,32 @@ def try_all_models(hyperparameters,
                 used_training_parameters['display_precision'] = display_precision
             if 'verbose' not in used_training_parameters:
                 used_training_parameters['verbose'] = verbose
+            if 'estimated_parameter' not in used_training_parameters:
+                used_training_parameters['estimated_parameter'] = estimated_parameter
+
+            current_model = {}
+
+            current_model['parameters'] = parameters
+            current_model['training_parameters'] = used_training_parameters
+            if current_model['parameters'] != current_model['training_parameters']['model_parameters']:
+                print('Wooosh!')
 
             # Save the training statistics (with the model itself), the testing statistics and the parameters used
-            current_model = {'training': train_model(trainloader=train_set,
-                                                     validationloader=validation_set,
-                                                     **used_training_parameters)}
+            current_model['training'] = train_model(trainloader=train_set,
+                                                    validationloader=validation_set,
+                                                    **used_training_parameters)
             if verbose:
                 print("Training ended, testing the model")
             torch.cuda.empty_cache()
-            current_model['test'] = test_model(current_model['training']['model'], testing_set)
+            current_model['test'] = test_model(current_model['training']['model'], testing_set,
+                                               estimated_parameter=estimated_parameter)
             if verbose:
                 print(current_model['test'])
             current_model['parameters'] = parameters
             current_model['training_parameters'] = used_training_parameters
+
+            if current_model['parameters'] != current_model['training_parameters']['model_parameters']:
+                print('Wooosh!')
 
             # if verbose > 1:
             #     print("Found an accuracy of ", current_model['test']['global']['acc'], "(",
@@ -1052,7 +1192,9 @@ def try_all_models(hyperparameters,
 
 
 def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_if_val_err_higher=math.inf,
-                   max_y_val=0.20, ignored_files='_useless_') -> Tuple[Any, pd.DataFrame]:
+                   max_y_val=0.20, ignored_files='_useless_', estimated_parameter='body_speed',
+                   scalers = None) -> Tuple[
+    Any, pd.DataFrame]:
     models_results = []
     validation_results = []
     best_results = None
@@ -1076,7 +1218,7 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                                       'y_train': model['training']['train_err'],
                                       'result': model['test']['correlation'],
                                       })
-                _models_results = {**model['parameters'],
+                _models_results = {**model['training_parameters']['model_parameters'],
                                    'number_of_samples': f"{model['training']['best_nb_samples']:,}",
                                    'test_results': model['test']['correlation'], 'mae': model['test']['mae'],
                                    'mse': model['test']['mse'], 'percent_error': model['test']['percent_error'],
@@ -1098,17 +1240,17 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                     best_index = i
 
                 # try:
-                #     print(best_results['test'])
-                #     visualize_model(best_results['training']['model'], test_loader=test_loader)
+                #     print(model['test'])
+                #     visualize_model(model['training']['model'], testloader=test_loader)
                 #     plt.show()
                 # except:
                 #     print("Whoops, CUDA error out of memory")
                 #     pass
 
-                    # print(i)
-                    # print(best_results['test'])
-                    # print(best_results['training']['model'])
-                    # print()
+                # print(i)
+                # print(best_results['test'])
+                # print(best_results['training']['model'])
+                # print()
 
                 if len(top_models) < 10 and not np.isnan(model['test']['correlation']):
                     top_models.append(model)
@@ -1167,7 +1309,8 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
              'concat_pirs', 'model_class', 'corr', 'mae', 'mse', '%err'] +
             (['trained_model'] if 'trained_model' in df.columns else []) +
             (['reduce'] if 'reduce' in df.columns else []) +
-            (['layer_relu'] if 'layer_relu' in df.columns else [])
+            (['layer_relu'] if 'layer_relu' in df.columns else []) +
+            (['use_exponential'] if 'use_exponential' in df.columns else [])
             ]
 
     # no_na = df.dropna(subset=['corr'])
@@ -1180,7 +1323,9 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
     del models
     torch.cuda.empty_cache()
     print(best_results['test'])
-    visualize_model(best_results['training']['model'], test_loader=test_loader)
+    visualize_model(best_results['training']['model'], testloader=test_loader,
+                    estimated_parameter=best_results['training_parameters']['estimated_parameter'],
+                    scalers = scalers)
     plt.show()
 
     return df, full_df
@@ -1216,19 +1361,43 @@ def compute_morlet_transform(pir_data):
     return res
 
 
-def precompute_morlet_transforms(data, pir_transforms_filename='all_pirs_transformed.data', output_filename=None):
+def normalize(df, concerned_columns: Union[list, str] = 'all', ignored_columns: list = None):
+    result = df.copy()
+    if concerned_columns == 'all':
+        concerned_columns = result.columns.tolist()
+    if ignored_columns is not None:
+        for col in ignored_columns:
+            if col in concerned_columns:
+                concerned_columns.remove(col)
+
+    scalers = {}
+    # scalers = {feature_name: sklearn.preprocessing.StandardScaler().fit(df[feature_name])
+    #            for feature_name in concerned_columns}
+    for feature_name in concerned_columns:
+        scaler = sklearn.preprocessing.MinMaxScaler()
+        df[feature_name] = scaler.fit_transform(df[feature_name].values.reshape(-1, 1))
+        scalers[feature_name] = scaler
+    #     # max_value = df[feature_name].max()
+    #     # min_value = df[feature_name].min()
+    #     # result[feature_name] = (df[feature_name] - min_value) / (max_value - min_value)
+    return df, scalers
+
+
+def precompute_morlet_transforms(raw_data, pir_transforms_filename='all_pirs_transformed.data', output_filename=None):
     if isinstance(output_filename, bool) and output_filename is True:
         output_filename = pir_transforms_filename
     start_time = time.time()
-    sequence_ids = pd.unique(data['sequence_id'])
-    all_pirs_transformed = []
+    sequence_ids = pd.unique(raw_data['sequence_id'])
+    data, scalers = normalize(raw_data, 'all', ignored_columns=['time', 'nb_steps_motion', 'nb_steps_distance', 'direction',
+                                                   'corridor', 'sequence_id', ])
+    all_pirs_transformed = {'data': [], 'scalers': scalers}
     if os.path.exists(pir_transforms_filename):
         all_pirs_transformed = pickle.load(open(pir_transforms_filename, 'rb'))
-    all_pirs_transformed = list(filter(lambda seq: seq[5] < 10 and not np.isnan(seq[6]) and seq[7] != 0,
-                                       all_pirs_transformed))
+    all_pirs_transformed['data'] = list(filter(lambda seq: seq[5] < 10 and not np.isnan(seq[6]) and seq[7] != 0,
+                                       all_pirs_transformed['data']))
     ignored_sequences = set([seq[4] for seq in list(filter(lambda seq: seq[5] > 10 or np.isnan(seq[6]) or seq[7] == 0,
-                                                           all_pirs_transformed))])
-    preexisting_sequences = set([seq[4] for seq in all_pirs_transformed])
+                                                           all_pirs_transformed['data']))])
+    preexisting_sequences = set([seq[4] for seq in all_pirs_transformed['data']])
 
     for i, seq_id in enumerate(sequence_ids):
         print(f"{i + 1}/{len(sequence_ids)} ({seq_id}): {round(100 * i / len(sequence_ids), 1)}%")
@@ -1244,6 +1413,10 @@ def precompute_morlet_transforms(data, pir_transforms_filename='all_pirs_transfo
             speed = seq['walking_speed'].median()
             corridor = seq['corridor'].median()
             direction = seq['direction'].median()
+            footstep_width = seq['footstep_width'].median()
+            cycle_time = seq['cycle_time'].median()
+            stride_length = seq['stride_length'].median()
+            corridor_position = seq['corridor_position'].median()
             raw = {
                 'pir0': seq['pir0'],
                 'pir1': seq['pir1'],
@@ -1253,20 +1426,12 @@ def precompute_morlet_transforms(data, pir_transforms_filename='all_pirs_transfo
             if speed < 10 and direction != 0 and not np.isnan(corridor):
                 # print(speed, seq['time'].iloc[0], seq['time'].iloc[-1])
                 with HiddenPrints(False):
-                    # plt.subplot(2, 2, 1)
-                    # plt.title("pir0")
                     pir0 = compute_morlet_transform(seq['pir0'])
-                    # plt.subplot(2, 2, 3)
-                    # plt.title("pir1")
                     pir1 = compute_morlet_transform(seq['pir1'])
-                    # plt.subplot(2, 2, 2)
-                    # plt.title("pir2")
                     pir2 = compute_morlet_transform(seq['pir2'])
-                    # plt.subplot(2, 2, 4)
-                    # plt.title("pir3")
                     pir3 = compute_morlet_transform(seq['pir3'])
-                    # plt.show()
-                    all_pirs_transformed.append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction, raw])
+                    all_pirs_transformed['data'].append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction,
+                                                 footstep_width, cycle_time, stride_length, corridor_position, raw])
             else:
                 print(speed, direction, corridor)
         except Exception as e:
@@ -1280,13 +1445,13 @@ def precompute_morlet_transforms(data, pir_transforms_filename='all_pirs_transfo
     print('100%')
 
     if output_filename is not None:
-        print(f"Saving {len(all_pirs_transformed)} sequences into {output_filename}")
+        print(f"Saving {len(all_pirs_transformed['data'])} sequences into {output_filename}")
         pickle.dump(all_pirs_transformed, open(output_filename, 'wb+'))
         print('Done.')
     return all_pirs_transformed
 
 
-def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data'):
+def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data', estimated_parameter='body_speed'):
     all_pirs_transformed = pickle.load(open(pir_transforms_filename, 'rb'))
     # Required "resize" to fit the DNNs
     # input_size = 224
@@ -1295,7 +1460,7 @@ def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.dat
 
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
-    dataset = PIR_DataLoader(all_pirs_transformed, transform=transforms.Compose([
+    dataset = PIR_DataLoader(all_pirs_transformed['data'], transform=transforms.Compose([
         transforms.Resize((input_size, input_size), transforms.InterpolationMode.NEAREST),
         # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
@@ -1326,23 +1491,24 @@ def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.dat
     # Number of epochs applied on our model during the training
     num_epochs = 20
 
-
     # Parameters to vary on the models
     # Be careful to avoid having too much params as the number of models is greatly increasing
     models_hyperparameters = {
         # Those params are for the CNNs (MultipleWaveletsModule and MultipleWaveletsLinearModule)
         'input_size': input_size,
-        'mid_output_size': [30, 40],
+        'mid_output_size': [20, 40],
         'kernel_size': [3, 5, 15],
         'number_of_filters': [8, 16, 32],
-        'number_of_layers': [2, 5, 6],
-        'number_of_conv_per_layer': [4, 5],
+        'number_of_layers': [2, 4, 6],
+        'number_of_conv_per_layer': [2, 4, 5],
         'hidden_cells': [None, 10, 100, (40, 40, 40)],
         'dropout': False,
-        'use_concat_pir': [True, False],
+        'use_concat_pir': True,
         'reduce_last_conv': [0, 2],
         # 'pure_CNN': [True, False],
         'layer_relu': [None, nn.ReLU(), nn.Tanh(), nn.Sigmoid()],
+        'use_exponential': [True, False],
+        'number_of_outputs': 1
         # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
         # 'trained_model': list(all_pretrained_models.values())
     }
@@ -1375,6 +1541,7 @@ def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.dat
         'learning_rate': [0.0001, 0.00001, 0.00005],
         'loss_function': [nn.MSELoss, nn.L1Loss],
         'model_class': MultipleWaveletsModule,
+        'estimated_parameter': estimated_parameter
         # [MultipleWaveletsLinearModule, MultipleWaveletsModule, PretrainedModel]
     }
 
@@ -1396,7 +1563,7 @@ def training(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.dat
                    num_epochs=num_epochs)
 
 
-def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data'):
+def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data', estimated_parameter='body_speed'):
     # Required "resize" to fit the DNNs
     # input_size = 224
     # Required "resize" to fit the CNNs
@@ -1406,7 +1573,7 @@ def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data
 
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
-    dataset = PIR_DataLoader(all_pirs_transformed, transform=transforms.Compose([
+    dataset = PIR_DataLoader(all_pirs_transformed['data'], transform=transforms.Compose([
         transforms.Resize((input_size, input_size), interpolation=transforms.InterpolationMode.NEAREST),
         # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
@@ -1416,7 +1583,7 @@ def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data
         #     2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
     ]),
                              data_inflate=1.0)
-    del all_pirs_transformed
+    del all_pirs_transformed['data']
 
     # Train size = 70%, Validation = 10%, Testing = 20%
     ratio_train_set = 70 / 100
@@ -1438,7 +1605,8 @@ def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data
     #    "test_results" of 1 = perfect match, 0 = no significant match, -1 = what?, NaN = model is rubbish
     #    models that return a coef "NaN" = return same value, regardless of input
     # plt.title("Training of %d models for the speed estimator" % len(results_data))
-    short_results, full_results = display_models(path_to_save_cnn, test_loader=dataset, max_y_val=math.inf)
+    short_results, full_results = display_models(path_to_save_cnn, test_loader=dataset, max_y_val=math.inf,
+                                                 estimated_parameter=estimated_parameter, scalers=all_pirs_transformed['scalers'])
     # full_results.sort_values(by="corr", ascending=False, inplace=True)
     # print(full_results)
     print(short_results.sort_values(by="corr", ascending=False).head(500))
@@ -1565,7 +1733,8 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='Train neural networks to estimate walking speed from the Wavelet '
-                                                 'transform of the PIR sensors')
+                                                 'transform of the PIR sensors',
+                                     formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--train', dest='train', help='Train the neural networks', action='store_true')
     parser.add_argument('--display', dest='display', help='Display the results of the trained neural networks',
                         action='store_true')
@@ -1575,6 +1744,10 @@ if __name__ == '__main__':
                         action='store_true')
     parser.add_argument('--clean-files', dest='clean_files', help='Clean all useless models into a single file',
                         action='store_true')
+    # 'body_speed' 'footstep_width' 'cycle_time' 'stride_length' 'corridor_distance'
+    parser.add_argument('--parameter', dest='estimated_parameter', type=str,
+                        help='Choose the parameter on which you want to train/display your models. Choice:\n\t- ' +
+                             '\n\t- '.join(estimable_parameters.keys()))
 
     args = parser.parse_args()
     do_training = args.train
@@ -1582,30 +1755,38 @@ if __name__ == '__main__':
     update_data = args.update_data
     merge_files = args.merge_files
     clean_files = args.clean_files
+    estimated_parameter = args.estimated_parameter
+
+    if (do_training or do_display or clean_files or merge_files) and estimated_parameter is None:
+        parser.print_help()
+        print("Please select a parameter to train/display your models")
+        exit()
 
     torch.manual_seed(42)
 
     # Path to save the binary files containing the data about our trained models
-    root_to_cnn = "trained_models/" + device.type + "_16_bits_with_data_reduction/"
+    root_to_cnn = f"trained_models/{device.type}_batch_normed_{estimated_parameter}/"
     # root_to_cnn = "trained_models/" + device.type + "_16_bits_maximum_data/"
     # root_to_cnn = "trained_models/transfer_learning/"
     path_to_save_cnn = root_to_cnn + "convolution_network.model"
     # pir_transforms_filename = 'all_pirs_transformed_16_bits.data'
-    pir_transforms_filename = 'all_pirs_transformed_all.data'
+    pir_transforms_filename = 'all_pirs_transformed_ankles.data'
 
     if update_data:
         # All data comes from the CSV file created through fill_csv() in create_pir_csv.py
-        data = pd.read_csv("gait_values_all_data.csv")
+        data = pd.read_csv("gait_values_ankles.csv")
         # From the PIR values, apply a wavelet transform using Morlet waves and save them in a binary file
         precompute_morlet_transforms(data,
                                      pir_transforms_filename=pir_transforms_filename,
                                      output_filename=pir_transforms_filename)
 
     if do_training:
-        training(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename)
+        training(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename,
+                 estimated_parameter=estimated_parameter)
 
     if do_display:
-        display(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename)
+        display(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename,
+                estimated_parameter=estimated_parameter)
 
     if merge_files:
         merge_models_in_one_file(path_to_save_cnn)
