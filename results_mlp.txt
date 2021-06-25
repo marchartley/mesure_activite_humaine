@@ -1,0 +1,79 @@
+MLP Model:
+
+16 -> 200 -> 200 -> 200 -> 1
+
+nb_params = (16 + 1) * 200 + (200 + 1) * 200 + (200 + 1) * 200 + (200 + 1) * 1
+          = 84001
+
+
+
+FOR HIPS:
+List of important inputs:
+- amplitude pir 2
+- amplitude pir 0
+- frequence pir 1
+- amplitude pir 3
+- amplitude pir 1
+- delta time pir 1 - pir 3
+- timing pir 2
+- timing pir 3
+- corridor
+- frequence pir 3
+- frequence pir 0
+- timing pir 0
+- timing pir 1
+- direction
+- frequence pir 2
+- delta time pir 0 - pir 2
+
+        Error (%)  Error (km/h)
+mean    34.369880      0.940386
+std     34.721276      0.940130
+min      0.467596      0.014673
+25%      8.267466      0.247595
+50%     24.679239      0.705453
+75%     47.409410      1.268002
+max    195.940304      4.554179
+
+
+
+
+FOR ANKLES:
+
+List of important inputs:
+- frequence pir 2
+- delta time pir 1 - pir 3
+- delta time pir 0 - pir 2
+- timing pir 1
+- amplitude pir 3
+- timing pir 3
+- timing pir 0
+- timing pir 2
+- amplitude pir 0
+- corridor
+- amplitude pir 1
+- frequence pir 1
+- direction
+- frequence pir 3
+- amplitude pir 2
+- frequence pir 0
+
+mse          : 0.02634819448986861
+rmse         : 0.16232126936993996
+mae          : 0.12744256084823383
+variance     : 0.7809643260646283
+maximum_error: 0.3862713857484619
+mediane      : 0.08568524879462391
+msle         : 0.008111030044321683
+percent_error: 17.393474752995363
+
+       Error (%)  Error (km/h)
+count  87.000000     87.000000
+mean   18.563032      0.127443
+std    20.073144      0.101114
+min     0.646638      0.005857
+25%     4.922918      0.041595
+50%    11.601199      0.085685
+75%    22.246027      0.205461
+max    96.962828      0.386271
+
