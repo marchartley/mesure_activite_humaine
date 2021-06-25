@@ -2,6 +2,7 @@
 import math
 import random
 
+import sklearn.model_selection
 from sklearn.svm import SVR
 # from tensorflow.keras import Sequential
 # from keras.layers import Dense,LSTM,Embedding
@@ -47,6 +48,10 @@ import types
 from matplotlib import pyplot as plt
 from scipy.stats.stats import pearsonr
 
+import shap
+
+import feet_analysis
+
 
 def abline(slope, intercept=0):
     """Plot a line from slope and intercept"""
@@ -86,10 +91,15 @@ def balance_dataset(data: pd.DataFrame):
 
 def cleaningdata(url, independent_variables, dependent_variable, data_multiplier=1):
     df = pd.read_csv(url).dropna()
-    df = df[np.logical_and(df['walking_speed'] < 3, df['direction'] != 0)]
+    df = df[np.logical_and(df['walking_speed'] < 2.0, df['direction'] != 0)]
     # df['walking_speed'] = df.apply(lambda row: row['walking_speed'] * row['direction'], axis=1).values
     # df = balance_dataset(df)
+    df['freq_pir0'] = 1 / df['period_pir0']
+    df['freq_pir1'] = 1 / df['period_pir1']
+    df['freq_pir2'] = 1 / df['period_pir2']
+    df['freq_pir3'] = 1 / df['period_pir3']
     data_multiplier = int(data_multiplier)
+
     return {
         'message': 'success',
         'X': pd.concat([df[independent_variables]] * data_multiplier, ignore_index=True).applymap(
@@ -107,7 +117,7 @@ def splitting_data(url, testsize, independent_variables, dependent_variable, dat
         y = data["y"]
         X = preprocessing.scale(X)
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=testsize
+            X, y, test_size=testsize, random_state=50
         )
         return {
             "message": message,
@@ -142,7 +152,9 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
         y_train = pd.concat([pd.DataFrame(y_train)] * data_multiplier)
 
         X_train_std = sc.transform(X_train)
+        # X_train_std = X_train
         X_test_std = sc.transform(X_test)
+        # X_test_std = X_test
         if parameters != None:
 
             regressor = MLPRegressor(
@@ -160,8 +172,8 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
 
         else:
             regressor = MLPRegressor(
-                max_iter=5000,
-                hidden_layer_sizes=(40, 40, 40),
+                max_iter=5000000,
+                hidden_layer_sizes=(200, 200, 200), #(40, 40, 40),
                 activation="relu",
                 random_state=50,
                 alpha=0.1,
@@ -173,6 +185,8 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
 
         time1 = time.time()
         regressor.fit(X_train_std, np.ravel(y_train))
+
+        # regressor.fit(X_train_std, np.log2(np.ravel(y_train)))
         time2 = time.time()
         plt.title("Loss curve")
         plt.xlabel("nb epochs")
@@ -181,6 +195,7 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
         plt.show()
         print("duration of fitting the model:", (time2 - time1) / 60)
         y_predict = abs(regressor.predict(X_test_std))
+        # y_predict = 2 ** regressor.predict(X_test_std)
 
         y_actual = abs(y_test)
         r_squared_score = r2_score(np.ravel(y_actual), np.ravel(y_predict))
@@ -210,7 +225,7 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
         print("max error", maximum_error)
         print("percent error", percent_error)
 
-        pickle.dump(tuple_objects, open("NeuralNetworkModel", "wb"))
+        pickle.dump(tuple_objects, open(f"NeuralNetworkModel_{sensors_height}", "wb"))
         resultBytes = pickle.dumps(tuple_objects)
 
         # np.reshape(y_predict,(20,1))
@@ -227,36 +242,21 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
         abline(1)
         plt.show()
         return resultBytes, Y_ac, Y_pr
-    # else:
-    #     return message
 
 
-# le = preprocessing.LabelEncoder()
+def prediction(url, independent_variables, dependent_variables=None, path_model='', test_size = 0.3):
+    # dataframe = pd.read_csv(url)
+    # dataframe = dataframe.dropna()
+    # X_original = pd.DataFrame()
+    # for var in independent_variables:
+    #     X_original[var] = dataframe[var]
 
-
-# def myconverter(o):
-#     if isinstance(o, datetime.datetime):
-#         return o.__str__()
-#     if isinstance(o, np.bool_):
-#         return o.__str__()
-
-# def writeToJSONFile (filepath, data):
-#     with open (filepath,'w') as file:
-#         json.dump(data, file, default=myconverter, indent=4)
-
-
-def prediction(url, independent_variables, dependent_variables=None, path_model=''):
-    dataframe = pd.read_csv(url)
-    dataframe = dataframe.dropna()
-    X_original = pd.DataFrame()
-    for var in independent_variables:
-        X_original[var] = dataframe[var]
-
-    data = cleaningdata(url, independent_variables, dependent_variables)
+    data = splitting_data(url, test_size, independent_variables, dependent_variables)
     message = data["message"]
     if message == "success":
         X = data["X"]
         original_y = data['y']
+
         X_std = preprocessing.scale(X)
         sc = StandardScaler()
         sc.fit(X_std)
@@ -264,10 +264,42 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
         model = path_model  # urllib.request.urlopen(path_model).read()
         # model = jsonpickle.decode(json.loads(model))
         mp, pickled_Xtrain, pickled_Ytrain, pickled_score = pickle.load(open(model, 'rb'))
-        y_Predicted = mp.predict(X_std)
 
-        y_Predicted = abs(y_Predicted)
-        original_y = abs(original_y)
+        # explainer = shap.KernelExplainer(mp.predict, X_std)
+        # shap.summary_plot(explainer.shap_values(X_std, nsamples = 50), X_std, feature_names=[
+        #     var.replace('_', ' ').capitalize() for var in independent_variables])
+        cummulative_predicted = []
+        cummulative_truth = []
+
+        kf = sklearn.model_selection.KFold(n_splits=2)
+        for index, _ in kf.split(X_std):
+
+            y_Predicted = mp.predict(X_std[index])
+            # y_Predicted = 2 ** mp.predict(X_std)
+
+            y_Predicted = abs(y_Predicted)
+            y_Truth = abs(np.array(original_y)[index])
+            cummulative_predicted.extend(y_Predicted)
+            cummulative_truth.extend(y_Truth)
+
+        y_Truth = cummulative_truth
+        y_Predicted = cummulative_predicted
+        df = pd.concat([pd.Series(np.ravel(y_Truth), name = 'real'), pd.Series(y_Predicted, name = 'prediction')], axis = 1)
+
+        stats = {
+            'mse': mean_squared_error(np.ravel(y_Truth), np.ravel(y_Predicted)),
+            'rmse': mean_squared_error(
+                np.ravel(y_Truth), np.ravel(y_Predicted), squared=False
+            ),
+            'mae': mean_absolute_error(np.ravel(y_Truth), np.ravel(y_Predicted)),
+            'variance': explained_variance_score(np.ravel(y_Truth), np.ravel(y_Predicted)),
+            'maximum_error': max_error(np.ravel(y_Truth), np.ravel(y_Predicted)),
+            'mediane': median_absolute_error(np.ravel(y_Truth), np.ravel(y_Predicted)),
+            'msle': mean_squared_log_error(np.ravel(y_Truth), np.ravel(y_Predicted)),
+            'percent_error': abs((np.ravel(y_Truth) - np.ravel(y_Predicted)) / np.ravel(y_Truth)).mean() * 100,
+        }
+        feet_analysis.display_walking_features(stats)
+        df.to_csv('MLP_results_tmp.csv')
         # predicted_data = []
         # for (index, row), y in zip(X_original.iterrows(), y_Predicted):
         #     indep_test = {}
@@ -282,20 +314,21 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
         #     data[y_name] = y
         #     predicted_data.append(data)
         # plt.plot(y_Predicted,color='red')
-        original_y = np.array(original_y)[:, 0] * 3.6
-        y_Predicted = np.array(y_Predicted) * 3.6
+        y_Truth = np.array(y_Truth)[:, 0]  # * 3.6
+        y_Predicted = np.array(y_Predicted)  # * 3.6
 
-        plt.scatter(original_y, y_Predicted, c='black', marker='.')
-        pearson_coef, p_value = pearsonr(original_y, y_Predicted)
+        plt.scatter(y_Truth, y_Predicted, c='black', marker='.')
+        pearson_coef, p_value = pearsonr(y_Truth, y_Predicted)
         plt.title(f"Correlation : {round(pearson_coef, 2)} ({'p < 0.001' if p_value < 0.001 else round(p_value, 4)})")
-        plt.xlabel("Ground truth")
-        plt.ylabel("Predictions")
+        plt.xlabel("Gait speed from depth camera (m/s)")
+        plt.ylabel("Gait speed from PIR (m/s)")
         plt.axis('equal')
         abline(1)
 
-        ratios = pd.Series(original_y / y_Predicted)
+        errors = pd.Series(abs(y_Truth - y_Predicted), name = 'Error (km/h)')
+        ratios = pd.Series(y_Truth / y_Predicted, name = 'Error (%)')
         ratios[ratios.values < 1.0] = 1 / ratios[ratios.values < 1.0]
-        print(pd.Series((ratios.values - 1) * 100, name="Error (%)").describe())
+        print(pd.concat([pd.Series((ratios.values - 1) * 100, name = 'Error (%)'), errors], axis=1).describe())
 
         # calc the trendline
         # z = np.polyfit(original_y, y_Predicted, 3)
@@ -317,32 +350,26 @@ def prediction(url, independent_variables, dependent_variables=None, path_model=
         plt.title("Error on the data")
         plt.xlabel("Predition/Truth ratio")
         # plt.xscale('log')
-        plt.show()
+        # plt.show()
         # writeToJSONFile("predicted_data.json", predicted_data)
+
     else:
         return message
 
 
+sensors_height = 'ankles'
+
 # "sequences_resumed_last_version.csv"
 # "sequences_resumed.csv"
-# ["time_pir0", "time_pir1", "time_pir2", "time_pir3",
-#                              "period_pir0", "period_pir0", "period_pir1", "period_pir2",
-#                              "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
-#                              "period_pir3", "delta_time_0_2",
-#                              "delta_time_1_3", "corridor", "direction"]
-# res, y1, y2 = NeuralNetwork("sequences_resumed.csv", .10,
-#                             [
-#                                 "time_pir0", "time_pir1", "time_pir2", "time_pir3",
-#                                 "period_pir0", "period_pir1", "period_pir2", "period_pir3",
-#                                 "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
-#                                 "delta_time_0_2", "delta_time_1_3",
-#                                 "corridor", "direction"
-#                             ], ["walking_speed"], None, data_multiplier=10)
-prediction("sequences_resumed_for_tests.csv",
-           [
-               "time_pir0", "time_pir1", "time_pir2", "time_pir3",
-               "period_pir0", "period_pir1", "period_pir2", "period_pir3",
-               "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
-               "delta_time_0_2", "delta_time_1_3",
-               "corridor", "direction"
-           ], ['walking_speed'], "NeuralNetworkModel")
+independent_variables = [
+    "time_pir0", "time_pir1", "time_pir2", "time_pir3",
+    # "period_pir0", "period_pir1", "period_pir2", "period_pir3",
+    "ampl_pir0", "ampl_pir1", "ampl_pir2", "ampl_pir3",
+    "delta_time_0_2", "delta_time_1_3",
+    "corridor", "direction"
+]
+independent_variables += ['freq_pir0', 'freq_pir1', 'freq_pir2', 'freq_pir3']
+dependent_variables = ['walking_speed']
+# res, y1, y2 = NeuralNetwork(f"sequences_resumed_{sensors_height}.csv", .10, independent_variables, dependent_variables,
+#                             None, data_multiplier=1)
+prediction(f"sequences_resumed_{sensors_height}.csv", independent_variables, dependent_variables, f"NeuralNetworkModel_{sensors_height}")
