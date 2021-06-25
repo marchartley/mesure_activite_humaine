@@ -4,6 +4,7 @@ import pickle
 import time
 
 import dateutil
+from matplotlib import pyplot as plt
 
 import InfluxDB_connection as db
 import deep_neural_training
@@ -13,12 +14,13 @@ import pandas as pd
 from utils import HiddenPrints
 
 
-def fill_csv(create_CSV_from_scratch = False,
-             output_filename = 'gait_values.csv',
-             client = None,
-             start_time = None, end_time = None,
-             verbose = True,
-             use_cache = True):
+def fill_csv(create_CSV_from_scratch=False,
+             output_filename='gait_values.csv',
+             client=None,
+             start_time=None, end_time=None,
+             verbose=True,
+             use_cache=True,
+             sensor_height=None):
     with HiddenPrints(verbose):
         if client is None:
             # Create DB client
@@ -73,13 +75,15 @@ def fill_csv(create_CSV_from_scratch = False,
             try:
                 print(end=".", flush=True)
                 # Get PIR values for this sequence
-                pir_values = client.get_pir_values_from_walking_sequence(start_time=sequences_boundaries[id_sequence][0],
-                                                                         end_time=sequences_boundaries[id_sequence][1],
-                                                                         time_offset=15.0)
+                pir_values = client.get_pir_values_from_walking_sequence(
+                    start_time=sequences_boundaries[id_sequence][0],
+                    end_time=sequences_boundaries[id_sequence][1],
+                    time_offset=15.0, sensor_height=sensor_height)
                 print(end=".")
                 if len(pir_values['time']) == 0:
                     print(f"ignored, no PIR values")
                     continue
+
                 print(end=".", flush=True)
                 # Compute gait features for this specific sequence
                 gait_features = feet_analysis.get_walking_features(time_between_sequences=time_between_sequences,
@@ -104,8 +108,9 @@ def fill_csv(create_CSV_from_scratch = False,
 
                 # We have data with 10s before and after, so we remove (10 - x) sec of data
                 # PIR values are recorded at 40Hz, so we remove (10 - x) * 40 lines of data
-                before_offset = int((10 - before_offset) * 40)
-                after_offset = int((10 - after_offset) * 40)
+                before_offset = int(max(1, 10 - before_offset) * 40)
+                after_offset = int(max(1, 10 - after_offset) * 40)
+
                 for measure in pir_values:
                     pir_values[measure] = pir_values[measure][before_offset:(-after_offset)]
 
@@ -147,6 +152,7 @@ def fill_csv(create_CSV_from_scratch = False,
                     full_df = full_df.append(temp_df, ignore_index=True)
                     # print(full_df)
             except Exception as e:
+                # raise e
                 dataframe_errors.append({'sequence': sequence, 'error': e})
 
         if len(sequence_data) > 0:
@@ -166,18 +172,20 @@ def fill_csv(create_CSV_from_scratch = False,
             for err in dataframe_errors:
                 print(f'\t- seq#{err["sequence"]["id"]}: {str(err["error"])}')
     # return full_df
-    if len(sequence_data) > 0:
-        # Should be improved to avoid re-reading, but for now it's missing something...
-        return pd.read_csv(output_filename)
-    else:
-        return None
 
+    return pd.read_csv(output_filename)
+    # if len(sequence_data) > 0:
+    #     # Should be improved to avoid re-reading, but for now it's missing something...
+    #     return pd.read_csv(output_filename)
+    # else:
+    #     return None
 
 
 if __name__ == '__main__':
-    pir_data = fill_csv(create_CSV_from_scratch = False,
-             output_filename = 'gait_values_all_data.csv',
-             verbose = True,
-             start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000)
-    deep_neural_training.precompute_morlet_transforms(pir_data, 'all_pirs_transformed_all.data', output_filename=True)
-
+    sensors_height = 'ankles'
+    pir_data = fill_csv(create_CSV_from_scratch=False,
+                        output_filename=f"gait_values_{sensors_height}.csv",
+                        verbose=True,
+                        start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000,
+                        sensor_height=sensors_height)
+    deep_neural_training.precompute_morlet_transforms(pir_data, f"all_pirs_transformed_{sensors_height}.data", output_filename=True)
