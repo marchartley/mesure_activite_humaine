@@ -194,8 +194,8 @@ class ListicClientDB:
         return self.retrieve_skeleton_keypoints(start_time=1619395200000, end_time=1619422738000)  # = 26/04/2021 00:00
 
     def get_splitted_presence_or_not_boundaries(self, start_time=None, end_time=None,
-                                          time_between_sequences=20.0,
-                                          ignore_small_sequences = None):
+                                                time_between_sequences=20.0,
+                                                ignore_small_sequences=None):
         user_presence = self.get_splitted_sequences_boundaries(start_time=start_time, end_time=end_time,
                                                                time_between_sequences=time_between_sequences,
                                                                ignore_small_sequences=ignore_small_sequences)
@@ -206,21 +206,21 @@ class ListicClientDB:
 
         # Store in an array the available timeslots with (available time, start, end, mean timestamp)
         # Keep at least 5 sec between a presence and an absence
-        no_user_available_durations = [[user_presence[seq_index][0] - user_presence[seq_index - 1][1] - 5000*2,
-                                       user_presence[seq_index - 1][1],
-                                       user_presence[seq_index][0],
+        no_user_available_durations = [[user_presence[seq_index][0] - user_presence[seq_index - 1][1] - 5000 * 2,
+                                        user_presence[seq_index - 1][1],
+                                        user_presence[seq_index][0],
                                         (user_presence[seq_index][0] + user_presence[seq_index - 1][1]) / 2]
                                        for seq_index in range(1, len(user_presence))]
 
         no_user_available_durations = list(filter(lambda x: x[0] > 0 and
                                                             len(self.pir_values_to_json(
                                                                 self.get_all_pir_values(
-                                                                    start = x[1] + 5000,
-                                                                    end = x[2] - 5000,
-                                                                    group_by_move = False))['time']
+                                                                    start=x[1] + 5000,
+                                                                    end=x[2] - 5000,
+                                                                    group_by_move=False))['time']
                                                                 ) > 35 * x[0] / 1000, no_user_available_durations))
-        # print(no_user_available_durations[0])
-        # print(len(self.pir_values_to_json(self.get_all_pir_values(start = no_user_available_durations[0][1], end=no_user_available_durations[0][2], group_by_move=False))['time']))
+        # print(no_user_available_durations[0]) print(len(self.pir_values_to_json(self.get_all_pir_values(start =
+        # no_user_available_durations[0][1], end=no_user_available_durations[0][2], group_by_move=False))['time']))
         # exit()
 
         # Save the repartition in a JSON {index of the available timeslot: [list of the index of the wished durations]}
@@ -245,11 +245,10 @@ class ListicClientDB:
 
         return {'presence': user_presence, 'no_presence': boundaries_for_no_user}
 
-
     @lru_cache(maxsize=1)
     def get_splitted_sequences_boundaries(self, sequence_filename=None, start_time=None, end_time=None,
                                           time_between_sequences=20.0,
-                                          ignore_small_sequences = None):
+                                          ignore_small_sequences=None):
         if start_time is None and end_time is None:
             if sequence_filename is None:
                 pass
@@ -296,7 +295,7 @@ class ListicClientDB:
     @lru_cache(maxsize=1)
     def get_skeletons_in_splitted_sequences(self, sequence_filename=None, start_time=None, end_time=None,
                                             merge_skeleton_ids=True, time_between_sequences=20.0,
-                                            sequence_index=None, ignore_small_sequences = None):
+                                            sequence_index=None, ignore_small_sequences=None):
 
         sequences_interval = self.get_splitted_sequences_boundaries(sequence_filename, start_time, end_time,
                                                                     time_between_sequences,
@@ -312,7 +311,8 @@ class ListicClientDB:
 
     def get_pir_values_from_walking_sequence(self, skeleton_data=None, start_time=None,
                                              end_time=None, id_sequence=None, time_offset=5.0,
-                                             time_between_sequences=20.0):
+                                             time_between_sequences=20.0,
+                                             sensor_height = None):
         pir_start = None
         pir_end = None
         if skeleton_data is not None:
@@ -338,7 +338,8 @@ class ListicClientDB:
         pir_start -= time_offset * 1000
         pir_end += time_offset * 1000
 
-        return self.pir_values_to_json(self.get_all_pir_values(start=pir_start, end=pir_end, group_by_move=False))
+        return self.pir_values_to_json(self.get_all_pir_values(start=pir_start, end=pir_end,
+                                                               group_by_move=False, sensor_height=sensor_height))
 
     def pir_values_to_json(self, query_results: db.client.ResultSet):
         pirs = {
@@ -374,7 +375,7 @@ class ListicClientDB:
         return date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     @lru_cache(maxsize=2)
-    def get_all_pir_values(self, start=None, end=None, group_by_move=True):
+    def get_all_pir_values(self, start=None, end=None, group_by_move=True, sensor_height = None):
         if start is None:
             start = '2021-04-21 00:00:00'
 
@@ -385,6 +386,10 @@ class ListicClientDB:
             if not isinstance(end, str):
                 end = self.timestamp_to_date_format(end, unit='s')
             where_condition += f' AND time < \'{end}\''
+
+        if sensor_height is not None:
+            where_condition += f" AND sensor_height = '{sensor_height}'"
+
         group_by_condition = 'GROUP BY move' if group_by_move else ''
 
         query = f'SELECT "pir0", "pir1", "pir2", "pir3" FROM "pir_network" {where_condition} {group_by_condition}'
