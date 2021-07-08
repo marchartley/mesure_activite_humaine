@@ -536,11 +536,6 @@ class ResidualNet(CustomModel):
         if isinstance(hidden_cells, int):
             hidden_cells = [hidden_cells]
 
-        # If we want a binary output, we use 2 outputs and apply a Softmax function at the end
-        is_binary = (output_size == 1)
-        if output_size == 1:
-            output_size = 2
-
         padding = int(kernel_size / 2)
         # First, a convolution. Here we specified an image with a unique channel (no RGB)
         self.init_conv = nn.Conv2d(4 if self.use_concat_pir else 1, number_of_filters, kernel_size, padding=padding)
@@ -575,9 +570,7 @@ class ResidualNet(CustomModel):
             linear.append(nn.Linear(input_size, output_size))
 
         # Apply a final activation function on the output.
-        if is_binary:
-            linear.append(nn.Softmax(dim=1))
-        elif lastActivation:
+        if lastActivation:
             linear.append(lastActivation)
         self.linear_layers = nn.Sequential(*linear)
 
@@ -836,7 +829,7 @@ def train_model(trainloader,
 
 
 # Testing the model : we need the model and a dataset
-def test_model(model, testloader, estimated_parameter='body_speed'):
+def test_model(model, testloader, estimated_parameter='body_speed', scalers = None):
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # If possible, move to CUDA
     # # device = torch.device("cpu")  # Until the CUDA problem remains, force the use of CPU
     if not isinstance(testloader, torch.utils.data.DataLoader):
@@ -887,6 +880,11 @@ def test_model(model, testloader, estimated_parameter='body_speed'):
 
     real, predicted = np.array(real), np.array(predicted)[:, 0]
     corr = np.corrcoef(np.array(real), np.array(predicted))[0, 1]
+
+    parameter_data = estimable_parameters[estimated_parameter]
+    if scalers is not None: # and parameter_data['scaler_name'] in scalers:
+        predicted = scalers[parameter_data['scaler_name']].inverse_transform(predicted.reshape(1, -1)).reshape(-1)
+        real = scalers[parameter_data['scaler_name']].inverse_transform(real.reshape(1, -1)).reshape(-1)
     mse = np.sqrt(((real - predicted) ** 2).mean())
     mae = abs(real - predicted).mean()
     mpe = abs((real - predicted) / real).mean() * 100
@@ -1207,6 +1205,7 @@ def try_all_models(hyperparameters,
                    start_from_beginning=True,
                    verbose=3,
                    ignored_files='_useless_',
+                   scalers = None,
                    max_number_of_models=math.inf,
                    estimated_parameter='body_speed'):
     models = []
@@ -1297,7 +1296,8 @@ def try_all_models(hyperparameters,
                 print("Training ended, testing the model")
             torch.cuda.empty_cache()
             current_model['test'] = test_model(current_model['training']['model'], testing_set,
-                                               estimated_parameter=estimated_parameter)
+                                               estimated_parameter=estimated_parameter,
+                                               scalers=scalers)
             if verbose:
                 print(current_model['test'])
             current_model['parameters'] = parameters
@@ -1685,32 +1685,13 @@ def training(path_to_save_cnn,
         'pure_CNN': [True, False],
         'layer_relu': [None, nn.ReLU(), nn.Tanh(), nn.Sigmoid()],
         'lastActivation': [None, nn.ReLU()],
-        'use_exponential': False, # [True, False, 'pow'],
+        'use_exponential': False,  # [True, False, 'pow'],
         'number_of_outputs': 1,
 
         # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
         'trained_model': list(all_pretrained_models.values()),
         'pretrained': True
     }
-
-    # # Parameters to vary on the models
-    # # Be careful to avoid having too much params as the number of models is greatly increasing
-    # models_hyperparameters = {
-    #     # Those params are for the CNNs (MultipleWaveletsModule and MultipleWaveletsLinearModule)
-    #     'input_size': input_size,
-    #     'mid_output_size': [20, 30, 40],
-    #     'kernel_size': [3, 5],
-    #     'number_of_filters': [2, 4, 8, 16, 32],
-    #     'number_of_layers': [2, 3, 5, 6],
-    #     'number_of_conv_per_layer': [3, 4, 5],
-    #     'hidden_cells': [None, 10, 100, (10, 10, 10), (40, 40, 40)],
-    #     'dropout': [True, False],
-    #     'use_concat_pir': [True, False],
-    #     'reduce_last_conv': [0, 1, 2, 3],
-    #     # 'pure_CNN': [True, False],
-    #     # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
-    #     # 'trained_model': list(all_pretrained_models.values())
-    # }
 
     # Those parameters modify the type of training used for each network
     # The parameters used for a model are chosen randomly and thus, does not increase the number of trainings
@@ -1741,7 +1722,7 @@ def training(path_to_save_cnn,
                    display_precision=0.5,
                    early_stopping=10,
                    num_epochs=num_epochs,
-
+                   scalers=all_pirs_transformed['scalers'],
                    max_number_of_models=number_of_models_trained)
 
 
