@@ -66,21 +66,21 @@ exit()
 
 
 all_data = pickle.load(open('all_pirs_transformed_ankles.data', 'rb'))
-directory = 'pir_images_16_bits_ankles'
+directory = 'pir_images_small_16_bits_ankles'
 
 os.makedirs(directory, exist_ok=True)
 
 mean_data = {
-    'ENS': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
-    'ONS': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
-    'CNS': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
+    'ENS': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
+    'ONS': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
+    'CNS': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
 
-    'ESN': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
-    'OSN': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
-    'CSN': {'pir0': np.array([0, 0, 0]), 'pir1': np.array([0, 0, 0]), 'pir2': np.array([0, 0, 0]), 'pir3': np.array([0, 0, 0]), 'count': 0},
+    'ESN': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
+    'OSN': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
+    'CSN': {'pir0': None, 'pir1': None, 'pir2': None, 'pir3': None, 'count': 0},
 }
 
-for i, data in enumerate(all_data):
+for i, data in enumerate(all_data['data']):
     print(f"{round(100 * i / len(all_data), 1)}% ({i} / {len(all_data)})")
 
     pir0, pir1, pir2, pir3, id_seq, speed, corridor, direction, \
@@ -180,8 +180,6 @@ for i, data in enumerate(all_data):
 
     fig.subplots_adjust(bottom=0.10, right=0.96, left=0.08, top=0.95, wspace=0.10)
     # fig.tight_layout()
-    # figManager = plt.get_current_fig_manager()
-    # figManager.window.showMaximized()
     # plt.show()
 
     plt.savefig(f"{directory}/{category}_{str(format(speed, '.6f')).replace('.', '-').replace(',', '-')}.png")

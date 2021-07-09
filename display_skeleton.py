@@ -11,7 +11,7 @@ import human_skeleton
 import skeleton_tracker
 
 def visual_skeleton():
-    data = feet_analysis.get_data_from_db(-1, time_between_sequences=1.0,
+    data = feet_analysis.get_data_from_db(-2, time_between_sequences=1.0,
                                           server_side = True,
                                           start_time=1619395200000,
                                           ignore_small_sequences=0.2)

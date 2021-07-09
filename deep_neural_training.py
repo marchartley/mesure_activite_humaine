@@ -1,17 +1,14 @@
 import copy
 import glob
-import inspect
 import itertools
 import pickle
 import random
 import time
 from typing import Union, Any, cast, Type, Tuple
 import os
-import sys
 
 import sklearn.preprocessing
 import torchvision
-from matplotlib.legend_handler import HandlerTuple
 
 import waipy
 import pandas as pd
@@ -573,9 +570,6 @@ class ResidualNet(CustomModel):
         if lastActivation:
             linear.append(lastActivation)
         self.linear_layers = nn.Sequential(*linear)
-
-        # In any case, the activation is a Dense of shape (4*output x 1)
-        # self.activation_functions = nn.ModuleList([nn.Linear(4 * mid_output_size, 1) for _ in range(number_of_outputs)])
 
         self.update_device()
 
@@ -1349,10 +1343,9 @@ def try_all_models(hyperparameters,
 
 
 def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_if_val_err_higher=math.inf,
-                   max_y_val=0.20, ignored_files='_useless_', estimated_parameter='body_speed',
+                   max_y_val=math.inf, ignored_files='_useless_', estimated_parameter='body_speed',
                    scalers = None, order_by='correlation', bigger_is_better = True,
-                   display_all_models = False) -> Tuple[
-    Any, pd.DataFrame]:
+                   display_all_models = False) -> Tuple[Any, pd.DataFrame]:
     models_results = []
     validation_results = []
     best_results = None
@@ -1426,6 +1419,7 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                     min_score_of_tops = min([m['test'][order_by] for m in top_models])
 
             except Exception as e:
+                raise e
                 print(e)
                 pass
 
@@ -1466,26 +1460,32 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
                                                  and hasattr(row['trained_model'], '__name__') else None)
 
     df.rename(columns={'kernel_size': 'kernel', 'number_of_filters': 'filters', 'number_of_layers': 'layers',
-                       'test_results': 'corr', 'number_of_conv_per_layer': 'conv/layer', 'reduce_last_conv': 'reduce',
+                       'test_results': 'correlation', 'number_of_conv_per_layer': 'conv/layer', 'reduce_last_conv': 'reduce',
                        'use_concat_pir': 'concat_pirs', 'percent_error': '%err'},
               inplace=True)
     full_df = df
-    df = df[['mid_output_size', 'kernel', 'filters', 'layers', 'conv/layer',
-             'hidden_cells', 'dropout',
-             'concat_pirs', 'model_class', 'corr', 'mae', 'mse', '%err'] +
-            (['trained_model'] if 'trained_model' in df.columns else []) +
-            (['reduce'] if 'reduce' in df.columns else []) +
-            (['layer_relu'] if 'layer_relu' in df.columns else []) +
-            (['use_exponential'] if 'use_exponential' in df.columns else [])
+    df = df[['mid_output_size',
+             'kernel',
+             'filters',
+             'layers',
+             'conv/layer',
+             'hidden_cells',
+             # 'dropout',
+             # 'concat_pirs',
+             'model_class',
+             'correlation',
+             'mae',
+             'mse',
+             '%err',
+             'pure_CNN',
+             'pretrained',
+             'trained_model'] +
+            # (['reduce'] if 'reduce' in df.columns else []) +
+            # (['use_exponential'] if 'use_exponential' in df.columns else []) +
+            (['layer_relu'] if 'layer_relu' in df.columns else [])
             ]
 
-    # no_na = df.dropna(subset=['corr'])
-    # index_index = abs(no_na['corr'] - max(no_na['corr'])) < 1
-    # index = no_na.index[index_index][0]
-    # best_results = all_models[0]  # [index]
-
     # Must delete all variables that may contain models on CUDA, to avoid falling out of memory!
-    # del all_models
     del models
     torch.cuda.empty_cache()
     print(best_results['test'])
@@ -1498,8 +1498,7 @@ def display_models(filename, test_loader, ignore_if_accuracy_lower=0.0, ignore_i
             visualize_model(best_results['training']['model'], testloader=test_loader,
                             scalers = scalers)
     except Exception as e:
-        raise e
-        pass
+        print(e)
     plt.show()
 
     return df, full_df
@@ -1509,9 +1508,7 @@ def display_morlet(pir_data):
     data_norm = waipy.normalize(pir_data)
 
     alpha = np.corrcoef(data_norm[0:-1], data_norm[1:])[0, 1]
-    # print("Lag-1 autocorrelation = {:4.2f}".format(alpha))
     result = waipy.cwt(data_norm, 1 / 3.2, 1, 1 / 100, 2, 4 / 0.25, alpha, 6, mother='Morlet', name='name')
-    # plt.imshow(result['power'])
     return result['power']
 
 
@@ -1523,7 +1520,7 @@ def compute_morlet_transform(pir_data):
     lowerPeriod = 2 * dt
     upperPeriod = len(data_norm) * dt / 3
     result = waipy.cwt(data_norm, dt, 1, dj, lowerPeriod, upperPeriod, alpha, 6, mother='Morlet', name='name')
-    powers = np.array(result['power']).astype('uint8')
+    powers = np.array(np.sqrt(result['power'])).astype('uint8')
     tmp_img = Image.fromarray(powers)  # , mode = 'I;16')
     # if(powers.max() > 255):
     #     plt.imshow(tmp_img)
@@ -1531,7 +1528,7 @@ def compute_morlet_transform(pir_data):
     #     plt.show()
     res = Image.fromarray(np.zeros((1024, 2048)))  # , dtype=np.uint16), mode='I;16')
     res.paste(tmp_img, (0, 1024 - tmp_img.height))
-    res = res.resize((512, 512), resample=Image.NEAREST)
+    res = res.resize((128, 128), resample=Image.NEAREST)
     return res
 
 
@@ -1639,12 +1636,12 @@ def training(path_to_save_cnn,
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
     dataset = PIR_DataLoader(all_pirs_transformed['data'], transform=transforms.Compose([
         transforms.Resize((input_size, input_size), transforms.InterpolationMode.NEAREST),
-        # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x.float()),
-        transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.01 + 0.005)),
-        transforms.Lambda(lambda x: transforms.GaussianBlur(
-            2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
+        # Decomment the next lines to add some noise to the dataset
+        # transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.01 + 0.005)),
+        # transforms.Lambda(lambda x: transforms.GaussianBlur(
+        #     2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
     ]),
                              data_inflate=3.0, apply_translation = True)
     # Train size = 70%, Validation = 10%, Testing = 20%
@@ -1690,7 +1687,7 @@ def training(path_to_save_cnn,
 
         # These params are used for the transfer learning, it's the type of model used (AlexNet, SqueezeNet, etc...)
         'trained_model': list(all_pretrained_models.values()),
-        'pretrained': True
+        'pretrained': [True, False]
     }
 
     # Those parameters modify the type of training used for each network
@@ -1738,7 +1735,6 @@ def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
     dataset = PIR_DataLoader(all_pirs_transformed['data'], transform=transforms.Compose([
         transforms.Resize((input_size, input_size), interpolation=transforms.InterpolationMode.NEAREST),
-        # transforms.RandomRotation([-1.0, 1.0]),
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x.float()),
         # transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
@@ -1768,11 +1764,11 @@ def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data
     #    "test_results" of 1 = perfect match, 0 = no significant match, -1 = what?, NaN = model is rubbish
     #    models that return a coef "NaN" = return same value, regardless of input
     # plt.title("Training of %d models for the speed estimator" % len(results_data))
-    # ordering = ('correlation', True)
-    ordering = ('mae', False)
+    ordering = ('correlation', True)
+    # ordering = ('mae', False)
     # ordering = ('mse', False)
     # ordering = ('percent_error', False)
-    short_results, full_results = display_models(path_to_save_cnn, test_loader=testing_set_PIR, max_y_val=math.inf,
+    short_results, full_results = display_models(path_to_save_cnn, test_loader=testing_set_PIR,
                                                  estimated_parameter=estimated_parameter,
                                                  scalers=all_pirs_transformed['scalers'],
                                                  order_by=ordering[0], bigger_is_better=ordering[1],
