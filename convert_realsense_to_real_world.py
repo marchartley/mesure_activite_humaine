@@ -1,5 +1,12 @@
+"""! This file regroup multiple functions that are useful when you want to convert positions from
+a referential into another.
+For example when using the Aruco box, it allows to easily switch from the 2D coordinate of a pixel into the
+3D coordinate relative to the box.
+"""
+
 import cv2
 import numpy as np
+from typing import List, Tuple, Union, Dict
 import pyrealsense2 as rs
 
 import human_skeleton
@@ -11,12 +18,28 @@ from cv2 import aruco
 
 import realsense_filters as filters
 
-# We know that our camera can see up to 5m, so if it find any distance > 5m, it is a wrong value
-forced_cube_distance_range = (0.5, 5.0) # Box is always between 50cm to 5m from camera, to avoid wrong values
+## The accepted type of variable for 2D coordinates
+Coord2D = Union[List, Tuple, np.ndarray]
+## The accepted type of variable for 3D coordinates
+Coord3D = Union[List, Tuple, np.ndarray]
+## The accepted type of variable for a coordinate with no limit of dimensions
+Coord = Union[List, Tuple, np.ndarray]
+## The type used when outputing coordinates from the functions in this file. Alias of ndarray.
+# @see numpy.ndarray
+Output_coord = np.ndarray
+## Image type
+Image = np.ndarray
+## Vector
+Vector = Union[np.ndarray, List]
 
-marker_size = 0.21  # Size of Aruco markers on the Aruco box
+## We know that our camera can see up to 5m, so if it find any distance > 5m
+# or lower than 0.5m, it must be a wrong value
+forced_cube_distance_range = (0.5, 5.0)  # Box is always between 50cm to 5m from camera, to avoid wrong values
 
-# The AruCo box has 6 markers describing the X, Y and Z axis
+## Size of Aruco markers on the Aruco box (in meters)
+marker_size = 0.21
+
+## The AruCo box has 6 markers describing the X, Y and Z axis
 # For example, the face with marker '0' is on the plane XY, and the Z-axis is the opposite of the cross product of X and Y
 # But the face '1' is on the plane ZY (with the Z having to be inversed) and the X-axis is the cross product of Z and Y
 aruco_box = {
@@ -52,9 +75,17 @@ aruco_box = {
     }
 }
 
-# Use OpenCV functions to create the Aruco tags
-def generateMarkers(aruco_dict, n_x=1, n_y=1):
+def generateMarkers(aruco_dict: int, n_x: int = 1, n_y: int = 1) -> List[Image]:
+    """! Function that use OpenCV functions to create the Aruco tags
+    @param aruco_dict Dictionary identifier given by Aruco
+    @param n_x Number of tags to generate in a row
+    @param n_y Number of tags to generate in a column
+
+    @return A set of aruco tags
+    """
+    ## Desired size of the borders of the marker (quite big so it is easier to detect the marker)
     border = 100
+    ## Size in pixel of the marker
     size = 300
 
     tags = []
@@ -72,8 +103,16 @@ def generateMarkers(aruco_dict, n_x=1, n_y=1):
 
     return tags
 
-# Use the OpenCV functions to find the Aruco tags on an image
-def detectMarker(frame, aruco_dict):
+def detectMarker(frame: Image, aruco_dict: dict) -> Tuple[Image, np.ndarray, List[int]]:
+    """! Function that use the OpenCV functions to find the Aruco tags on an image
+    @param frame The image of the camera on which a marker might be detected
+    @param aruco_dict Dictionary identifier given by Aruco
+
+    @return A tuple containing: \n
+    - The original image with the marker highlighted (for debug) \n
+    - The coordinates of each corner of each marker detected \n
+    - The ID of the markers detected
+    """
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     parameters = aruco.DetectorParameters_create()
     corners, ids, rejectedImgPoints = aruco.detectMarkers(
@@ -90,8 +129,15 @@ def detectMarker(frame, aruco_dict):
     return frame_markers, corners, ids
 
 
-# Transform a 2D coord from the color frame to the 3D coord given from the camera
-def get_3D_coord_from_realsense(pixel_coord, depth_frame, pipeline):
+def get_3D_coord_from_realsense(pixel_coord: Coord2D, depth_frame: rs.depth_frame,
+                                pipeline: rs.pipeline) -> Output_coord:
+    """! Transform a 2D coord from the color frame to the 3D coord given from the camera
+    @param pixel_coord The 2D coordinates for which you want to transform in 3D
+    @param depth_frame The depth frame provided from the camera
+    @param pipeline The RealSense pipeline from the camera
+
+    @return An array with the X, Y, and Z coordinates of the original point
+    """
     # Get all parameters from the camera sensors
     depth_stream = pipeline.get_active_profile().get_stream(rs.stream.depth)
     color_stream = pipeline.get_active_profile().get_stream(rs.stream.color)
@@ -135,11 +181,23 @@ def get_3D_coord_from_realsense(pixel_coord, depth_frame, pipeline):
     return np.array(rs.rs2_deproject_pixel_to_point(depth_intrin, depth_coord, distance))  # / depth_scale
 
 
-# Compute the 2D coord from a 3D point. The default origin is the camera, but you can give the coords of the Aruco
-#   marker if the point was already translated
-# This uses the RealSense SDK but is still not very precise, it should be used only for debugging usage
-def back_to_pixel(point_coord, pipeline, old_origin_coord=None, old_x_axis=None, old_y_axis=None,
-                  old_z_axis=None):
+def back_to_pixel(point_coord: Coord3D, pipeline: rs.pipeline, old_origin_coord: Coord3D = None,
+                  old_x_axis: Coord3D = None, old_y_axis: Coord3D = None, old_z_axis: Coord3D = None) -> Output_coord:
+    """! Compute the 2D coord from a 3D point. The default origin is the camera, but you can give
+    the coords of the Aruco marker if the point was already translated
+
+    @note This uses the RealSense SDK but is still not very precise, it should be used only for debugging usage
+
+    @param point_coord The 3D point that needs to be projected in 2D space
+    @param pipeline The RealSense pipeline from the camera
+    @param old_origin_coord The 3D coordinates of the origin of the referential for which the 3D point has been
+    calculated
+    @param old_x_axis The 3D coordinates of the point (1, 0, 0) of the "old" referential
+    @param old_y_axis The 3D coordinates of the point (0, 1, 0) of the "old" referential
+    @param old_z_axis The 3D coordinates of the point (0, 0, 1) of the "old" referential
+
+    @return The 2D coordinates after projection on the screen from the original point
+    """
     if old_origin_coord is None:
         old_origin_coord = [0, 0, 0]
     if old_x_axis is None:
@@ -161,11 +219,25 @@ def back_to_pixel(point_coord, pipeline, old_origin_coord=None, old_x_axis=None,
     coord_from_cam += old_origin_coord
 
     # Get the 2D coord
-    return rs.rs2_project_point_to_pixel(color_intrin, coord_from_cam.tolist()[0])
+    return np.array(rs.rs2_project_point_to_pixel(color_intrin, coord_from_cam.tolist()[0]))
 
-# Compute the 3D coordinates from a point that was in the camera origin to another origin (ex: Aruco box)
-def translate_coord_to_world(coord, new_origin_coord, new_x_axis_coord, new_y_axis_coord, new_z_axis_coord=None,
-                             scale = 1.0):
+def translate_coord_to_world(coord: Coord3D, new_origin_coord: Coord3D, new_x_axis_coord: Coord3D,
+                             new_y_axis_coord: Coord3D, new_z_axis_coord: Coord3D=None,
+                             scale: float = 1.0) -> np.ndarray:
+    """! Compute the 3D coordinates from a point that was in the camera origin to another origin (ex: Aruco box)
+    @param coord The 3D coordinates of a point from the camera
+    @param new_origin_coord The 3D coordinates of the origin of the new referential
+    @param new_x_axis_coord The 3D coordinates of the point (1, 0, 0) in the new referential
+    @param new_y_axis_coord The 3D coordinates of the point (0, 1, 0) in the new referential
+    @param new_z_axis_coord The 3D coordinates of the point (0, 0, 1) in the new referential
+    @param scale The scale of the new referential
+
+    @return The 3D coordinates of the original point in the new referential
+
+    @note The scale is useful if the "new_(x|y|z)_axis_coord" are not at 1m from the origin. For example, the
+    Aruco box has markers of size 0.21m, so you can take the corners of the marker as axis coords and apply
+    a scale of 0.21 to compensate.
+    """
     # Get the starting reference (the camera)
     # which is the identity matrix + nul-vector
     original_X = np.matrix([1, 0, 0]).transpose()
@@ -193,27 +265,47 @@ def translate_coord_to_world(coord, new_origin_coord, new_x_axis_coord, new_y_ax
     # Rescale the result if needed
     return p2 * scale
 
-# Compute a 3rd axis when only 2 are available
-def compute_z_axis(x_axis, y_axis):
-    z_axis = np.cross(x_axis.transpose(), y_axis.transpose()).transpose()
-    # Getting a coherent Z norm
+def compute_z_axis(x_axis: Vector, y_axis: Vector) -> Vector:
+    """! Compute a 3rd axis when only 2 are available by using the cross product
+    @param x_axis The 3D vector of the X-axis
+    @param y_axis The 3D vector of the Y-axis
+
+    @return The 3D vector of the computed Z-axis
+    """
+    z_axis = np.cross(np.array(x_axis).transpose(), np.array(y_axis).transpose()).transpose()
+    # Getting a coherent Z norm by resizing it to the mean of the X vector's norm and the Y vector's norm
     norm_X = np.linalg.norm(x_axis)
     norm_Y = np.linalg.norm(y_axis)
     norm_Z = np.linalg.norm(z_axis)
-    # This is an approximation, if a nice mathematician want to correct me it would be nice!
+    # TODO: This is an approximation, if a nice mathematician want to correct me it would be nice!
     z_axis = (z_axis / norm_Z) * ((norm_X + norm_Y) / 2)
     return z_axis
 
 
-##### Starting of the demo #####
+def draw_line(image: Image, start: Coord2D, end: Coord2D,
+              color: Union[Tuple, List] = (0, 0, 0),
+              thickness: int = 2) -> Image:
+    """! Drawing a line on an image
+    @param image The image on which you want to draw a line
+    @param start Position of the starting point of the line
+    @param end Position of the ending point of the line
+    @param color Color of the line in the format (R, G, B) and values between 0 and 255
+    @param thickness Width of the line, in pixel
 
-# Drawing a line on an image
-def draw_line(image, start, end, color=(0, 0, 0), thickness=2):
-    image = cv2.line(image, tuple(map(int, start)), tuple(map(int, end)), color=color, thickness=thickness)
+    @return A modified copy of the image
+    """
+    image = cv2.line(image.copy(), tuple(map(int, start)), tuple(map(int, end)), color=color, thickness=thickness)
     return image
 
-# Drawing a cube from the marker's location
-def draw_cube(image, marker, depth_frame, pipeline):
+def draw_cube(image: Image, marker: List, depth_frame: rs.depth_frame, pipeline: rs.pipeline) -> Image:
+    """! Drawing a cube at the marker's location on an image
+    @param image The original image
+    @param marker The position of the corners of the markers detected. This is found in the output of detectMarker().
+    @param depth_frame The depth frame coming from the camera
+    @param pipeline The RealSense pipeline from the camera
+
+    @return A modified copy of the image
+    """
     (top_left, top_right, bottom_right, bottom_left) = (marker[0][0], marker[0][1], marker[0][2], marker[0][3])
 
     top_left_3D = get_3D_coord_from_realsense(top_left.tolist(), depth_frame, pipeline)
@@ -261,21 +353,42 @@ def draw_cube(image, marker, depth_frame, pipeline):
     return image
 
 
-def center_of_shape(vertices: list):
+def center_of_shape(vertices: List[Coord]) -> Output_coord:
+    """! Return the center of gravity of a shape
+    @param vertices the list of coordinate points that defines the shape
+
+    @return The center of gravity
+    """
     return np.mean(np.array(vertices), axis=0)
 
-# The Aruco cube is using 6 Aruco tags. The camera can see at max 3 markers at the time,
-#   we want to get the maximum of precision on the axis by using the average of all markers seen
-def create_aruco_cube(corners, ids, depth_frame, pipeline):
+def create_aruco_cube(corners: np.ndarray, ids: List[int], depth_frame: rs.depth_frame, pipeline: rs.pipeline) \
+        -> Tuple[Output_coord, Dict[str, Output_coord], List[Output_coord],  Dict[str, List[Output_coord]]]:
+    """! Function to create a referential from the Aruco markers that can be found on the Aruco box
+    @param corners List of the corners from each Aruco marker found in an image.
+    This is found in the output of detectMarker().
+    @param ids List of the IDs of the markers detected on screen
+    @param depth_frame The depth frame coming from the camera
+    @param pipeline The RealSense pipeline from the camera
+
+    @return A tuple containing:
+    - The center of the new referential
+    - A Dict object with the position of each axis {'x': position_x, 'y': position_y, 'z': position_z}
+    - The list of each center of markers
+    - The list of each axis computed by each markers
+
+    @note
+    The Aruco cube is using 6 Aruco tags. The camera can see at max 3 markers at the time,
+    we want to get the maximum of precision on the axis by using the average of all markers seen
+    """
     vectors_counts = {'x': 0, 'y': 0, 'z': 0}
     reference_vectors = {'x': np.array([0.0, 0.0, 0.0]),
                          'y': np.array([0.0, 0.0, 0.0]),
                          'z': np.array([0.0, 0.0, 0.0])}
     all_reference_vectors = {'x': [],
-                         'y': [],
-                         'z': []}
+                             'y': [],
+                             'z': []}
     if len(corners) == 0:
-        return None, None
+        return None, None, None, None
 
     ids = np.array(ids).flatten()
     centers3D = []
@@ -388,15 +501,28 @@ def create_aruco_cube(corners, ids, depth_frame, pipeline):
 
     return mean_center, reference_vectors, centers3D, all_reference_vectors
 
-# Global variable for the Aruco cube reference
+## Global variable for the Aruco cube reference
 all_references_for_aruco_cube = {
     'x_axis': [],
     'y_axis': [],
     'z_axis': [],
     'center': []
 }
-# Improve the precision of the aruco cube at each frame
-def calibrate_aruco_cube(color_frame, depth_frame, pipeline, aruco_dict = None):
+
+def calibrate_aruco_cube(color_frame: Image, depth_frame: rs.depth_frame, pipeline: rs.pipeline,
+                         aruco_dict: int = None) -> Tuple[Output_coord, Output_coord, Output_coord, Output_coord]:
+    """! Improve the precision of the aruco cube at each frame
+    @param color_frame The color frame coming from the camera
+    @param depth_frame The depth frame coming from the camera
+    @param pipeline The RealSense pipeline for the camera
+    @param aruco_dict The dictionary used to create the Aruco markers on the cube
+
+    @return A tuple containing:
+    - The center of the referential created from the Aruco box
+    - The position of the point (1, 0, 0) from the camera
+    - The position of the point (0, 1, 0) from the camera
+    - The position of the point (0, 0, 1) from the camera
+    """
     if aruco_dict is None:
         aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
     # Get the Aruco tags from the color frame and compute the axis and reference
@@ -428,8 +554,8 @@ def calibrate_aruco_cube(color_frame, depth_frame, pipeline, aruco_dict = None):
     else:
         return None, None, None, None
 
-# Function to get the calibrated reference of the Aruco box
-def get_aruco_reference():
+def get_aruco_reference() -> Tuple[Output_coord, Output_coord, Output_coord, Output_coord]:
+    """! Function to get the calibrated reference of the Aruco box"""
     # The median value is good to filter out outliers
     if len(all_references_for_aruco_cube['center']) > 0:
         median_center = np.median(all_references_for_aruco_cube['center'], axis=0)
@@ -438,15 +564,21 @@ def get_aruco_reference():
         median_z = np.median(all_references_for_aruco_cube['z_axis'], axis=0)
 
         return median_center, median_x, median_y, median_z
-
     else:
         return None, None, None, None
 
-# Function to count the number of time the Aruco box has been calibrated
-def get_number_of_calibration_of_aruco_box():
+def get_number_of_calibration_of_aruco_box() -> int:
+    """! Function to count the number of time the Aruco box has been calibrated"""
     return len(all_references_for_aruco_cube['center'])
 
-def display_reference(color_frame, pipeline):
+def display_reference(color_frame: Image, pipeline: rs.pipeline) -> Image:
+    """! Graphic function that display the 3 axis from the aruco box
+    @param color_frame The color frame coming from the camera
+    @param pipeline The RealSense pipeline for the camera
+
+    @return A transformed copy of the image
+    """
+    new_color_frame = color_frame.copy()
     median_center, median_x, median_y, median_z = get_aruco_reference()
     if median_center is not None:
         # Display the reference
@@ -457,15 +589,14 @@ def display_reference(color_frame, pipeline):
                            back_to_pixel(median_center + median_y * 2, pipeline)))
         z_axis = tuple(map(int,
                            back_to_pixel(median_center + median_z * 2, pipeline)))
-        color_frame = cv2.circle(color_frame, center2D, 3, (0, 255, 0), -1)
-        color_frame = cv2.line(color_frame, center2D, x_axis, (255, 0, 0), 4)
-        color_frame = cv2.line(color_frame, center2D, y_axis, (0, 0, 255), 4)
-        color_frame = cv2.line(color_frame, center2D, z_axis, (0, 255, 0), 4)
-    return color_frame
+        new_color_frame = cv2.circle(new_color_frame, center2D, 3, (0, 255, 0), -1)
+        new_color_frame = cv2.line(new_color_frame, center2D, x_axis, (255, 0, 0), 4)
+        new_color_frame = cv2.line(new_color_frame, center2D, y_axis, (0, 0, 255), 4)
+        new_color_frame = cv2.line(new_color_frame, center2D, z_axis, (0, 255, 0), 4)
+    return new_color_frame
 
-
-if __name__ == "__main__":
-    # Example of usage: python convert_realsense_to_real_world.py --file recordings/aruco_code.bag
+def main():
+    """! A demonstration of the use of this file"""
     import argparse
 
     parser = argparse.ArgumentParser(description='Transform the coordinate reference to fit an Aruco marker')
@@ -530,23 +661,6 @@ if __name__ == "__main__":
                 color_frame = cv2.line(color_frame, center2D, y_axis, (0, 0, 255), 4)
                 color_frame = cv2.line(color_frame, center2D, z_axis, (0, 255, 0), 4)
 
-                # FYI: these are the coords of the PIR sensors in the original experiment
-                P20 = [-181.427, 83.080, -2.405]
-                P21 = [7.778, 76.592, 1.313]
-                P22 = [-177.691, 80.872, 187.767]
-                P23 = [11.459, 73.862, 191.621]
-
-
-                # P20 = [ 0.335,  0.165,  2.322]
-                # P21 = [-1.410, -0.080,  2.520]
-                # P22 = [ 0.565, -0.085,  4.155]
-                # P23 = [-1.180, -0.325,  4.355]
-                #
-                # P20_from_cube = translate_coord_to_world(P20, median_center, median_center + median_x, median_center + median_y, median_center + median_z, marker_size)
-                # P21_from_cube = translate_coord_to_world(P21, median_center, median_center + median_x, median_center + median_y, median_center + median_z, marker_size)
-                # P22_from_cube = translate_coord_to_world(P22, median_center, median_center + median_x, median_center + median_y, median_center + median_z, marker_size)
-                # P23_from_cube = translate_coord_to_world(P23, median_center, median_center + median_x, median_center + median_y, median_center + median_z, marker_size)
-
         except Exception as e:
             print(e)
 
@@ -574,3 +688,8 @@ if __name__ == "__main__":
         pipeline = pipeline.stop()
     else:
         pipeline = stop_playback(pipeline)
+
+
+if __name__ == "__main__":
+    # Example of usage: python convert_realsense_to_real_world.py --file recordings/aruco_code.bag
+    main()

@@ -621,10 +621,10 @@ def compute_stride_length(data):
     # It is hard to decide if we want to use the footstep estimation by velocity or by distance,
     #   so we are using the two of them here
     frames = []
-    _, steps_instant = estimate_footsteps_by_distance(data, 3)
-    frames += steps_instant['frames'].tolist()
-    # _, steps_instant = estimate_footsteps(data, motion_threshold=0.01)
+    # _, steps_instant = estimate_footsteps_by_distance(data, 3)
     # frames += steps_instant['frames'].tolist()
+    _, steps_instant = estimate_footsteps(data, motion_threshold=0.01)
+    frames += steps_instant['frames'].tolist()
     previous_positions = None
 
     # Store all the widths founds so we can average them at the end

@@ -1,26 +1,41 @@
+"""! This script creates a CSV file containing sensors data when somebody is walking through them.
+The walking gait characteristics are computed and stored with the sensors data
+"""
+
 import datetime
 import os
 import pickle
-import time
-
 import dateutil
-from matplotlib import pyplot as plt
+import pandas as pd
 
 import InfluxDB_connection as db
 import deep_neural_training
 import feet_analysis
-import pandas as pd
 
 from utils import HiddenPrints
 
 
-def fill_csv(create_CSV_from_scratch=False,
-             output_filename='gait_values.csv',
-             client=None,
+def fill_csv(create_CSV_from_scratch: bool = False,
+             output_filename: str = 'gait_values.csv',
+             client: db.ListicClientDB = None,
              start_time=None, end_time=None,
-             verbose=True,
-             use_cache=True,
-             sensor_height=None):
+             verbose: bool = True,
+             use_cache: bool = True,
+             sensor_height: str = None) -> pd.DataFrame:
+    """! Creates the CSV file that stores the sensors data and the ground truth from the camera
+    @param create_CSV_from_scratch If true, the previous CSV file is deleted and the calculations are all done again
+    @param output_filename name of the CSV file to create
+    @param client InfluxDB client to access the database
+    @param start_time Timestamp of the time at which we limit our calculations
+    @param end_time Timestamp of the time at which we limit our calculations
+    @param verbose Display logs
+    @param use_cache Use the InfluxDB client to use the cache in order to avoid computations when segmenting
+    the sequences
+    @param sensor_height The height of the sensors (the tag 'sensor_height' in InfluxDB). If None, all sequences are
+    used
+
+    @return All the data from the sensors and the features computed from the camera, as a DataFrame
+    """
     with HiddenPrints(verbose):
         if client is None:
             # Create DB client
@@ -171,21 +186,22 @@ def fill_csv(create_CSV_from_scratch=False,
             print(f'Encountered {len(dataframe_errors)} errors while transforming:')
             for err in dataframe_errors:
                 print(f'\t- seq#{err["sequence"]["id"]}: {str(err["error"])}')
-    # return full_df
 
     return pd.read_csv(output_filename)
-    # if len(sequence_data) > 0:
-    #     # Should be improved to avoid re-reading, but for now it's missing something...
-    #     return pd.read_csv(output_filename)
-    # else:
-    #     return None
 
+def main():
+    """! The creation of the CSV file and the file containing the Wavelet Transforms
 
-if __name__ == '__main__':
+    @note Modify directly the code of this file if you want to change the sensor's height criteria
+    """
     sensors_height = 'ankles'
-    pir_data = fill_csv(create_CSV_from_scratch=False,
+    pir_data = fill_csv(create_CSV_from_scratch=True,
                         output_filename=f"gait_values_{sensors_height}.csv",
                         verbose=True,
                         start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000,
                         sensor_height=sensors_height)
     deep_neural_training.precompute_morlet_transforms(pir_data, f"all_pirs_transformed_{sensors_height}.data", output_filename=True)
+
+
+if __name__ == '__main__':
+    main()

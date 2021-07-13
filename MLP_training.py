@@ -279,7 +279,7 @@ independent_variables = [
     # "delta_time_0_2", "delta_time_1_3",
     # "corridor", "direction"
 ]
-dependent_variables = ['footstep_width']
+dependent_variables = ['walking_speed']
 # Other possible dependent variables
 # walking_speed, direction, corridor_position, cycle_time, cadence, double_support_ratio, stride_length, footstep_width
 

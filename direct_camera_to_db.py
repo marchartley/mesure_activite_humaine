@@ -161,6 +161,7 @@ class HumanStorage:
 
 
 def update_datasets(use_cache=True):
+    return
     pir_data = create_pir_csv.fill_csv(create_CSV_from_scratch=False,
                                        output_filename='gait_values_ankles.csv',
                                        # start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000,

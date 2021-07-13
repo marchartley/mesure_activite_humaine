@@ -1,13 +1,15 @@
+"""! This script creates a CSV file containing the sensors values when nobody is in front of them.
+It can be used if you want to train a classifier "somebody is here / nobody here"
+"""
+
 import datetime
 import os
 import pickle
 import time
-
 import dateutil
+import pandas as pd
 
 import InfluxDB_connection as db
-import feet_analysis
-import pandas as pd
 
 create_CSV_from_scratch = True
 
