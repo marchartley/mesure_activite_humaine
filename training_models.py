@@ -27,6 +27,8 @@ class CustomModel(nn.Module):
             device = cuda
         else:
             device = cpu
+        # Move our model to ve desired memory part
+        self.to(device)
 
     def __str__(self):
         """! The "name" of the networks briefly prints all its parameters"""
