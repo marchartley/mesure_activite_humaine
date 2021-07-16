@@ -108,6 +108,14 @@ device = cuda if torch.cuda.is_available() else cpu
 ## Keep track whever we are using the CPU or the GPU
 use_cuda = True
 
+def update_device(update_to_cuda: bool) -> torch.device:
+    global cpu, cuda, device, use_cuda
+    if update_to_cuda:
+        device = cuda
+    else:
+        device = cpu
+    use_cuda = update_to_cuda
+    return device
 
 def correlation_loss(x, y):
     """! A custom loss function that tries to optimize the correlation of the predictions with the ground truth
@@ -127,16 +135,16 @@ def correlation_loss(x, y):
 def train_model(trainloader,
                 validationloader,
                 model_class: Type[CustomModel] = MultipleWaveletsModule,
-                model_parameters=None,
+                model_parameters: Dict = None,
                 loss_function: Type[nn.Module] = nn.CrossEntropyLoss,
-                training_for_autoencoder=False,
+                training_for_autoencoder: bool = False,
                 optimizer: Any = None,
-                learning_rate=0.010,
-                num_epochs=5,
-                early_stopping=False,
+                learning_rate: float = 0.010,
+                num_epochs: int = 5,
+                early_stopping: Union[bool, int] = False,
                 display_precision: float = 100,
                 verbose: Union[bool, int] = True,
-                estimated_parameter='body_speed'):
+                estimated_parameter: str = 'body_speed'):
     """! Train function, give it your dataset, the parameters of your model, and there you go.
     @param trainloader the training part of your dataset
     @param validationloader the testing / validation part of your dataset
@@ -148,9 +156,9 @@ def train_model(trainloader,
     @param learning_rate parameter given to the optimizer
     @param num_epochs number of epochs for the training
     @param early_stopping if True, will stop if the validation loss starts increasing
-    #                   If a integer value, defines the "patience" (number of minibatch to study before officially stops for overfitting)
+    If a integer value, defines the "patience" (number of minibatch to study before officially stops for overfitting)
     @param display_precision if verbose, number of minibatch seen when printing results.
-    #                 And because we didn't work very well, it also defines the precision for early stopping...
+    And because we didn't work very well, it also defines the precision for early stopping...
     @param verbose level of verbosity
     @param estimated_parameter The parameter that you want to estimate with your model
 
@@ -1212,7 +1220,7 @@ def normalize(df: pd.DataFrame, concerned_columns: Union[list, str] = 'all', ign
 
 def precompute_morlet_transforms(raw_data: pd.DataFrame,
                                  pir_transforms_filename: str = 'all_pirs_transformed.data',
-                                 output_filename: Union[str, bool] = True):
+                                 output_filename: Union[str, bool] = True) -> Dict:
     """! Function that compute all the Continuous Wavelet Transforms of the dataset and store them in a Pickle file.
     @param raw_data A DataFrame containing all the data of the dataset. This might be the content of 'gait_values.csv'
     @param pir_transforms_filename The name of the file in which you want to save the CWT data
@@ -1242,7 +1250,8 @@ def precompute_morlet_transforms(raw_data: pd.DataFrame,
         all_pirs_transformed = pickle.load(open(pir_transforms_filename, 'rb'))
     # Filter sequences where the corridor wasn't found (probably data error),
     # where the direction is set to 0 (person did a half-turn)
-    # (no idea what seq[5] is, I think it was a quick fix for some corrupted data. You can probably remove it now)
+    # (I think seq[5] is the walking speed, I think it was a quick fix for some corrupted data.
+    # You can probably remove it now)
     all_pirs_transformed['data'] = list(filter(lambda seq: seq[5] < 10 and not np.isnan(seq[6]) and seq[7] != 0,
                                                all_pirs_transformed['data']))
     # keep the sequence ID of those that are not good (half-turn done or corrupted data) so you don't have to
@@ -1278,12 +1287,13 @@ def precompute_morlet_transforms(raw_data: pd.DataFrame,
                 'pir3': seq['pir3'],
             }
             if speed < 10 and direction != 0 and not np.isnan(corridor):
-                # print(speed, seq['time'].iloc[0], seq['time'].iloc[-1])
                 with HiddenPrints(False):
+                    # Compute the CWT image of each sensor
                     pir0 = compute_morlet_transform(seq['pir0'])
                     pir1 = compute_morlet_transform(seq['pir1'])
                     pir2 = compute_morlet_transform(seq['pir2'])
                     pir3 = compute_morlet_transform(seq['pir3'])
+                    # Store the CWT images and the gait features in an array
                     all_pirs_transformed['data'].append([pir0, pir1, pir2, pir3, seq_id, speed, corridor, direction,
                                                          footstep_width, cycle_time, stride_length, corridor_position,
                                                          raw])
@@ -1299,6 +1309,7 @@ def precompute_morlet_transforms(raw_data: pd.DataFrame,
             f"({round(time_estimation, 2)}s)")
     print('100%')
 
+    # If we want to save the file, do it
     if output_filename is not None:
         print(f"Saving {len(all_pirs_transformed['data'])} sequences into {output_filename}")
         pickle.dump(all_pirs_transformed, open(output_filename, 'wb+'))
@@ -1306,28 +1317,43 @@ def precompute_morlet_transforms(raw_data: pd.DataFrame,
     return all_pirs_transformed
 
 
-def training(path_to_save_cnn,
-             pir_transforms_filename='all_pirs_transformed.data',
-             estimated_parameter='body_speed',
-             number_of_models_trained=math.inf):
+def training(path_to_save_cnn: str,
+             pir_transforms_filename: str = 'all_pirs_transformed.data',
+             estimated_parameter: str = 'body_speed',
+             number_of_models_trained: int = math.inf) -> None:
+    """! Main training function that make dataloader from the dataset, defines the model parameters
+    and training parameters that will be used to train all the models
+    @param path_to_save_cnn Path where the trained models should be saved
+    @param pir_transforms_filename Path to the file containing the dataset (the one with Continuous Wavelet Transforms
+    computed) to create the dataloader
+    @param estimated_parameter The walking parameter that will be estimated by the models
+    @param number_of_models_trained You can give a maximum number of models to train before the program stops
+    """
+    # Get the dataset
     all_pirs_transformed = pickle.load(open(pir_transforms_filename, 'rb'))
-    # Required "resize" to fit the DNNs
-    # input_size = 224
     # Required "resize" to fit the CNNs
     input_size = 128
 
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
     dataset = PIR_DataLoader(all_pirs_transformed['data'], transform=transforms.Compose([
+        # First, resize each image to fit the networks input size
         transforms.Resize((input_size, input_size), transforms.InterpolationMode.NEAREST),
+        # Transform the images in torch Tensors, which is the "official" type that models work with
         transforms.ToTensor(),
+        # Make sure the tensors are defined as floating values
         transforms.Lambda(lambda x: x.float()),
-        # Decomment the next lines to add some noise to the dataset
+        # Decomment the next lines to add more noise to the dataset
+        # Add some random noise on the images
         # transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.01 + 0.005)),
+        # Blur a little the image
         # transforms.Lambda(lambda x: transforms.GaussianBlur(
-        #     2 * int(random.random() * 20) + 1, (0.1, 10.0))(x)),
+        #     2 * int(random.random() * 10) + 1, (0.1, 10.0))(x)),
     ]),
+                             # For the training, increase the sample size x3 and allow translations of the images
+                             # on the X-axis
                              data_inflate=3.0, apply_translation=True)
+
     # Train size = 70%, Validation = 10%, Testing = 20%
     ratio_train_set = 70 / 100
     ratio_valid_set = 10 / 100
@@ -1335,11 +1361,12 @@ def training(path_to_save_cnn,
     train_size = int(ratio_train_set * len(dataset))
     valid_size = int(ratio_valid_set * len(dataset))
     test_size = len(dataset) - (train_size + valid_size)
+    # Split randomly the samples to have a training set, a validation set and a testing set
     training_set_PIR, validation_set_PIR, testing_set_PIR = torch.utils.data.random_split(dataset,
                                                                                           [train_size, valid_size,
                                                                                            test_size])
+    # We've chose low minibatch size to be more efficient and be sure to avoid memory issues, but takes more time
     minibatch_size = 1
-    # We've chose high batch size to be more efficient in time
     trainloader = torch.utils.data.DataLoader(training_set_PIR, batch_size=minibatch_size,
                                               shuffle=True, num_workers=0)
     validationloader = torch.utils.data.DataLoader(validation_set_PIR, batch_size=minibatch_size,
@@ -1408,20 +1435,31 @@ def training(path_to_save_cnn,
                    max_number_of_models=number_of_models_trained)
 
 
-def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data', estimated_parameter='body_speed',
-            display_all_models=False):
-    # Required "resize" to fit the DNNs
-    # input_size = 224
+def display(path_to_save_cnn: str,
+            pir_transforms_filename: str = 'all_pirs_transformed.data',
+            display_all_models: bool = False) -> None:
+    """! Main function to display the results of your trained networks
+    @param path_to_save_cnn The location where you stored your trained networks
+    @param pir_transforms_filename The name of the file containing the dataset
+    @param display_all_models If True, we will plot the the predictions and the errors of the model on the dataset,
+    instead of just the statistics computed during the training part
+
+    @see This can be done only after doing a training()
+    """
     # Required "resize" to fit the CNNs
     input_size = 128
 
+    # Open the dataset
     all_pirs_transformed = pickle.load(open(pir_transforms_filename, 'rb'))
 
     # Load the data through a DataLoader on which we can apply some transformation to create a more robust model
     # The "data_inflate" can increase the number of data by multiplying them and apply different transformations
     dataset = PIR_DataLoader(all_pirs_transformed['data'], transform=transforms.Compose([
+        # Resize the images to fit the input size of the networks
         transforms.Resize((input_size, input_size), interpolation=transforms.InterpolationMode.NEAREST),
+        # Transform the images in tensors
         transforms.ToTensor(),
+        # Make sure to use floating values
         transforms.Lambda(lambda x: x.float()),
         # transforms.Lambda(lambda x: x * (1 - torch.randn_like(x) * 0.1)),
         # transforms.Lambda(lambda x: transforms.GaussianBlur(
@@ -1449,20 +1487,31 @@ def display(path_to_save_cnn, pir_transforms_filename='all_pirs_transformed.data
     # Here, the "test_results" column is the coef of correlation between the estimation and ground truth
     #    "test_results" of 1 = perfect match, 0 = no significant match, -1 = what?, NaN = model is rubbish
     #    models that return a coef "NaN" = return same value, regardless of input
-    # plt.title("Training of %d models for the speed estimator" % len(results_data))
+    # But you can change it by commenting and decommenting some of the next lines:
     ordering = ('correlation', True)
     # ordering = ('mae', False)
     # ordering = ('mse', False)
     # ordering = ('percent_error', False)
+
+    # Fetch the results of all your trained models
     short_results, full_results = display_models(path_to_save_cnn, test_loader=testing_set_PIR,
                                                  scalers=all_pirs_transformed['scalers'], order_by=ordering[0],
                                                  bigger_is_better=ordering[1], display_all_models=display_all_models)
-    # full_results.sort_values(by="corr", ascending=False, inplace=True)
+    # The "full_results" contains all the information for each models (optimizer, loss function, parameters, etc...)
+    # full_results.sort_values(by=ordering[0], ascending=not ordering[1], inplace=True)
     # print(full_results)
     print(short_results.sort_values(by=ordering[0], ascending=ordering[1]).head(500))
 
 
-def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
+def merge_models_in_one_file(path_to_cnn: str, ignored_files: str = '_useless_') -> None:
+    """! When doing a training, each model is stored in a different file. With this function you can merge all
+    files into a single one. It might not always be a good idea as the file might be way too big at the end if
+    lots of training has been done, and I'm not sure about the consequences on the GPU memory when unpickling the file.
+    @param path_to_cnn The path where your models have been saved
+    @param ignored_files The prefix given to models that had very bad results and can be ignored
+
+    @see If you want to first remove useless files: see remove_useless_models()
+    """
     filename = os.path.split(os.path.splitext(path_to_cnn)[0])[-1]
     ext = os.path.splitext(path_to_cnn)[1]
     directory = os.path.join(*os.path.split(os.path.splitext(path_to_cnn)[0])[:-1])
@@ -1471,17 +1520,23 @@ def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
     ignored_models = []
     files_to_delete = []
     all_files = glob.glob(os.path.splitext(path_to_cnn)[0] + "*" + os.path.splitext(path_to_cnn)[1])
+    # Iterate on each file containing models
     for i, file in enumerate(all_files):
         print(f"{round(100 * (i + 1) / len(all_files), 1)}% ({i + 1} / {len(all_files)})")
         if ignored_files in file:
+            # If this file should be ignored, don't do anything
             continue
         try:
+            # Extract the models from the file
             these_models = pickle.load(open(file, "rb"))
+            # Take out the "useless" models that can be stored here and temporarily save them in another file
+            # marked with the "useless" pattern
             ignored_models = list(filter(lambda model: np.isnan(model['test']['correlation']), these_models))
             pickle.dump(ignored_models, open(os.path.join(directory, filename + ignored_files + str(i) +
                                                           '_' + str(time.time()) + ext), "wb+"))
             these_models = list(filter(lambda model: not np.isnan(model['test']['correlation']), these_models))
             models.extend(these_models)
+            # This file can be deleted at the end
             files_to_delete.append(file)
         except Exception as e:
             print(e)
@@ -1489,11 +1544,13 @@ def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+    # Put all the models in a single file, and remove all other files
     print(f"Saving {len(models)} models...")
     pickle.dump(models, open(os.path.join(directory, filename + "_" + str(time.time()) + ext), "wb+"))
     for file in files_to_delete:
         os.remove(file)
 
+    # Now we also merge the "useless" models, marked with a pattern in the filenames
     print('Merging useless models...')
     models = []
     files_to_delete = []
@@ -1501,13 +1558,16 @@ def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
     for i, file in enumerate(all_files):
         print(f"{round(100 * (i + 1) / len(all_files), 1)}% ({i + 1} / {len(all_files)})")
         try:
+            # Extract them all and add them to a list
             these_models = pickle.load(open(file, "rb"))
             models.extend(these_models)
             files_to_delete.append(file)
         except Exception as e:
             print(e)
+    # Put all of them in a single file
     pickle.dump(models, open(os.path.join(directory, filename + ignored_files + str(time.time()) + ext), "wb+"))
 
+    # Remove all the other useless files
     print('Cleaning')
     for file in files_to_delete:
         os.remove(file)
@@ -1515,7 +1575,14 @@ def merge_models_in_one_file(path_to_cnn, ignored_files='_useless_'):
     print('Done.')
 
 
-def remove_useless_models(path_to_cnn, ignored_files='_useless_'):
+def remove_useless_models(path_to_cnn: str, ignored_files: str = '_useless_') -> None:
+    """! Function to store the models with really bad results in a file containing the "ignore_file" pattern, so
+    it won't be taken in consideration during the display process of the training results
+    @param path_to_cnn The path where your models have been saved
+    @param ignored_files The prefix given to models that had very bad results and can be ignored
+
+    @see The process is exactly the same as merge_models_in_one_file(), but without the merging of the good models.
+    """
     filename = os.path.split(os.path.splitext(path_to_cnn)[0])[-1]
     ext = os.path.splitext(path_to_cnn)[1]
     directory = os.path.join(*os.path.split(os.path.splitext(path_to_cnn)[0])[:-1])
@@ -1575,11 +1642,10 @@ def remove_useless_models(path_to_cnn, ignored_files='_useless_'):
     print('Done.')
 
 
-if __name__ == '__main__':
-
-    # Example of usage: python direct_camera_to_db.py --local
+def main():
+    # Example of usage: python deep_neural_training.py --training --parameter all
     #  or
-    #                   python direct_camera_to_db.py --remote
+    #                   python deep_neural_training.py --update-data --display --parameter body_speed
     import argparse
 
     parser = argparse.ArgumentParser(description='Train neural networks to estimate walking speed from the Wavelet '
@@ -1612,17 +1678,26 @@ if __name__ == '__main__':
         print("Please select a parameter to train/display your models")
         exit()
 
+    # The random seed used so the data splits stays the same and results are reproductible
     torch.manual_seed(42)
 
+    ## Change this variable to change the dataset used (for now values are "ankles" or "hips")
     sensors_height = 'ankles'
+
+    ## Set this value to True if you want to see the predictions and errors of each trained model during the "display"
+    # part, or set to False to see only the "best one".
+    display_all_models = True
 
     # Path to save the binary files containing the data about our trained models
     root_to_cnn = f"trained_models/{device.type}_batch_normed_{sensors_height}_{estimated_parameter}/"
     path_to_save_cnn = root_to_cnn + "convolution_network.model"
     pir_transforms_filename = f"all_pirs_transformed_{sensors_height}.data"
 
+    ## Variable used when training all the walking parameters so it trains 5 models per parameter,
+    # then increase to 10, etc...
     number_of_models_per_parameter = 5
 
+    # If the --update-data is given, update the CWT data from the CSV
     if update_data:
         # All data comes from the CSV file created through fill_csv() in create_pir_csv.py
         data = pd.read_csv(f"gait_values_{sensors_height}.csv")
@@ -1631,7 +1706,9 @@ if __name__ == '__main__':
                                      pir_transforms_filename=pir_transforms_filename,
                                      output_filename=pir_transforms_filename)
 
+    # If --train is given, we engage the training of our models
     if do_training:
+        # If we want all walking parameters to be trained, we loop infinitely to train each parameter
         if estimated_parameter == 'all':
             while True:
                 for param in estimable_parameters:
@@ -1640,23 +1717,34 @@ if __name__ == '__main__':
                     training(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename,
                              estimated_parameter=param, number_of_models_trained=number_of_models_per_parameter)
                 number_of_models_per_parameter += 5
+        # Otherwise, train your models on the desired walking parameter
         else:
             training(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename,
                      estimated_parameter=estimated_parameter)
 
+    # If --display is given, display the learning curves, the predictions and the errors of the models
     if do_display:
+        # If we want to see all walking parameters, loop on each of them to do the display
         if estimated_parameter == 'all':
             for param in estimable_parameters:
                 root_to_cnn = f"trained_models/{device.type}_batch_normed_{sensors_height}_{param}/"
                 path_to_save_cnn = root_to_cnn + "convolution_network.model"
                 display(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename,
-                        estimated_parameter=param, display_all_models=True)
+                        display_all_models=display_all_models)
+        # Otherwise just display the models trained on the desired one
         else:
             display(path_to_save_cnn, pir_transforms_filename=pir_transforms_filename,
-                    estimated_parameter=estimated_parameter, display_all_models=True)
+                    display_all_models=display_all_models)
 
+    # If --merge-file is given, do a clean and a merge of your models
     if merge_files:
         merge_models_in_one_file(path_to_save_cnn)
 
+    # If --clean-files is given, do a clean on your models
     if clean_files:
         remove_useless_models(path_to_save_cnn)
+
+
+if __name__ == '__main__':
+    main()
+

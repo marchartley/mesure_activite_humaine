@@ -206,7 +206,7 @@ def get_sequence_features(sequence):
 if __name__ == "__main__":
     # Access the DB
     client = db.ListicClientDB(server_side=True)
-    all_queries = client.get_all_pir_values()
+    all_queries = client.get_all_pir_values(group_by_move=True)
     # Get all the values and get the speed associated
     df = pd.DataFrame(join_pir_and_params(all_queries))
 
