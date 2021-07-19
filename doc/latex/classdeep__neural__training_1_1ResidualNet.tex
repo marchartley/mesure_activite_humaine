@@ -1,0 +1,74 @@
+\hypertarget{classdeep__neural__training_1_1ResidualNet}{}\doxysection{Residual\+Net Class Reference}
+\label{classdeep__neural__training_1_1ResidualNet}\index{ResidualNet@{ResidualNet}}
+Inheritance diagram for Residual\+Net\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classdeep__neural__training_1_1ResidualNet}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classdeep__neural__training_1_1ResidualNet_a7573d331bf741fbd126696f626c8e967}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, int input\+\_\+size, int output\+\_\+size=1, int \mbox{\hyperlink{classdeep__neural__training_1_1CustomModel_a9f8cdd1722935de699a4c018b77b02e0}{number\+\_\+of\+\_\+outputs}}=1, int \mbox{\hyperlink{classdeep__neural__training_1_1ResidualNet_a3538c94f8bccfb35742b32fd1642d7c4}{kernel\+\_\+size}}=3, int \mbox{\hyperlink{classdeep__neural__training_1_1ResidualNet_a62776fc9a874ba37d166f3233a5edba0}{number\+\_\+of\+\_\+filters}}=2, int \mbox{\hyperlink{classdeep__neural__training_1_1ResidualNet_af80d8614247dbfb96343c2b435dfc277}{number\+\_\+of\+\_\+layers}}=1, \mbox{\hyperlink{classdeep__neural__training_1_1ResidualNet_a2d4a50b239a7d111c3e50c9d81fb7e9b}{hidden\+\_\+cells}}=None, \mbox{\hyperlink{classdeep__neural__training_1_1ResidualNet_a60bc6e9da1b956f08b0ec90f897633d8}{number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer}}=1, \mbox{\hyperlink{classdeep__neural__training_1_1ResidualNet_a294d6d387742f5ab6dbe8b1ad4ff41ef}{layer\+\_\+relu}}=None, last\+Activation=None, \mbox{\hyperlink{classdeep__neural__training_1_1ResidualNet_a1e83df075734cb7c5bebb742760fb715}{use\+\_\+concat\+\_\+pir}}=True, $\ast$$\ast$useless)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a3fd5e53c89dd0bb2cdafbcb37b281ef9}\label{classdeep__neural__training_1_1ResidualNet_a3fd5e53c89dd0bb2cdafbcb37b281ef9}} 
+def {\bfseries forward} (self, pir0, pir1, pir2, pir3, concat\+\_\+pir)
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a7455177e76e3c702479189fceb194cdc}\label{classdeep__neural__training_1_1ResidualNet_a7455177e76e3c702479189fceb194cdc}} 
+def {\bfseries forward\+\_\+process} (self, torch.\+Tensor x)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a2d4a50b239a7d111c3e50c9d81fb7e9b}\label{classdeep__neural__training_1_1ResidualNet_a2d4a50b239a7d111c3e50c9d81fb7e9b}} 
+{\bfseries hidden\+\_\+cells}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a103b82be924bbf6bff7f0b22e076cdc5}\label{classdeep__neural__training_1_1ResidualNet_a103b82be924bbf6bff7f0b22e076cdc5}} 
+{\bfseries init\+\_\+conv}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a3538c94f8bccfb35742b32fd1642d7c4}\label{classdeep__neural__training_1_1ResidualNet_a3538c94f8bccfb35742b32fd1642d7c4}} 
+{\bfseries kernel\+\_\+size}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a294d6d387742f5ab6dbe8b1ad4ff41ef}\label{classdeep__neural__training_1_1ResidualNet_a294d6d387742f5ab6dbe8b1ad4ff41ef}} 
+{\bfseries layer\+\_\+relu}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_afb06738168650692db6404978ea8b418}\label{classdeep__neural__training_1_1ResidualNet_afb06738168650692db6404978ea8b418}} 
+{\bfseries linear\+\_\+layers}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a60bc6e9da1b956f08b0ec90f897633d8}\label{classdeep__neural__training_1_1ResidualNet_a60bc6e9da1b956f08b0ec90f897633d8}} 
+{\bfseries number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a62776fc9a874ba37d166f3233a5edba0}\label{classdeep__neural__training_1_1ResidualNet_a62776fc9a874ba37d166f3233a5edba0}} 
+{\bfseries number\+\_\+of\+\_\+filters}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_af80d8614247dbfb96343c2b435dfc277}\label{classdeep__neural__training_1_1ResidualNet_af80d8614247dbfb96343c2b435dfc277}} 
+{\bfseries number\+\_\+of\+\_\+layers}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_af527392e9ccff8c26a771e0ead5a9ee8}\label{classdeep__neural__training_1_1ResidualNet_af527392e9ccff8c26a771e0ead5a9ee8}} 
+{\bfseries residual\+\_\+blocks}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a1e83df075734cb7c5bebb742760fb715}\label{classdeep__neural__training_1_1ResidualNet_a1e83df075734cb7c5bebb742760fb715}} 
+{\bfseries use\+\_\+concat\+\_\+pir}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classdeep__neural__training_1_1ResidualNet_a7573d331bf741fbd126696f626c8e967}\label{classdeep__neural__training_1_1ResidualNet_a7573d331bf741fbd126696f626c8e967}} 
+\index{ResidualNet@{ResidualNet}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!ResidualNet@{ResidualNet}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{int}]{input\+\_\+size,  }\item[{int }]{output\+\_\+size = {\ttfamily 1},  }\item[{int }]{number\+\_\+of\+\_\+outputs = {\ttfamily 1},  }\item[{int }]{kernel\+\_\+size = {\ttfamily 3},  }\item[{int }]{number\+\_\+of\+\_\+filters = {\ttfamily 2},  }\item[{int }]{number\+\_\+of\+\_\+layers = {\ttfamily 1},  }\item[{}]{hidden\+\_\+cells = {\ttfamily None},  }\item[{}]{number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer = {\ttfamily 1},  }\item[{}]{layer\+\_\+relu = {\ttfamily None},  }\item[{}]{last\+Activation = {\ttfamily None},  }\item[{}]{use\+\_\+concat\+\_\+pir = {\ttfamily True},  }\item[{$\ast$$\ast$}]{useless }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+
+Reimplemented from \mbox{\hyperlink{classdeep__neural__training_1_1CustomModel_ae64f0875afe3067b97ba370b354b9213}{Custom\+Model}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{deep__neural__training_8py}{deep\+\_\+neural\+\_\+training.\+py}}\end{DoxyCompactItemize}

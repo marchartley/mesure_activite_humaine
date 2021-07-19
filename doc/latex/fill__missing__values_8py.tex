@@ -1,0 +1,131 @@
+\hypertarget{fill__missing__values_8py}{}\doxysection{fill\+\_\+missing\+\_\+values.\+py File Reference}
+\label{fill__missing__values_8py}\index{fill\_missing\_values.py@{fill\_missing\_values.py}}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacefill__missing__values}{fill\+\_\+missing\+\_\+values}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_acf2514ccabb02765d6f5943a3a767a74}\label{namespacefill__missing__values_acf2514ccabb02765d6f5943a3a767a74}} 
+def {\bfseries get\+\_\+my\+\_\+speed} (start, end=None)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a12a118567cce50f3c5453e09cee29cc6}\label{namespacefill__missing__values_a12a118567cce50f3c5453e09cee29cc6}} 
+def {\bfseries get\+\_\+predefined\+\_\+speed} (start, end)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ac36adbe19af4a321409b1cec1115626d}\label{namespacefill__missing__values_ac36adbe19af4a321409b1cec1115626d}} 
+def {\bfseries get\+\_\+sequence\+\_\+features} (sequence)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ad957cf799896bd3dd61e327112e16333}\label{namespacefill__missing__values_ad957cf799896bd3dd61e327112e16333}} 
+def {\bfseries get\+\_\+signal\+\_\+features} (signal, number\+\_\+of\+\_\+peaks=3)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ad70e202716fe298f392954b619e88a94}\label{namespacefill__missing__values_ad70e202716fe298f392954b619e88a94}} 
+def {\bfseries join\+\_\+pir\+\_\+and\+\_\+params} (all\+\_\+queries)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_afd1910a0c757ac59c278ff7964a6b74f}\label{namespacefill__missing__values_afd1910a0c757ac59c278ff7964a6b74f}} 
+def {\bfseries split\+\_\+sequences} (pd.\+Data\+Frame pir\+\_\+df)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a414910c1ab8719eba154eeb4f0e2383c}\label{namespacefill__missing__values_a414910c1ab8719eba154eeb4f0e2383c}} 
+{\bfseries all\+\_\+precomputed\+\_\+speeds} = speed\+\_\+values.\+get\+\_\+precomputed\+\_\+speeds()
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a49dc794ac26353d0ec083a7ecf52c4d7}\label{namespacefill__missing__values_a49dc794ac26353d0ec083a7ecf52c4d7}} 
+{\bfseries all\+\_\+queries} = client.\+get\+\_\+all\+\_\+pir\+\_\+values(group\+\_\+by\+\_\+move=True)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a67869d6890a44fc25783a1b9f292aa11}\label{namespacefill__missing__values_a67869d6890a44fc25783a1b9f292aa11}} 
+def {\bfseries all\+\_\+sequences} = split\+\_\+sequences(df)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a96be4d6d200abc685e71eeece09f8e63}\label{namespacefill__missing__values_a96be4d6d200abc685e71eeece09f8e63}} 
+{\bfseries all\+\_\+speeds} = speed\+\_\+values.\+get\+\_\+all\+\_\+speeds\+\_\+recorded()
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_aec70d633e7619583eb3a08a7afd638b4}\label{namespacefill__missing__values_aec70d633e7619583eb3a08a7afd638b4}} 
+{\bfseries clf} = item
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ad5bc32b75da65fe60067f501a4bb6665}\label{namespacefill__missing__values_ad5bc32b75da65fe60067f501a4bb6665}} 
+{\bfseries client} = db.\+Listic\+Client\+DB(server\+\_\+side=True)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ad3d76d5710f473896c301464e8b5d9ee}\label{namespacefill__missing__values_ad3d76d5710f473896c301464e8b5d9ee}} 
+{\bfseries cv\+\_\+score\+\_\+abs\+\_\+error} = -\/sklearn.\+model\+\_\+selection.\+cross\+\_\+val\+\_\+score(clf, test\+\_\+X, test\+\_\+y, cv=5, scoring = \textquotesingle{}neg\+\_\+median\+\_\+absolute\+\_\+error\textquotesingle{})
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a09e05b29d02ced2dbefe63e52604d406}\label{namespacefill__missing__values_a09e05b29d02ced2dbefe63e52604d406}} 
+{\bfseries cv\+\_\+score\+\_\+mean\+\_\+error} = -\/sklearn.\+model\+\_\+selection.\+cross\+\_\+val\+\_\+score(clf, test\+\_\+X, test\+\_\+y, cv=5, scoring = \textquotesingle{}neg\+\_\+mean\+\_\+absolute\+\_\+error\textquotesingle{})
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a738d8a34f2ae6c5e620aceb2d3612510}\label{namespacefill__missing__values_a738d8a34f2ae6c5e620aceb2d3612510}} 
+{\bfseries cv\+\_\+score\+\_\+r2} = sklearn.\+model\+\_\+selection.\+cross\+\_\+val\+\_\+score(clf, test\+\_\+X, test\+\_\+y, cv=5, scoring = \textquotesingle{}r2\textquotesingle{})
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ab52c96bea30646abf8170f333bbd42b9}\label{namespacefill__missing__values_ab52c96bea30646abf8170f333bbd42b9}} 
+{\bfseries df} = pd.\+Data\+Frame(join\+\_\+pir\+\_\+and\+\_\+params(all\+\_\+queries))
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a254f5bf8a52469aba563b3caf33cf562}\label{namespacefill__missing__values_a254f5bf8a52469aba563b3caf33cf562}} 
+{\bfseries df\+\_\+res\+\_\+without\+\_\+dir} = pd.\+Data\+Frame(res\+\_\+without\+\_\+dir.\+cv\+\_\+results\+\_\+)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a3c5ca6e4ff5bd4d991a59331109f2836}\label{namespacefill__missing__values_a3c5ca6e4ff5bd4d991a59331109f2836}} 
+list {\bfseries fast1} = \mbox{[}dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 15\+:42\+:54+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000, dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 15\+:48\+:00+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a9232654c2a89130e269e641ea49d5e8e}\label{namespacefill__missing__values_a9232654c2a89130e269e641ea49d5e8e}} 
+list {\bfseries fast2} = \mbox{[}dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 16\+:05\+:10+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000, dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 16\+:14\+:47+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_af697386e322f07176c02f385a938c46d}\label{namespacefill__missing__values_af697386e322f07176c02f385a938c46d}} 
+float {\bfseries fast\+\_\+speed} = 2.\+3
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a435a4c034d8fdb692d7bba229b1676a5}\label{namespacefill__missing__values_a435a4c034d8fdb692d7bba229b1676a5}} 
+{\bfseries feature\+\_\+vector\+\_\+length} = max(\mbox{[}len(x) for x in X\mbox{]})
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a62fa69c89f68b1445b656e128953dd78}\label{namespacefill__missing__values_a62fa69c89f68b1445b656e128953dd78}} 
+def {\bfseries features} = get\+\_\+sequence\+\_\+features(sequence)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_abd31afffb41ba70fdebb50032e9dfd4a}\label{namespacefill__missing__values_abd31afffb41ba70fdebb50032e9dfd4a}} 
+{\bfseries inplace}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_adb778fbcccecb4ebd8246f32e5419cac}\label{namespacefill__missing__values_adb778fbcccecb4ebd8246f32e5419cac}} 
+{\bfseries median} = df\mbox{[}df\mbox{[}\textquotesingle{}sequence\+\_\+id\textquotesingle{}\mbox{]} == seq\+\_\+id\mbox{]}\mbox{[}\textquotesingle{}walking\+\_\+speed\textquotesingle{}\mbox{]}.mean()
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a5f275402fe7e3f672eab8b802e8913ca}\label{namespacefill__missing__values_a5f275402fe7e3f672eab8b802e8913ca}} 
+{\bfseries noise} = Perlin\+Noise(octaves=10, seed=1)
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_aae059856c85059ad144735f82d3430b8}\label{namespacefill__missing__values_aae059856c85059ad144735f82d3430b8}} 
+list {\bfseries normal1} = \mbox{[}dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 15\+:17\+:10+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000, dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 15\+:42\+:54+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a9d0f4ae5e1a42471fd918c9c4d27aba9}\label{namespacefill__missing__values_a9d0f4ae5e1a42471fd918c9c4d27aba9}} 
+list {\bfseries normal2} = \mbox{[}dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 15\+:58\+:50+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000, dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 16\+:05\+:10+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ad2c567136c01852e5388bbfda6edd8d2}\label{namespacefill__missing__values_ad2c567136c01852e5388bbfda6edd8d2}} 
+float {\bfseries normal\+\_\+speed} = 1.\+1
+\item 
+list \mbox{\hyperlink{namespacefill__missing__values_ad5596898b28fa634c9663b6b771a99f0}{regressors}}
+\item 
+\mbox{\hyperlink{namespacefill__missing__values_a4d3525375bc0ab7a7f6c33cf5852b511}{res\+\_\+without\+\_\+dir}}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a230e4624bbd228799deb958efb829e10}\label{namespacefill__missing__values_a230e4624bbd228799deb958efb829e10}} 
+list {\bfseries results} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a20bbef19bd2449826da2f5d81abb9660}\label{namespacefill__missing__values_a20bbef19bd2449826da2f5d81abb9660}} 
+list {\bfseries slow} = \mbox{[}dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 14\+:51\+:30+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000, dateutil.\+parser.\+isoparse(\textquotesingle{}2021-\/04-\/21 15\+:17\+:10+02\+:00\textquotesingle{}).timestamp() $\ast$ 1000\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ac2d85f84a6424895c5071338c4cdce68}\label{namespacefill__missing__values_ac2d85f84a6424895c5071338c4cdce68}} 
+float {\bfseries slow\+\_\+speed} = 0.\+70
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_aca1364cff723c057d811b54f2e4431b5}\label{namespacefill__missing__values_aca1364cff723c057d811b54f2e4431b5}} 
+{\bfseries test\+\_\+size}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a895a95733c1be54e87b8ba38b92eb030}\label{namespacefill__missing__values_a895a95733c1be54e87b8ba38b92eb030}} 
+{\bfseries test\+\_\+X}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a2e5979b1414ec1494c22821af6e2cde5}\label{namespacefill__missing__values_a2e5979b1414ec1494c22821af6e2cde5}} 
+{\bfseries test\+\_\+y}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_abbbad544fefeb39806f5f76cc02df92f}\label{namespacefill__missing__values_abbbad544fefeb39806f5f76cc02df92f}} 
+{\bfseries train\+\_\+X}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ab6ed8ce596bb14e0c50edd2a4ec8e5dd}\label{namespacefill__missing__values_ab6ed8ce596bb14e0c50edd2a4ec8e5dd}} 
+{\bfseries train\+\_\+y}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_ac51b57a703ba1c5869228690c93e1701}\label{namespacefill__missing__values_ac51b57a703ba1c5869228690c93e1701}} 
+list {\bfseries X} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacefill__missing__values_a0867f43e27585e019c13f7f4b7c4ab6b}\label{namespacefill__missing__values_a0867f43e27585e019c13f7f4b7c4ab6b}} 
+list {\bfseries Y} = \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}

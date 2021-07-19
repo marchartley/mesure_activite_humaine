@@ -1,0 +1,90 @@
+\hypertarget{user__position__in__world_8py}{}\doxysection{user\+\_\+position\+\_\+in\+\_\+world.\+py File Reference}
+\label{user__position__in__world_8py}\index{user\_position\_in\_world.py@{user\_position\_in\_world.py}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classuser__position__in__world_1_1Map}{Map}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceuser__position__in__world}{user\+\_\+position\+\_\+in\+\_\+world}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a2ccc05a77e3f2895938055dce6ee1589}\label{namespaceuser__position__in__world_a2ccc05a77e3f2895938055dce6ee1589}} 
+def {\bfseries get\+\_\+user\+\_\+position\+\_\+from\+\_\+skeleton} (skeleton, keypoint=None)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a6c52c4bac77f6744fdc338766e9e8a6f}\label{namespaceuser__position__in__world_a6c52c4bac77f6744fdc338766e9e8a6f}} 
+{\bfseries align} = rs.\+align(rs.\+stream.\+color)
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a2f28482ae4ba02c4483e262ea80d936f}\label{namespaceuser__position__in__world_a2f28482ae4ba02c4483e262ea80d936f}} 
+{\bfseries aruco\+\_\+dict} = aruco.\+Dictionary\+\_\+get(aruco.\+DICT\+\_\+6\+X6\+\_\+250)
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a55ae8b03585177a8dc663516629ebf26}\label{namespaceuser__position__in__world_a55ae8b03585177a8dc663516629ebf26}} 
+list {\bfseries aruco\+\_\+origin} = \mbox{[}0, 0, 0\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a3cf365ee8b53915a597f9077bc613933}\label{namespaceuser__position__in__world_a3cf365ee8b53915a597f9077bc613933}} 
+{\bfseries color\+\_\+frame} = np.\+asanyarray(frames.\+get\+\_\+color\+\_\+frame().get\+\_\+data()).copy()
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_ad2256458892609d0533df5d72a7257ad}\label{namespaceuser__position__in__world_ad2256458892609d0533df5d72a7257ad}} 
+{\bfseries config} = rs.\+config()
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_af9d23a302c24f0ec934688542ce94817}\label{namespaceuser__position__in__world_af9d23a302c24f0ec934688542ce94817}} 
+{\bfseries corners}
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a963cec8555428bd6970240adca640a11}\label{namespaceuser__position__in__world_a963cec8555428bd6970240adca640a11}} 
+{\bfseries depth\+\_\+frame} = frames.\+get\+\_\+depth\+\_\+frame()
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a76a412a38642b618caf4a30f4cd2703c}\label{namespaceuser__position__in__world_a76a412a38642b618caf4a30f4cd2703c}} 
+{\bfseries frames} = pipeline.\+wait\+\_\+for\+\_\+frames()
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a837c6e3c9f653e8f2ce467a2e8ba1d42}\label{namespaceuser__position__in__world_a837c6e3c9f653e8f2ce467a2e8ba1d42}} 
+{\bfseries human} = \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton}{human\+\_\+skeleton.\+Human\+Skeleton}}()
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a0a9b879f29cc1e1e03ffc7851f7c19b9}\label{namespaceuser__position__in__world_a0a9b879f29cc1e1e03ffc7851f7c19b9}} 
+{\bfseries ids}
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_ab052dc7865182b40e326c7bfdbd237f2}\label{namespaceuser__position__in__world_ab052dc7865182b40e326c7bfdbd237f2}} 
+float {\bfseries joint\+\_\+confidence} = 0.\+2
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a35af0be900467fedbb610bd6ea65ed78}\label{namespaceuser__position__in__world_a35af0be900467fedbb610bd6ea65ed78}} 
+int {\bfseries key} = cv2.\+wait\+Key(1) \& 0x\+FF
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_ab95242e4e55ed66b5f56fd1bc08711ec}\label{namespaceuser__position__in__world_ab95242e4e55ed66b5f56fd1bc08711ec}} 
+{\bfseries maraudeur} = Map(10, 10, center\+\_\+x = 5, center\+\_\+y = 0, marker\+\_\+size = marker\+\_\+size, marker\+\_\+position = \char`\"{}camera\char`\"{})
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_aa15584d40162ae8d913e1581b4b8c382}\label{namespaceuser__position__in__world_aa15584d40162ae8d913e1581b4b8c382}} 
+{\bfseries marked\+\_\+frame}
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a5da7fce676a0093a189c425e2373902f}\label{namespaceuser__position__in__world_a5da7fce676a0093a189c425e2373902f}} 
+{\bfseries marker\+\_\+corners} = None
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a77890c484646396778e01c8c9452090c}\label{namespaceuser__position__in__world_a77890c484646396778e01c8c9452090c}} 
+{\bfseries marker\+\_\+size} = convert\+\_\+realsense\+\_\+to\+\_\+real\+\_\+world.\+marker\+\_\+size
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a294a441ec8594c36d66418675f9008f2}\label{namespaceuser__position__in__world_a294a441ec8594c36d66418675f9008f2}} 
+{\bfseries number\+\_\+of\+\_\+persons} = skeletrack.\+get\+\_\+number\+\_\+of\+\_\+skeletons()
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a2320134bb04bbea3b4d6ff0569d3a746}\label{namespaceuser__position__in__world_a2320134bb04bbea3b4d6ff0569d3a746}} 
+{\bfseries pipeline} = rs.\+pipeline()
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a0448fec049217e428b9ec21c03e51d52}\label{namespaceuser__position__in__world_a0448fec049217e428b9ec21c03e51d52}} 
+bool {\bfseries playing} = True
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a5cdcbeeb325c0756c11191b9573be9a2}\label{namespaceuser__position__in__world_a5cdcbeeb325c0756c11191b9573be9a2}} 
+list {\bfseries previous\+\_\+left} = \mbox{[}0, 0, 0\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a96e9cf4e2e74b0a88e1e92b2437a8618}\label{namespaceuser__position__in__world_a96e9cf4e2e74b0a88e1e92b2437a8618}} 
+list {\bfseries previous\+\_\+right} = \mbox{[}0, 0, 0\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_ae9b106c90d808bcdcc3f8d1ca3764252}\label{namespaceuser__position__in__world_ae9b106c90d808bcdcc3f8d1ca3764252}} 
+{\bfseries skeletons} = skeletrack.\+track\+\_\+skeletons(color\+\_\+frame, debug\+\_\+time = False)
+\item 
+\mbox{\Hypertarget{namespaceuser__position__in__world_a3406db06e0d5f946a6816d1b3a15d4b6}\label{namespaceuser__position__in__world_a3406db06e0d5f946a6816d1b3a15d4b6}} 
+{\bfseries skeletrack} = st.\+Skeleton\+Tracker(choose\+\_\+best\+\_\+module=True, pipeline = pipeline)
+\end{DoxyCompactItemize}

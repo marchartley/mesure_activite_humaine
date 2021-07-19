@@ -1,0 +1,74 @@
+\hypertarget{convert__realsense__to__real__world_8py}{}\doxysection{convert\+\_\+realsense\+\_\+to\+\_\+real\+\_\+world.\+py File Reference}
+\label{convert__realsense__to__real__world_8py}\index{convert\_realsense\_to\_real\_world.py@{convert\_realsense\_to\_real\_world.py}}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceconvert__realsense__to__real__world}{convert\+\_\+realsense\+\_\+to\+\_\+real\+\_\+world}}
+\begin{DoxyCompactList}\small\item\em This file regroup multiple functions that are useful when you want to convert positions from a referential into another. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+Output\+\_\+coord \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_afb555eeab128fc188576a9876b83eec1}{back\+\_\+to\+\_\+pixel}} (Coord3D point\+\_\+coord, rs.\+pipeline pipeline, Coord3D old\+\_\+origin\+\_\+coord=None, Coord3D old\+\_\+x\+\_\+axis=None, Coord3D old\+\_\+y\+\_\+axis=None, Coord3D old\+\_\+z\+\_\+axis=None)
+\begin{DoxyCompactList}\small\item\em Compute the 2D coord from a 3D point. \end{DoxyCompactList}\item 
+Tuple\mbox{[}Output\+\_\+coord, Output\+\_\+coord, Output\+\_\+coord, Output\+\_\+coord\mbox{]} \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_a576f8913e76d0c4f622d00c7d3bab6e5}{calibrate\+\_\+aruco\+\_\+cube}} (Image color\+\_\+frame, rs.\+depth\+\_\+frame depth\+\_\+frame, rs.\+pipeline pipeline, int aruco\+\_\+dict=None)
+\begin{DoxyCompactList}\small\item\em Improve the precision of the aruco cube at each frame. \end{DoxyCompactList}\item 
+Output\+\_\+coord \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_ae92a774ae5bc05c90e3971fab591f256}{center\+\_\+of\+\_\+shape}} (List\mbox{[}Coord\mbox{]} vertices)
+\begin{DoxyCompactList}\small\item\em Return the center of gravity of a shape. \end{DoxyCompactList}\item 
+Vector \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_aef35526ea0562db05647e7dcb081199a}{compute\+\_\+z\+\_\+axis}} (Vector x\+\_\+axis, Vector y\+\_\+axis)
+\begin{DoxyCompactList}\small\item\em Compute a 3rd axis when only 2 are available by using the cross product. \end{DoxyCompactList}\item 
+Tuple\mbox{[}Output\+\_\+coord, Dict\mbox{[}str, Output\+\_\+coord\mbox{]}, List\mbox{[}Output\+\_\+coord\mbox{]}, Dict\mbox{[}str, List\mbox{[}Output\+\_\+coord\mbox{]}\mbox{]}\mbox{]} \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_aab8b165f8175ec5b151ff989bd7931bb}{create\+\_\+aruco\+\_\+cube}} (np.\+ndarray corners, List\mbox{[}int\mbox{]} ids, rs.\+depth\+\_\+frame depth\+\_\+frame, rs.\+pipeline pipeline)
+\begin{DoxyCompactList}\small\item\em Function to create a referential from the Aruco markers that can be found on the Aruco box. \end{DoxyCompactList}\item 
+Tuple\mbox{[}Image, np.\+ndarray, List\mbox{[}int\mbox{]}\mbox{]} \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_a3e0f4ab4649e7e64dbf4f865c6d2be2a}{detect\+Marker}} (Image frame, dict aruco\+\_\+dict)
+\begin{DoxyCompactList}\small\item\em Function that use the Open\+CV functions to find the Aruco tags on an image. \end{DoxyCompactList}\item 
+Image \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_a1ef4faecaa1deb8e66a96b3ea2699413}{display\+\_\+reference}} (Image color\+\_\+frame, rs.\+pipeline pipeline)
+\begin{DoxyCompactList}\small\item\em Graphic function that display the 3 axis from the aruco box. \end{DoxyCompactList}\item 
+Image \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_a604dd1cc1de95bf26c101f9aae687de6}{draw\+\_\+cube}} (Image image, List marker, rs.\+depth\+\_\+frame depth\+\_\+frame, rs.\+pipeline pipeline)
+\begin{DoxyCompactList}\small\item\em Drawing a cube at the marker\textquotesingle{}s location on an image. \end{DoxyCompactList}\item 
+Image \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_aebea0c73a184ddff7b28d7c17f8a28e8}{draw\+\_\+line}} (Image image, Coord2D start, Coord2D end, Union\mbox{[}Tuple, List\mbox{]} color=(0, 0, 0), int thickness=2)
+\begin{DoxyCompactList}\small\item\em Drawing a line on an image. \end{DoxyCompactList}\item 
+List\mbox{[}Image\mbox{]} \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_a39050602fb5847b5a1e613e8bc73d554}{generate\+Markers}} (int aruco\+\_\+dict, int n\+\_\+x=1, int n\+\_\+y=1)
+\begin{DoxyCompactList}\small\item\em Function that use Open\+CV functions to create the Aruco tags. \end{DoxyCompactList}\item 
+Output\+\_\+coord \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_acc871c27ef328bf8ca2c6190fd400c39}{get\+\_\+3\+D\+\_\+coord\+\_\+from\+\_\+realsense}} (Coord2D pixel\+\_\+coord, rs.\+depth\+\_\+frame depth\+\_\+frame, rs.\+pipeline pipeline)
+\begin{DoxyCompactList}\small\item\em Transform a 2D coord from the color frame to the 3D coord given from the camera. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a091c07feb6f70c42fba2c67bd1b2811f}\label{namespaceconvert__realsense__to__real__world_a091c07feb6f70c42fba2c67bd1b2811f}} 
+Tuple\mbox{[}Output\+\_\+coord, Output\+\_\+coord, Output\+\_\+coord, Output\+\_\+coord\mbox{]} {\bfseries get\+\_\+aruco\+\_\+reference} ()
+\begin{DoxyCompactList}\small\item\em Function to get the calibrated reference of the Aruco box. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a57a171534499abd2261a624067f36d0a}\label{namespaceconvert__realsense__to__real__world_a57a171534499abd2261a624067f36d0a}} 
+int {\bfseries get\+\_\+number\+\_\+of\+\_\+calibration\+\_\+of\+\_\+aruco\+\_\+box} ()
+\begin{DoxyCompactList}\small\item\em Function to count the number of time the Aruco box has been calibrated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a12b2f0ca13c71f71449d75f9bc424b70}\label{namespaceconvert__realsense__to__real__world_a12b2f0ca13c71f71449d75f9bc424b70}} 
+def {\bfseries main} ()
+\begin{DoxyCompactList}\small\item\em A demonstration of the use of this file. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_a2b7d6abe559e08575b78d47f79ef2a4b}{translate\+\_\+coord\+\_\+to\+\_\+world}} (Coord3D coord, Coord3D new\+\_\+origin\+\_\+coord, Coord3D new\+\_\+x\+\_\+axis\+\_\+coord, Coord3D new\+\_\+y\+\_\+axis\+\_\+coord, Coord3D new\+\_\+z\+\_\+axis\+\_\+coord=None, float scale=1.\+0)
+\begin{DoxyCompactList}\small\item\em Compute the 3D coordinates from a point that was in the camera origin to another origin (ex\+: Aruco box) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+dictionary \mbox{\hyperlink{namespaceconvert__realsense__to__real__world_a173b670383a6c6d109c584458eab3f15}{all\+\_\+references\+\_\+for\+\_\+aruco\+\_\+cube}}
+\begin{DoxyCompactList}\small\item\em Global variable for the Aruco cube reference. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a191252daef222fe9b3e8282ccfc7f85d}\label{namespaceconvert__realsense__to__real__world_a191252daef222fe9b3e8282ccfc7f85d}} 
+dictionary {\bfseries aruco\+\_\+box}
+\begin{DoxyCompactList}\small\item\em The Aru\+Co box has 6 markers describing the X, Y and Z axis For example, the face with marker \textquotesingle{}0\textquotesingle{} is on the plane XY, and the Z-\/axis is the opposite of the cross product of X and Y But the face \textquotesingle{}1\textquotesingle{} is on the plane ZY (with the Z having to be inversed) and the X-\/axis is the cross product of Z and Y. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a627f1f843904477f763577ad1460de01}\label{namespaceconvert__realsense__to__real__world_a627f1f843904477f763577ad1460de01}} 
+{\bfseries Coord} = Union\mbox{[}List, Tuple, np.\+ndarray\mbox{]}
+\begin{DoxyCompactList}\small\item\em The accepted type of variable for a coordinate with no limit of dimensions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a8d3b862b39ea3c69673d0371a674e5cf}\label{namespaceconvert__realsense__to__real__world_a8d3b862b39ea3c69673d0371a674e5cf}} 
+{\bfseries Coord2D} = Union\mbox{[}List, Tuple, np.\+ndarray\mbox{]}
+\begin{DoxyCompactList}\small\item\em The accepted type of variable for 2D coordinates. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a9bf37983c661a71fbe55c112b0e93f13}\label{namespaceconvert__realsense__to__real__world_a9bf37983c661a71fbe55c112b0e93f13}} 
+{\bfseries Coord3D} = Union\mbox{[}List, Tuple, np.\+ndarray\mbox{]}
+\begin{DoxyCompactList}\small\item\em The accepted type of variable for 3D coordinates. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_af7424375cb53d9ef9199ad30eadf3bc7}\label{namespaceconvert__realsense__to__real__world_af7424375cb53d9ef9199ad30eadf3bc7}} 
+tuple {\bfseries forced\+\_\+cube\+\_\+distance\+\_\+range} = (0.\+5, 5.\+0)
+\begin{DoxyCompactList}\small\item\em We know that our camera can see up to 5m, so if it find any distance $>$ 5m or lower than 0.\+5m, it must be a wrong value. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_abbe0c74b95d97226a5e1f28a814631b8}\label{namespaceconvert__realsense__to__real__world_abbe0c74b95d97226a5e1f28a814631b8}} 
+{\bfseries Image} = np.\+ndarray
+\begin{DoxyCompactList}\small\item\em Image type. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a658040c2ee2e9fe74a22a88ce4eb4906}\label{namespaceconvert__realsense__to__real__world_a658040c2ee2e9fe74a22a88ce4eb4906}} 
+float {\bfseries marker\+\_\+size} = 0.\+21
+\begin{DoxyCompactList}\small\item\em Size of Aruco markers on the Aruco box (in meters) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespaceconvert__realsense__to__real__world_af93ca98c2ec6622240d19bb6d66ed37d}{Output\+\_\+coord}} = np.\+ndarray
+\begin{DoxyCompactList}\small\item\em The type used when outputing coordinates from the functions in this file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceconvert__realsense__to__real__world_a4d8269410dcd9cadc9722e9a118bddfb}\label{namespaceconvert__realsense__to__real__world_a4d8269410dcd9cadc9722e9a118bddfb}} 
+{\bfseries Vector} = Union\mbox{[}np.\+ndarray, List\mbox{]}
+\begin{DoxyCompactList}\small\item\em Vector. \end{DoxyCompactList}\end{DoxyCompactItemize}

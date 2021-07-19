@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['pause_1121',['pause',['../classlabel__editor_1_1VideoPlayer.html#aee7a4c35e3232c131ff62b5866eb4a16',1,'label_editor::VideoPlayer']]],
+  ['pause_5fplayback_1122',['pause_playback',['../namespacerecording.html#a81a35c644d1447457b5ec8efd3d850a9',1,'recording']]],
+  ['pause_5frecording_1123',['pause_recording',['../namespacerecording.html#ab0ddd4de614980e36251bcca88e33f6a',1,'recording']]],
+  ['pir_5fvalues_5fto_5fdf_1124',['pir_values_to_DF',['../classInfluxDB__connection_1_1ListicClientDB.html#ac619c7e0133bc0861b60ead1431326d1',1,'InfluxDB_connection::ListicClientDB']]],
+  ['pir_5fvalues_5fto_5fjson_1125',['pir_values_to_json',['../classInfluxDB__connection_1_1ListicClientDB.html#a1e9bd9f21e0ce1fa906e9bd4851a6506',1,'InfluxDB_connection::ListicClientDB']]],
+  ['play_1126',['play',['../classlabel__editor_1_1VideoPlayer.html#a9942567d8012950a20b0798b4203bb57',1,'label_editor::VideoPlayer']]],
+  ['play_5fnext_5fvideo_1127',['play_next_video',['../classlabel__editor_1_1AnnotationEditor.html#a86fbe5110d7c7044bbd7dffb0c83dbfb',1,'label_editor::AnnotationEditor']]],
+  ['plot_5fconfusion_5fmatrix_1128',['plot_confusion_matrix',['../namespacedeep__neural__training.html#ae9f6d73feb68eb129f56d68dcf292e89',1,'deep_neural_training']]],
+  ['precompute_5fmorlet_5ftransforms_1129',['precompute_morlet_transforms',['../namespacedeep__neural__training.html#a0a0c3e668e77b9622f09b05dbb33afc0',1,'deep_neural_training']]],
+  ['prediction_1130',['prediction',['../namespaceMLP__training.html#a5649c202f5388eecfd8ba5ffb2000ad9',1,'MLP_training.prediction()'],['../namespaceMTL.html#a9f239dee2d05d3f3da16d004fc770136',1,'MTL.prediction()']]],
+  ['preprocess_5fdata_5ffor_5fwalk_5fanalysis_1131',['preprocess_data_for_walk_analysis',['../namespacefeet__analysis.html#ab26f1bb0517facbfcad255588154f9dc',1,'feet_analysis']]],
+  ['process_5fclassification_1132',['process_classification',['../namespacetrain__action__classifier.html#ac1b5b5147c55b28b1439b9351ef75e24',1,'train_action_classifier']]],
+  ['process_5fflorence3d_5fdatset_1133',['process_Florence3D_datset',['../namespacetrain__action__classifier.html#aa01b9231fc321004fd6c0e88c324591e',1,'train_action_classifier']]],
+  ['process_5fkard_5fdatset_1134',['process_KARD_datset',['../namespacetrain__action__classifier.html#a7fb1780882f24e726ad1ea06f125b1f4',1,'train_action_classifier']]],
+  ['process_5ftraining_5ffile_5futkinect_5fdataset_1135',['process_training_file_UTKinect_dataset',['../namespacetrain__action__classifier.html#ad6db62d854163c6654468a587d400b5b',1,'train_action_classifier']]],
+  ['process_5futkinect_5fdatset_1136',['process_UTKinect_datset',['../namespacetrain__action__classifier.html#a750f8aef83f06a12f292750e2415fc1a',1,'train_action_classifier']]],
+  ['profile_1137',['profile',['../namespaceprofilestats.html#a357a4cd5e767413c7a211af5f74410bc',1,'profilestats']]]
+];

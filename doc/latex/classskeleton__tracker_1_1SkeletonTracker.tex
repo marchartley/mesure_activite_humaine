@@ -1,0 +1,115 @@
+\hypertarget{classskeleton__tracker_1_1SkeletonTracker}{}\doxysection{Skeleton\+Tracker Class Reference}
+\label{classskeleton__tracker_1_1SkeletonTracker}\index{SkeletonTracker@{SkeletonTracker}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_ae2fa4bc784e6b720ed149a3414c1a07f}\label{classskeleton__tracker_1_1SkeletonTracker_ae2fa4bc784e6b720ed149a3414c1a07f}} 
+def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker_a96e5f0eca87c2426370e0897ac7b8ca6}{module}}=\textquotesingle{}openpose\textquotesingle{}, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker_a80d58105887a2413807fa83611df2c7c}{track\+\_\+body}}=True, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker_a7927c7053a97e186a391ef4af4d6601b}{track\+\_\+hands}}=False, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker_a697ab9698eda81dfb5dfce2a5c57522a}{track\+\_\+face}}=False, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker_a2320134bb04bbea3b4d6ff0569d3a746}{pipeline}}=None, choose\+\_\+best\+\_\+module=False, image\+\_\+is\+\_\+upside\+\_\+down=False, verbose=False)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_af66b8b24369ca0c13fb08517d10729d5}\label{classskeleton__tracker_1_1SkeletonTracker_af66b8b24369ca0c13fb08517d10729d5}} 
+def {\bfseries add\+\_\+callback} (self, action, callback, $\ast$args, $\ast$$\ast$kwargs)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a3a4bb6d1bb6c222909ca4fb08e345b70}\label{classskeleton__tracker_1_1SkeletonTracker_a3a4bb6d1bb6c222909ca4fb08e345b70}} 
+def {\bfseries check\+\_\+user\+\_\+presence} (self, tracker\+\_\+results=None, color\+\_\+image=None, required\+\_\+confidence=None, min\+\_\+number\+\_\+of\+\_\+joints\+\_\+per\+\_\+person=0)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_ab406d4fdb06d0841b4cab13667474b55}\label{classskeleton__tracker_1_1SkeletonTracker_ab406d4fdb06d0841b4cab13667474b55}} 
+def {\bfseries draw\+\_\+skeleton} (self, color\+\_\+image, color=(0, 255, 255), index\+\_\+of\+\_\+unavailable=\mbox{[}$\,$\mbox{]}, color\+\_\+unavailable=(255, 0, 0))
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a988ce4448a684d648f22d005ab632f82}\label{classskeleton__tracker_1_1SkeletonTracker_a988ce4448a684d648f22d005ab632f82}} 
+def {\bfseries get\+\_\+keypoint} (self, str name, part=\textquotesingle{}body\textquotesingle{}, person\+\_\+id=None)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a9f77511329a8b8eedbdfba94500bfd39}\label{classskeleton__tracker_1_1SkeletonTracker_a9f77511329a8b8eedbdfba94500bfd39}} 
+def {\bfseries get\+\_\+keypoint3D} (self, str name, depth\+\_\+map, part=\textquotesingle{}body\textquotesingle{}, person\+\_\+id=None, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker_a2320134bb04bbea3b4d6ff0569d3a746}{pipeline}}=None)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a75f9109bbf28691581420dd6346cc4b1}\label{classskeleton__tracker_1_1SkeletonTracker_a75f9109bbf28691581420dd6346cc4b1}} 
+def {\bfseries get\+\_\+number\+\_\+of\+\_\+skeletons} (self, color\+\_\+image=None)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a897f43f04d90e0818ca2412ef268110d}\label{classskeleton__tracker_1_1SkeletonTracker_a897f43f04d90e0818ca2412ef268110d}} 
+def {\bfseries is\+\_\+3\+D\+\_\+available} (self)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a1fb7846e76f918347984a9606e6381db}\label{classskeleton__tracker_1_1SkeletonTracker_a1fb7846e76f918347984a9606e6381db}} 
+def {\bfseries set\+\_\+pipeline} (self, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker_a2320134bb04bbea3b4d6ff0569d3a746}{pipeline}})
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_af76a0e5604581f904d1a03d929b1ab04}\label{classskeleton__tracker_1_1SkeletonTracker_af76a0e5604581f904d1a03d929b1ab04}} 
+def {\bfseries track\+\_\+skeletons} (self, image, use\+\_\+cache=True, debug\+\_\+time=False)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_aa4dbf21ff3c8f617a9b7a0d654fc5c04}\label{classskeleton__tracker_1_1SkeletonTracker_aa4dbf21ff3c8f617a9b7a0d654fc5c04}} 
+def {\bfseries track\+\_\+skeletons\+\_\+async} (self, image, use\+\_\+cache=True, debug\+\_\+time=False, min\+\_\+time\+\_\+start\+\_\+process=None)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_ab2595079ec7d5e12ed930a49a6ea2019}\label{classskeleton__tracker_1_1SkeletonTracker_ab2595079ec7d5e12ed930a49a6ea2019}} 
+{\bfseries image\+\_\+is\+\_\+upsidedown}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a96e5f0eca87c2426370e0897ac7b8ca6}\label{classskeleton__tracker_1_1SkeletonTracker_a96e5f0eca87c2426370e0897ac7b8ca6}} 
+{\bfseries module}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a2320134bb04bbea3b4d6ff0569d3a746}\label{classskeleton__tracker_1_1SkeletonTracker_a2320134bb04bbea3b4d6ff0569d3a746}} 
+{\bfseries pipeline}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a80d58105887a2413807fa83611df2c7c}\label{classskeleton__tracker_1_1SkeletonTracker_a80d58105887a2413807fa83611df2c7c}} 
+{\bfseries track\+\_\+body}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a697ab9698eda81dfb5dfce2a5c57522a}\label{classskeleton__tracker_1_1SkeletonTracker_a697ab9698eda81dfb5dfce2a5c57522a}} 
+{\bfseries track\+\_\+face}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a7927c7053a97e186a391ef4af4d6601b}\label{classskeleton__tracker_1_1SkeletonTracker_a7927c7053a97e186a391ef4af4d6601b}} 
+{\bfseries track\+\_\+hands}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_abec0b9ee4648af3b77db73e8070f1736}\label{classskeleton__tracker_1_1SkeletonTracker_abec0b9ee4648af3b77db73e8070f1736}} 
+{\bfseries tracker}
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a9f1f2992b28d25a9b2028222be73adae}\label{classskeleton__tracker_1_1SkeletonTracker_a9f1f2992b28d25a9b2028222be73adae}} 
+def {\bfseries \+\_\+call\+\_\+callback} (self, action, $\ast$$\ast$my\+\_\+args)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_ad433fe89f34dffe8dee6be527b3a429d}\label{classskeleton__tracker_1_1SkeletonTracker_ad433fe89f34dffe8dee6be527b3a429d}} 
+def {\bfseries \+\_\+track\+\_\+skeletons\+\_\+cubemos} (self, color\+\_\+image)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a057e2709c71c24100313d29c0705087d}\label{classskeleton__tracker_1_1SkeletonTracker_a057e2709c71c24100313d29c0705087d}} 
+def {\bfseries \+\_\+track\+\_\+skeletons\+\_\+openpose} (self, color\+\_\+image)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a6125d0e56a0f209f16730b9453c62031}\label{classskeleton__tracker_1_1SkeletonTracker_a6125d0e56a0f209f16730b9453c62031}} 
+def {\bfseries \+\_\+track\+\_\+skeletons\+\_\+trt} (self, color\+\_\+image)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_aaae325ca583f9dbaa55a030c1eaa7e25}\label{classskeleton__tracker_1_1SkeletonTracker_aaae325ca583f9dbaa55a030c1eaa7e25}} 
+def {\bfseries \+\_\+trt\+\_\+get\+\_\+confidence} (self, cmap, peaks, index, objects)
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a83516c1e8e457811e5434541cee3feee}\label{classskeleton__tracker_1_1SkeletonTracker_a83516c1e8e457811e5434541cee3feee}} 
+def {\bfseries \+\_\+trt\+\_\+get\+\_\+human\+\_\+keypoints} (self, objects, index, peaks, image\+\_\+dimensions)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a5614628ae4b9ecf2d0da1ff1f69e79cc}\label{classskeleton__tracker_1_1SkeletonTracker_a5614628ae4b9ecf2d0da1ff1f69e79cc}} 
+{\bfseries \+\_\+callbacks}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_ac0510052c9a40f2ac9085db809e01e2e}\label{classskeleton__tracker_1_1SkeletonTracker_ac0510052c9a40f2ac9085db809e01e2e}} 
+{\bfseries \+\_\+last\+\_\+frame\+\_\+checked}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a6ee8badb2eaeed93789d95c01dc0bd0c}\label{classskeleton__tracker_1_1SkeletonTracker_a6ee8badb2eaeed93789d95c01dc0bd0c}} 
+{\bfseries \+\_\+last\+\_\+results}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a7cc6bdb11dfacafd776b2e853dbec281}\label{classskeleton__tracker_1_1SkeletonTracker_a7cc6bdb11dfacafd776b2e853dbec281}} 
+{\bfseries \+\_\+next\+\_\+callback\+\_\+id}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a856afeb1a8d4b7ab6d47d3fdc3f05720}\label{classskeleton__tracker_1_1SkeletonTracker_a856afeb1a8d4b7ab6d47d3fdc3f05720}} 
+{\bfseries \+\_\+tracking\+\_\+thread}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a8a97bc21d142f04130e91782d85847ba}\label{classskeleton__tracker_1_1SkeletonTracker_a8a97bc21d142f04130e91782d85847ba}} 
+{\bfseries \+\_\+trt\+\_\+height}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a64c68cc435f1905d7500fd13c0de0ff5}\label{classskeleton__tracker_1_1SkeletonTracker_a64c68cc435f1905d7500fd13c0de0ff5}} 
+{\bfseries \+\_\+trt\+\_\+object\+\_\+parser}
+\item 
+\mbox{\Hypertarget{classskeleton__tracker_1_1SkeletonTracker_a2ee92955fd13064840428a6f71fa38ff}\label{classskeleton__tracker_1_1SkeletonTracker_a2ee92955fd13064840428a6f71fa38ff}} 
+{\bfseries \+\_\+trt\+\_\+width}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{skeleton__tracker_8py}{skeleton\+\_\+tracker.\+py}}\end{DoxyCompactItemize}

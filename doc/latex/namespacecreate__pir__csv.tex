@@ -1,0 +1,67 @@
+\hypertarget{namespacecreate__pir__csv}{}\doxysection{create\+\_\+pir\+\_\+csv Namespace Reference}
+\label{namespacecreate__pir__csv}\index{create\_pir\_csv@{create\_pir\_csv}}
+
+
+This script creates a CSV file containing sensors data when somebody is walking through them.  
+
+
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+pd.\+Data\+Frame \mbox{\hyperlink{namespacecreate__pir__csv_ac8889bbcc1f0580f98230bfc3cc5ebc7}{fill\+\_\+csv}} (bool create\+\_\+\+CSV\+\_\+from\+\_\+scratch=False, str output\+\_\+filename=\textquotesingle{}gait\+\_\+values.\+csv\textquotesingle{}, db.\+Listic\+Client\+DB client=None, start\+\_\+time=None, end\+\_\+time=None, bool verbose=True, bool use\+\_\+cache=True, str sensor\+\_\+height=None)
+\begin{DoxyCompactList}\small\item\em Creates the CSV file that stores the sensors data and the ground truth from the camera. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pir__csv_ae2ffadcd46322f2e1bd044399f143dfe}{main}} ()
+\begin{DoxyCompactList}\small\item\em The creation of the CSV file and the file containing the Wavelet Transforms. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This script creates a CSV file containing sensors data when somebody is walking through them. 
+
+The walking gait characteristics are computed and stored with the sensors data 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacecreate__pir__csv_ac8889bbcc1f0580f98230bfc3cc5ebc7}\label{namespacecreate__pir__csv_ac8889bbcc1f0580f98230bfc3cc5ebc7}} 
+\index{create\_pir\_csv@{create\_pir\_csv}!fill\_csv@{fill\_csv}}
+\index{fill\_csv@{fill\_csv}!create\_pir\_csv@{create\_pir\_csv}}
+\doxysubsubsection{\texorpdfstring{fill\_csv()}{fill\_csv()}}
+{\footnotesize\ttfamily  pd.\+Data\+Frame create\+\_\+pir\+\_\+csv.\+fill\+\_\+csv (\begin{DoxyParamCaption}\item[{bool }]{create\+\_\+\+CSV\+\_\+from\+\_\+scratch = {\ttfamily False},  }\item[{str }]{output\+\_\+filename = {\ttfamily \textquotesingle{}gait\+\_\+values.csv\textquotesingle{}},  }\item[{db.\+Listic\+Client\+DB }]{client = {\ttfamily None},  }\item[{}]{start\+\_\+time = {\ttfamily None},  }\item[{}]{end\+\_\+time = {\ttfamily None},  }\item[{bool }]{verbose = {\ttfamily True},  }\item[{bool }]{use\+\_\+cache = {\ttfamily True},  }\item[{str }]{sensor\+\_\+height = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Creates the CSV file that stores the sensors data and the ground truth from the camera. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em create\+\_\+\+CSV\+\_\+from\+\_\+scratch} & If true, the previous CSV file is deleted and the calculations are all done again \\
+\hline
+{\em output\+\_\+filename} & name of the CSV file to create \\
+\hline
+{\em client} & Influx\+DB client to access the database \\
+\hline
+{\em start\+\_\+time} & Timestamp of the time at which we limit our calculations \\
+\hline
+{\em end\+\_\+time} & Timestamp of the time at which we limit our calculations \\
+\hline
+{\em verbose} & Display logs \\
+\hline
+{\em use\+\_\+cache} & Use the Influx\+DB client to use the cache in order to avoid computations when segmenting the sequences \\
+\hline
+{\em sensor\+\_\+height} & The height of the sensors (the tag \textquotesingle{}sensor\+\_\+height\textquotesingle{} in Influx\+DB). If None, all sequences are used\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+All the data from the sensors and the features computed from the camera, as a Data\+Frame 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacecreate__pir__csv_ae2ffadcd46322f2e1bd044399f143dfe}\label{namespacecreate__pir__csv_ae2ffadcd46322f2e1bd044399f143dfe}} 
+\index{create\_pir\_csv@{create\_pir\_csv}!main@{main}}
+\index{main@{main}!create\_pir\_csv@{create\_pir\_csv}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily def create\+\_\+pir\+\_\+csv.\+main (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+The creation of the CSV file and the file containing the Wavelet Transforms. 
+
+\begin{DoxyNote}{Note}
+Modify directly the code of this file if you want to change the sensor\textquotesingle{}s height criteria 
+\end{DoxyNote}

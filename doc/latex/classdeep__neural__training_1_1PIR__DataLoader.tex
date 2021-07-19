@@ -1,0 +1,101 @@
+\hypertarget{classdeep__neural__training_1_1PIR__DataLoader}{}\doxysection{PIR\+\_\+\+Data\+Loader Class Reference}
+\label{classdeep__neural__training_1_1PIR__DataLoader}\index{PIR\_DataLoader@{PIR\_DataLoader}}
+
+
+Class that creates a dataloader that applies the desired transformations to the data before sending them as torch Tensors.  
+
+
+Inheritance diagram for PIR\+\_\+\+Data\+Loader\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classdeep__neural__training_1_1PIR__DataLoader}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classdeep__neural__training_1_1PIR__DataLoader_a54d5781072fbc0dcb9b8e73b4c6a2f9f}{\+\_\+\+\_\+getitem\+\_\+\+\_\+}} (self, index)
+\begin{DoxyCompactList}\small\item\em Function called internally when iterating on the dataset This will extract the data sample and apply transformations on it. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classdeep__neural__training_1_1PIR__DataLoader_a2cbfd2fac02c174273280f7eee0734be}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, data\+\_\+file, \mbox{\hyperlink{classdeep__neural__training_1_1PIR__DataLoader_ab3d350d501d99e7bbe8f68ace7af32c7}{transform}}=None, float data\+\_\+inflate=1.\+0, bool \mbox{\hyperlink{classdeep__neural__training_1_1PIR__DataLoader_a6011ca4938735bdf9bd9fb009ee2bf80}{apply\+\_\+translation}}=False)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1PIR__DataLoader_a810fdc262754b6d21f5acd0e280d4daf}\label{classdeep__neural__training_1_1PIR__DataLoader_a810fdc262754b6d21f5acd0e280d4daf}} 
+def {\bfseries \+\_\+\+\_\+len\+\_\+\+\_\+} (self)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1PIR__DataLoader_a6011ca4938735bdf9bd9fb009ee2bf80}\label{classdeep__neural__training_1_1PIR__DataLoader_a6011ca4938735bdf9bd9fb009ee2bf80}} 
+{\bfseries apply\+\_\+translation}
+\begin{DoxyCompactList}\small\item\em Apply a random translation on the X-\/axis for each sample. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1PIR__DataLoader_a511ae0b1c13f95e5f08f1a0dd3da3d93}\label{classdeep__neural__training_1_1PIR__DataLoader_a511ae0b1c13f95e5f08f1a0dd3da3d93}} 
+{\bfseries data}
+\begin{DoxyCompactList}\small\item\em The content of the file that contains the dataset. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classdeep__neural__training_1_1PIR__DataLoader_a56f6c34336d844a5e1bbc74db71c4002}{inflate}}
+\begin{DoxyCompactList}\small\item\em This variable can increase the number of samples. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1PIR__DataLoader_ab3d350d501d99e7bbe8f68ace7af32c7}\label{classdeep__neural__training_1_1PIR__DataLoader_ab3d350d501d99e7bbe8f68ace7af32c7}} 
+{\bfseries transform}
+\begin{DoxyCompactList}\small\item\em The torchvision\textquotesingle{}s transformation that will be made on the dataset. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class that creates a dataloader that applies the desired transformations to the data before sending them as torch Tensors. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classdeep__neural__training_1_1PIR__DataLoader_a2cbfd2fac02c174273280f7eee0734be}\label{classdeep__neural__training_1_1PIR__DataLoader_a2cbfd2fac02c174273280f7eee0734be}} 
+\index{PIR\_DataLoader@{PIR\_DataLoader}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!PIR\_DataLoader@{PIR\_DataLoader}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{data\+\_\+file,  }\item[{}]{transform = {\ttfamily None},  }\item[{float }]{data\+\_\+inflate = {\ttfamily 1.0},  }\item[{bool }]{apply\+\_\+translation = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data\+\_\+file} & The content of the file that contains the dataset \\
+\hline
+{\em transform} & The torchvision\textquotesingle{}s transformation that will be made on the dataset \\
+\hline
+{\em data\+\_\+inflate} & This variable can increase the number of samples. That means an epoch will be longer, but more transformations will be made on each sample \\
+\hline
+{\em apply\+\_\+translation} & Apply a random translation on the X-\/axis for each sample.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A dataloader for the dataset 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classdeep__neural__training_1_1PIR__DataLoader_a54d5781072fbc0dcb9b8e73b4c6a2f9f}\label{classdeep__neural__training_1_1PIR__DataLoader_a54d5781072fbc0dcb9b8e73b4c6a2f9f}} 
+\index{PIR\_DataLoader@{PIR\_DataLoader}!\_\_getitem\_\_@{\_\_getitem\_\_}}
+\index{\_\_getitem\_\_@{\_\_getitem\_\_}!PIR\_DataLoader@{PIR\_DataLoader}}
+\doxysubsubsection{\texorpdfstring{\_\_getitem\_\_()}{\_\_getitem\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+getitem\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{index }\end{DoxyParamCaption})}
+
+
+
+Function called internally when iterating on the dataset This will extract the data sample and apply transformations on it. 
+
+\begin{DoxyReturn}{Returns}
+The PIR images used as input for the models and the ground truth outputs 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classdeep__neural__training_1_1PIR__DataLoader_a56f6c34336d844a5e1bbc74db71c4002}\label{classdeep__neural__training_1_1PIR__DataLoader_a56f6c34336d844a5e1bbc74db71c4002}} 
+\index{PIR\_DataLoader@{PIR\_DataLoader}!inflate@{inflate}}
+\index{inflate@{inflate}!PIR\_DataLoader@{PIR\_DataLoader}}
+\doxysubsubsection{\texorpdfstring{inflate}{inflate}}
+{\footnotesize\ttfamily inflate}
+
+
+
+This variable can increase the number of samples. 
+
+That means an epoch will be longer, but more transformations will be made on each sample 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{deep__neural__training_8py}{deep\+\_\+neural\+\_\+training.\+py}}\end{DoxyCompactItemize}

@@ -1,0 +1,103 @@
+\hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule}{}\doxysection{Multiple\+Wavelets\+Module Class Reference}
+\label{classdeep__neural__training_1_1MultipleWaveletsModule}\index{MultipleWaveletsModule@{MultipleWaveletsModule}}
+
+
+Class that use convolutions and poolings.  
+
+
+Inheritance diagram for Multiple\+Wavelets\+Module\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classdeep__neural__training_1_1MultipleWaveletsModule}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a1bb4a284bdd32a3a90b91d8a69d56c00}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a368acbb705802766090ed1a1ef8b4b81}{input\+\_\+size}}=512, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_ae47dabc502cc0c46bc8569808aebd52a}{mid\+\_\+output\+\_\+size}}=10, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a3538c94f8bccfb35742b32fd1642d7c4}{kernel\+\_\+size}}=3, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a62776fc9a874ba37d166f3233a5edba0}{number\+\_\+of\+\_\+filters}}=2, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_af80d8614247dbfb96343c2b435dfc277}{number\+\_\+of\+\_\+layers}}=8, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a2d4a50b239a7d111c3e50c9d81fb7e9b}{hidden\+\_\+cells}}=\mbox{[}$\,$\mbox{]}, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_afbd544c2fb63cdf2f2dcf6cf33110b09}{dropout}}=False, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a1e83df075734cb7c5bebb742760fb715}{use\+\_\+concat\+\_\+pir}}=True, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a60bc6e9da1b956f08b0ec90f897633d8}{number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer}}=1, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_acae8f00cf715c533e3753b1b75af59c8}{pure\+\_\+\+CNN}}=False, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a294d6d387742f5ab6dbe8b1ad4ff41ef}{layer\+\_\+relu}}=None, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a6c1914309d8bff13cf186b5c74149aca}{reduce\+\_\+last\+\_\+conv}}=0, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a9d30fd1d4a5cabb751cc396c2140c8e2}{use\+\_\+exponential}}=False, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a9f8cdd1722935de699a4c018b77b02e0}{number\+\_\+of\+\_\+outputs}}=1, \mbox{\hyperlink{classdeep__neural__training_1_1MultipleWaveletsModule_a1d5c4de6dd067e932dfaa1171c4ecdd9}{using\+\_\+batch\+\_\+norm}}=True, $\ast$$\ast$useless)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a3fd5e53c89dd0bb2cdafbcb37b281ef9}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a3fd5e53c89dd0bb2cdafbcb37b281ef9}} 
+def {\bfseries forward} (self, pir0, pir1, pir2, pir3, concat\+\_\+pir)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_aa48453322cd6972bb7e361b37af402cc}\label{classdeep__neural__training_1_1MultipleWaveletsModule_aa48453322cd6972bb7e361b37af402cc}} 
+{\bfseries activation\+\_\+functions}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_afbd544c2fb63cdf2f2dcf6cf33110b09}\label{classdeep__neural__training_1_1MultipleWaveletsModule_afbd544c2fb63cdf2f2dcf6cf33110b09}} 
+{\bfseries dropout}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a2d4a50b239a7d111c3e50c9d81fb7e9b}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a2d4a50b239a7d111c3e50c9d81fb7e9b}} 
+{\bfseries hidden\+\_\+cells}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a368acbb705802766090ed1a1ef8b4b81}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a368acbb705802766090ed1a1ef8b4b81}} 
+{\bfseries input\+\_\+size}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a3538c94f8bccfb35742b32fd1642d7c4}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a3538c94f8bccfb35742b32fd1642d7c4}} 
+{\bfseries kernel\+\_\+size}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a294d6d387742f5ab6dbe8b1ad4ff41ef}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a294d6d387742f5ab6dbe8b1ad4ff41ef}} 
+{\bfseries layer\+\_\+relu}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_ae47dabc502cc0c46bc8569808aebd52a}\label{classdeep__neural__training_1_1MultipleWaveletsModule_ae47dabc502cc0c46bc8569808aebd52a}} 
+{\bfseries mid\+\_\+output\+\_\+size}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a1bc11e3f431f6f17a7332bcdb216ea8e}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a1bc11e3f431f6f17a7332bcdb216ea8e}} 
+{\bfseries multiple\+\_\+wavelet\+\_\+modules}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a60bc6e9da1b956f08b0ec90f897633d8}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a60bc6e9da1b956f08b0ec90f897633d8}} 
+{\bfseries number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a62776fc9a874ba37d166f3233a5edba0}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a62776fc9a874ba37d166f3233a5edba0}} 
+{\bfseries number\+\_\+of\+\_\+filters}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_af80d8614247dbfb96343c2b435dfc277}\label{classdeep__neural__training_1_1MultipleWaveletsModule_af80d8614247dbfb96343c2b435dfc277}} 
+{\bfseries number\+\_\+of\+\_\+layers}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a9f8cdd1722935de699a4c018b77b02e0}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a9f8cdd1722935de699a4c018b77b02e0}} 
+{\bfseries number\+\_\+of\+\_\+outputs}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_acae8f00cf715c533e3753b1b75af59c8}\label{classdeep__neural__training_1_1MultipleWaveletsModule_acae8f00cf715c533e3753b1b75af59c8}} 
+{\bfseries pure\+\_\+\+CNN}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a6c1914309d8bff13cf186b5c74149aca}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a6c1914309d8bff13cf186b5c74149aca}} 
+{\bfseries reduce\+\_\+last\+\_\+conv}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_af673b0a3111d200062f370efb5f850e1}\label{classdeep__neural__training_1_1MultipleWaveletsModule_af673b0a3111d200062f370efb5f850e1}} 
+{\bfseries unique\+\_\+wavelet\+\_\+module}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a1e83df075734cb7c5bebb742760fb715}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a1e83df075734cb7c5bebb742760fb715}} 
+{\bfseries use\+\_\+concat\+\_\+pir}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a9d30fd1d4a5cabb751cc396c2140c8e2}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a9d30fd1d4a5cabb751cc396c2140c8e2}} 
+{\bfseries use\+\_\+exponential}
+\item 
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a1d5c4de6dd067e932dfaa1171c4ecdd9}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a1d5c4de6dd067e932dfaa1171c4ecdd9}} 
+{\bfseries using\+\_\+batch\+\_\+norm}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class that use convolutions and poolings. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classdeep__neural__training_1_1MultipleWaveletsModule_a1bb4a284bdd32a3a90b91d8a69d56c00}\label{classdeep__neural__training_1_1MultipleWaveletsModule_a1bb4a284bdd32a3a90b91d8a69d56c00}} 
+\index{MultipleWaveletsModule@{MultipleWaveletsModule}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!MultipleWaveletsModule@{MultipleWaveletsModule}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{input\+\_\+size = {\ttfamily 512},  }\item[{}]{mid\+\_\+output\+\_\+size = {\ttfamily 10},  }\item[{}]{kernel\+\_\+size = {\ttfamily 3},  }\item[{}]{number\+\_\+of\+\_\+filters = {\ttfamily 2},  }\item[{}]{number\+\_\+of\+\_\+layers = {\ttfamily 8},  }\item[{}]{hidden\+\_\+cells = {\ttfamily \mbox{[}\mbox{]}},  }\item[{}]{dropout = {\ttfamily False},  }\item[{}]{use\+\_\+concat\+\_\+pir = {\ttfamily True},  }\item[{}]{number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer = {\ttfamily 1},  }\item[{}]{pure\+\_\+\+CNN = {\ttfamily False},  }\item[{}]{layer\+\_\+relu = {\ttfamily None},  }\item[{}]{reduce\+\_\+last\+\_\+conv = {\ttfamily 0},  }\item[{}]{use\+\_\+exponential = {\ttfamily False},  }\item[{}]{number\+\_\+of\+\_\+outputs = {\ttfamily 1},  }\item[{}]{using\+\_\+batch\+\_\+norm = {\ttfamily True},  }\item[{$\ast$$\ast$}]{useless }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+
+Reimplemented from \mbox{\hyperlink{classdeep__neural__training_1_1CustomModel_ae64f0875afe3067b97ba370b354b9213}{Custom\+Model}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{deep__neural__training_8py}{deep\+\_\+neural\+\_\+training.\+py}}\end{DoxyCompactItemize}

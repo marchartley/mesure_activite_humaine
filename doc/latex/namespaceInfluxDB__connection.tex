@@ -1,0 +1,28 @@
+\hypertarget{namespaceInfluxDB__connection}{}\doxysection{Influx\+DB\+\_\+connection Namespace Reference}
+\label{namespaceInfluxDB__connection}\index{InfluxDB\_connection@{InfluxDB\_connection}}
+
+
+This script defines a client that will connect your program to the Influx\+DB database in order to do request and do basic operations.  
+
+
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Listic\+Client\+DB}}
+\begin{DoxyCompactList}\small\item\em The Influx\+DB client that can be used in our programs. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceInfluxDB__connection_ad5bc32b75da65fe60067f501a4bb6665}\label{namespaceInfluxDB__connection_ad5bc32b75da65fe60067f501a4bb6665}} 
+{\bfseries client} = \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Listic\+Client\+DB}}(server\+\_\+side=True)
+\item 
+\mbox{\Hypertarget{namespaceInfluxDB__connection_a2be7c8082b0f073ca7d8baa7c5e6f004}\label{namespaceInfluxDB__connection_a2be7c8082b0f073ca7d8baa7c5e6f004}} 
+{\bfseries pirs} = client.\+pir\+\_\+values\+\_\+to\+\_\+\+DF(\mbox{\hyperlink{namespaceInfluxDB__connection_ab0bd7560790c13b656fd58e17e35143e}{res}})
+\item 
+\mbox{\Hypertarget{namespaceInfluxDB__connection_ab0bd7560790c13b656fd58e17e35143e}\label{namespaceInfluxDB__connection_ab0bd7560790c13b656fd58e17e35143e}} 
+{\bfseries res} = client.\+get\+\_\+pir\+\_\+values\+\_\+from\+\_\+walking\+\_\+sequence(id\+\_\+sequence=-\/i, time\+\_\+between\+\_\+sequences=1.\+0)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This script defines a client that will connect your program to the Influx\+DB database in order to do request and do basic operations. 

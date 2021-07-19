@@ -1,0 +1,115 @@
+\hypertarget{classtraining__models_1_1PretrainedModel}{}\doxysection{Pretrained\+Model Class Reference}
+\label{classtraining__models_1_1PretrainedModel}\index{PretrainedModel@{PretrainedModel}}
+
+
+Class used when training predefined neural networks like Alex\+Net, Dense\+Net, etc...  
+
+
+Inheritance diagram for Pretrained\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtraining__models_1_1PretrainedModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_ab833151ed42585254abae8d1f4f2be2e}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_a49037301fdfa8c314b45d8c5418265ab}{trained\+\_\+model}}, bool \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_a36adac52ca6a80021722ff2648e9ee91}{pretrained}}=False, Union\mbox{[}bool, str\mbox{]} \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_a9d30fd1d4a5cabb751cc396c2140c8e2}{use\+\_\+exponential}}=False, int \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_a9f8cdd1722935de699a4c018b77b02e0}{number\+\_\+of\+\_\+outputs}}=1, Union\mbox{[}List\mbox{[}int\mbox{]}, int\mbox{]} \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_a2d4a50b239a7d111c3e50c9d81fb7e9b}{hidden\+\_\+cells}}=\mbox{[}$\,$\mbox{]}, bool \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_afbd544c2fb63cdf2f2dcf6cf33110b09}{dropout}}=False, nn.\+Module \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_a79e1fe4a29b9f18ec03145861464c0c3}{last\+Activation}}=None, $\ast$$\ast$useless)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a3fd5e53c89dd0bb2cdafbcb37b281ef9}\label{classtraining__models_1_1PretrainedModel_a3fd5e53c89dd0bb2cdafbcb37b281ef9}} 
+def {\bfseries forward} (self, pir0, pir1, pir2, pir3, concat\+\_\+pir)
+\begin{DoxyCompactList}\small\item\em Prediction process. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_afbd544c2fb63cdf2f2dcf6cf33110b09}\label{classtraining__models_1_1PretrainedModel_afbd544c2fb63cdf2f2dcf6cf33110b09}} 
+{\bfseries dropout}
+\begin{DoxyCompactList}\small\item\em Apply a dropout on the linear layers. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtraining__models_1_1PretrainedModel_a912f405a0b0c5b7afcbd6dbc19079393}{endings}}
+\begin{DoxyCompactList}\small\item\em Head of the model that flatten the last convolutions and squeeze all in one neuron as output. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_aadbf12a18ce686e79e0e589b5b81cb2d}\label{classtraining__models_1_1PretrainedModel_aadbf12a18ce686e79e0e589b5b81cb2d}} 
+{\bfseries first\+\_\+conv}
+\begin{DoxyCompactList}\small\item\em First convolution used for resizing the input to fit in the predefined module. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a2d4a50b239a7d111c3e50c9d81fb7e9b}\label{classtraining__models_1_1PretrainedModel_a2d4a50b239a7d111c3e50c9d81fb7e9b}} 
+{\bfseries hidden\+\_\+cells}
+\begin{DoxyCompactList}\small\item\em Structure of the hidden layers in the linear part of the model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a79e1fe4a29b9f18ec03145861464c0c3}\label{classtraining__models_1_1PretrainedModel_a79e1fe4a29b9f18ec03145861464c0c3}} 
+{\bfseries last\+Activation}
+\begin{DoxyCompactList}\small\item\em Activation function at the end of the network. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a96e5f0eca87c2426370e0897ac7b8ca6}\label{classtraining__models_1_1PretrainedModel_a96e5f0eca87c2426370e0897ac7b8ca6}} 
+{\bfseries module}
+\begin{DoxyCompactList}\small\item\em The main part of the network, designed from the Py\+Torch model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_aafa1c6e5b87f10d59b466658985793eb}\label{classtraining__models_1_1PretrainedModel_aafa1c6e5b87f10d59b466658985793eb}} 
+{\bfseries num\+\_\+ftrs}
+\begin{DoxyCompactList}\small\item\em Number of features at the end of the predefined model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a9f8cdd1722935de699a4c018b77b02e0}\label{classtraining__models_1_1PretrainedModel_a9f8cdd1722935de699a4c018b77b02e0}} 
+{\bfseries number\+\_\+of\+\_\+outputs}
+\begin{DoxyCompactList}\small\item\em The number of prediction the model has to output. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a36adac52ca6a80021722ff2648e9ee91}\label{classtraining__models_1_1PretrainedModel_a36adac52ca6a80021722ff2648e9ee91}} 
+{\bfseries pretrained}
+\begin{DoxyCompactList}\small\item\em Use the weights from the pretrained model or start the training from scratch. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a49037301fdfa8c314b45d8c5418265ab}\label{classtraining__models_1_1PretrainedModel_a49037301fdfa8c314b45d8c5418265ab}} 
+{\bfseries trained\+\_\+model}
+\begin{DoxyCompactList}\small\item\em Name of the model used. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a1e83df075734cb7c5bebb742760fb715}\label{classtraining__models_1_1PretrainedModel_a1e83df075734cb7c5bebb742760fb715}} 
+{\bfseries use\+\_\+concat\+\_\+pir}
+\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_ade3d297940a3ce4166bc3632c2fb7f10}\label{classtraining__models_1_1PretrainedModel_ade3d297940a3ce4166bc3632c2fb7f10}} 
+{\bfseries use\+\_\+cuda}
+\item 
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a9d30fd1d4a5cabb751cc396c2140c8e2}\label{classtraining__models_1_1PretrainedModel_a9d30fd1d4a5cabb751cc396c2140c8e2}} 
+{\bfseries use\+\_\+exponential}
+\begin{DoxyCompactList}\small\item\em Apply an exponential activation at the end of each prediction. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class used when training predefined neural networks like Alex\+Net, Dense\+Net, etc... 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_ab833151ed42585254abae8d1f4f2be2e}\label{classtraining__models_1_1PretrainedModel_ab833151ed42585254abae8d1f4f2be2e}} 
+\index{PretrainedModel@{PretrainedModel}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!PretrainedModel@{PretrainedModel}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{trained\+\_\+model,  }\item[{bool }]{pretrained = {\ttfamily False},  }\item[{Union\mbox{[}bool, str\mbox{]} }]{use\+\_\+exponential = {\ttfamily False},  }\item[{int }]{number\+\_\+of\+\_\+outputs = {\ttfamily 1},  }\item[{Union\mbox{[}List\mbox{[}int\mbox{]}, int\mbox{]} }]{hidden\+\_\+cells = {\ttfamily \mbox{[}\mbox{]}},  }\item[{bool }]{dropout = {\ttfamily False},  }\item[{nn.\+Module }]{last\+Activation = {\ttfamily None},  }\item[{$\ast$$\ast$}]{useless }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em trained\+\_\+model} & Py\+Torch model used to build this network. List of them can be found in the dictionary \char`\"{}list\+\_\+of\+\_\+predefined\+\_\+models\char`\"{} defined in \char`\"{}deep\+\_\+neural\+\_\+training.\+py\char`\"{} \\
+\hline
+{\em pretrained} & Use the weights from the pretrained model or start the training from scratch \\
+\hline
+{\em use\+\_\+exponential} & Apply an exponential activation at the end of each prediction. Can be \char`\"{}\+True\char`\"{}, \char`\"{}\+False\char`\"{} or \char`\"{}pow\char`\"{} to apply a squaring computation. \\
+\hline
+{\em number\+\_\+of\+\_\+outputs} & The number of prediction the model has to output \\
+\hline
+{\em useless} & Garbage variable for any non-\/important parameters \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classtraining__models_1_1CustomModel_ae64f0875afe3067b97ba370b354b9213}{Custom\+Model}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtraining__models_1_1PretrainedModel_a912f405a0b0c5b7afcbd6dbc19079393}\label{classtraining__models_1_1PretrainedModel_a912f405a0b0c5b7afcbd6dbc19079393}} 
+\index{PretrainedModel@{PretrainedModel}!endings@{endings}}
+\index{endings@{endings}!PretrainedModel@{PretrainedModel}}
+\doxysubsubsection{\texorpdfstring{endings}{endings}}
+{\footnotesize\ttfamily endings}
+
+
+
+Head of the model that flatten the last convolutions and squeeze all in one neuron as output. 
+
+self.\+endings = nn.\+Module\+List(\mbox{[}nn.\+Linear(self.\+num\+\_\+ftrs, 1) for \+\_\+ in range(number\+\_\+of\+\_\+outputs)\mbox{]})
+
+Head of the model that flatten the last convolutions and squeeze all in one neuron as output. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{training__models_8py}{training\+\_\+models.\+py}}\end{DoxyCompactItemize}

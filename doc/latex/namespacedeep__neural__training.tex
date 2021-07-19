@@ -1,0 +1,507 @@
+\hypertarget{namespacedeep__neural__training}{}\doxysection{deep\+\_\+neural\+\_\+training Namespace Reference}
+\label{namespacedeep__neural__training}\index{deep\_neural\_training@{deep\_neural\_training}}
+
+
+This script is used to train neural networks to predict gait characteristics from the sensors data.  
+
+
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classdeep__neural__training_1_1PIR__DataLoader}{PIR\+\_\+\+Data\+Loader}}
+\begin{DoxyCompactList}\small\item\em Class that creates a dataloader that applies the desired transformations to the data before sending them as torch Tensors. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+np.\+ndarray \mbox{\hyperlink{namespacedeep__neural__training_a91e159d90a9e3ecf785ac5a12569af07}{compute\+\_\+morlet\+\_\+transform}} (pir\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Function that creates an image from the Continuous Wavelet Transform of a signal. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_a90a4c952181ef24f811adbfc1bf430ba}\label{namespacedeep__neural__training_a90a4c952181ef24f811adbfc1bf430ba}} 
+def {\bfseries correlation\+\_\+loss} (x, y)
+\begin{DoxyCompactList}\small\item\em A custom loss function that tries to optimize the correlation of the predictions with the ground truth Using this method can be interesting if you want your neural models to have better correlations in their results instead of lower errors. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_acb7181f8b7a7537d1eff04b628718ea1}{create\+\_\+all\+\_\+combinaisons}} (dict hyperparameters)
+\begin{DoxyCompactList}\small\item\em From a set of parameters, create all the combinations possible. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{namespacedeep__neural__training_a33aed70322ebb5d771aa8105014907f5}{display}} (str path\+\_\+to\+\_\+save\+\_\+cnn, str pir\+\_\+transforms\+\_\+filename=\textquotesingle{}all\+\_\+pirs\+\_\+transformed.\+data\textquotesingle{}, bool display\+\_\+all\+\_\+models=False)
+\begin{DoxyCompactList}\small\item\em Main function to display the results of your trained networks. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_aa1dd72fda291967ef622ef447ab5a354}{display\+\_\+classification\+\_\+test\+\_\+results}} (dict results, List classes)
+\begin{DoxyCompactList}\small\item\em Function to display the results when testing a classifier This function cannot be used for regression, but might be useful for an action classifier for example. \end{DoxyCompactList}\item 
+Tuple\mbox{[}Any, pd.\+Data\+Frame\mbox{]} \mbox{\hyperlink{namespacedeep__neural__training_a1eee5dccc1cd8716b39c8ec9528fd2c2}{display\+\_\+models}} (str filename, test\+\_\+loader, float ignore\+\_\+if\+\_\+accuracy\+\_\+lower=0.\+0, float ignore\+\_\+if\+\_\+val\+\_\+err\+\_\+higher=math.\+inf, float max\+\_\+y\+\_\+val=math.\+inf, str ignored\+\_\+files=\textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{}, List scalers=None, str order\+\_\+by=\textquotesingle{}correlation\textquotesingle{}, bool bigger\+\_\+is\+\_\+better=True, bool display\+\_\+all\+\_\+models=False)
+\begin{DoxyCompactList}\small\item\em Display all the trained models with the learning curve and the results of the best model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_a17876c3e20a2bb5f13251077dcb1bd58}\label{namespacedeep__neural__training_a17876c3e20a2bb5f13251077dcb1bd58}} 
+def {\bfseries main} ()
+\item 
+None \mbox{\hyperlink{namespacedeep__neural__training_a646a2750ead77aee2340eeff3dc2105b}{merge\+\_\+models\+\_\+in\+\_\+one\+\_\+file}} (str path\+\_\+to\+\_\+cnn, str ignored\+\_\+files=\textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em When doing a training, each model is stored in a different file. \end{DoxyCompactList}\item 
+Tuple\mbox{[}pd.\+Data\+Frame, Dict\mbox{]} \mbox{\hyperlink{namespacedeep__neural__training_a923cd9728ba05288c9a3350a3c2b227e}{normalize}} (pd.\+Data\+Frame df, Union\mbox{[}list, str\mbox{]} concerned\+\_\+columns=\textquotesingle{}all\textquotesingle{}, list ignored\+\_\+columns=None)
+\begin{DoxyCompactList}\small\item\em Function to normalize the data from a Data\+Frame. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_ae9f6d73feb68eb129f56d68dcf292e89}{plot\+\_\+confusion\+\_\+matrix}} (cm, List classes)
+\begin{DoxyCompactList}\small\item\em Function to display the confusion matrix (for models doing classification only) I leave this function here if you need to use it in the future (doing action classification for example) \end{DoxyCompactList}\item 
+Dict \mbox{\hyperlink{namespacedeep__neural__training_a0a0c3e668e77b9622f09b05dbb33afc0}{precompute\+\_\+morlet\+\_\+transforms}} (pd.\+Data\+Frame raw\+\_\+data, str pir\+\_\+transforms\+\_\+filename=\textquotesingle{}all\+\_\+pirs\+\_\+transformed.\+data\textquotesingle{}, Union\mbox{[}str, bool\mbox{]} output\+\_\+filename=True)
+\begin{DoxyCompactList}\small\item\em Function that compute all the Continuous Wavelet Transforms of the dataset and store them in a Pickle file. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{namespacedeep__neural__training_abb4a346f91a6b046e14e92047e18eaf7}{remove\+\_\+useless\+\_\+models}} (str path\+\_\+to\+\_\+cnn, str ignored\+\_\+files=\textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Function to store the models with really bad results in a file containing the \char`\"{}ignore\+\_\+file\char`\"{} pattern, so it won\textquotesingle{}t be taken in consideration during the display process of the training results. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_af9c0f5944fa212a1cd9307a68c6a878d}{test\+\_\+model}} (\mbox{\hyperlink{classtraining__models_1_1CustomModel}{Custom\+Model}} model, testloader, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{}, scalers=None)
+\begin{DoxyCompactList}\small\item\em Function to test a model on a dataset The procedure is the same as the training, except we don\textquotesingle{}t update the model. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_a4b6b01bf6c8f23259827b9a65f68a5f2}{train\+\_\+model}} (trainloader, validationloader, Type\mbox{[}\mbox{\hyperlink{classtraining__models_1_1CustomModel}{Custom\+Model}}\mbox{]} model\+\_\+class=\mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule}{Multiple\+Wavelets\+Module}}, Dict model\+\_\+parameters=None, Type\mbox{[}nn.\+Module\mbox{]} loss\+\_\+function=nn.\+Cross\+Entropy\+Loss, bool training\+\_\+for\+\_\+autoencoder=False, Any optimizer=None, float learning\+\_\+rate=0.\+010, int num\+\_\+epochs=5, Union\mbox{[}bool, int\mbox{]} early\+\_\+stopping=False, float display\+\_\+precision=100, Union\mbox{[}bool, int\mbox{]} verbose=True, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Train function, give it your dataset, the parameters of your model, and there you go. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{namespacedeep__neural__training_a21c590956900654d77c57a84d91e4127}{training}} (str path\+\_\+to\+\_\+save\+\_\+cnn, str pir\+\_\+transforms\+\_\+filename=\textquotesingle{}all\+\_\+pirs\+\_\+transformed.\+data\textquotesingle{}, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{}, int number\+\_\+of\+\_\+models\+\_\+trained=math.\+inf)
+\begin{DoxyCompactList}\small\item\em Main training function that make dataloader from the dataset, defines the model parameters and training parameters that will be used to train all the models. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_a6baf55a45d6651841e446f206e60debd}{try\+\_\+all\+\_\+models}} (dict hyperparameters, train\+\_\+set, validation\+\_\+set, testing\+\_\+set, dict training\+\_\+parameters=\{\}, Type\mbox{[}\mbox{\hyperlink{classtraining__models_1_1CustomModel}{Custom\+Model}}\mbox{]} model\+\_\+class=\mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule}{Multiple\+Wavelets\+Module}}, Type\mbox{[}nn.\+modules.\+loss.\+Module\mbox{]} loss\+\_\+function=nn.\+Cross\+Entropy\+Loss, optimizer=False, bool training\+\_\+for\+\_\+autoencoder=False, float learning\+\_\+rate=0.\+001, int num\+\_\+epochs=5, Union\mbox{[}float, int\mbox{]} display\+\_\+precision=1.\+0, Union\mbox{[}bool, int\mbox{]} early\+\_\+stopping=True, Union\mbox{[}bool, str\mbox{]} save\+\_\+as=False, bool start\+\_\+from\+\_\+beginning=True, Union\mbox{[}bool, int\mbox{]} verbose=3, str ignored\+\_\+files=\textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{}, List scalers=None, int max\+\_\+number\+\_\+of\+\_\+models=math.\+inf, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Launch the training function for every possible combination of neural network. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_ad8c130af96124879abb7a6e134a49676}{visualize\+\_\+model}} (\mbox{\hyperlink{classtraining__models_1_1CustomModel}{Custom\+Model}} model, testloader, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{}, dict scalers=None, bool results\+\_\+with\+\_\+color=False)
+\begin{DoxyCompactList}\small\item\em Function that display the results of a model on a dataset. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+dictionary \mbox{\hyperlink{namespacedeep__neural__training_a8efe93674bff0c401758141a221389e3}{all\+\_\+pretrained\+\_\+models}}
+\begin{DoxyCompactList}\small\item\em List of all \char`\"{}pretrained\char`\"{} models that can be used in the training. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_a9e94c3c0e7581f24802fc332ca1073a0}\label{namespacedeep__neural__training_a9e94c3c0e7581f24802fc332ca1073a0}} 
+{\bfseries cpu} = torch.\+device(\textquotesingle{}cpu\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Device that handle the CPU usage. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_aff103944954c132fd1d6d2cb81f76d73}\label{namespacedeep__neural__training_aff103944954c132fd1d6d2cb81f76d73}} 
+{\bfseries cuda} = torch.\+device(\textquotesingle{}cuda\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Device that handle the GPU usage. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_adbdec58595587fea1750c91cd18315fb}\label{namespacedeep__neural__training_adbdec58595587fea1750c91cd18315fb}} 
+{\bfseries device} = \mbox{\hyperlink{namespacedeep__neural__training_aff103944954c132fd1d6d2cb81f76d73}{cuda}} if torch.\+cuda.\+is\+\_\+available() else \mbox{\hyperlink{namespacedeep__neural__training_a9e94c3c0e7581f24802fc332ca1073a0}{cpu}}
+\begin{DoxyCompactList}\small\item\em Current device used\+: CPU or GPU. \end{DoxyCompactList}\item 
+dictionary \mbox{\hyperlink{namespacedeep__neural__training_a1b46d1a004c17152d9ded1343a55c430}{estimable\+\_\+parameters}}
+\begin{DoxyCompactList}\small\item\em List of walking parameters on which we can train a network. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_a0ad8ed6e0196a9477f123c6bf569233b}\label{namespacedeep__neural__training_a0ad8ed6e0196a9477f123c6bf569233b}} 
+bool {\bfseries use\+\_\+cuda} = True
+\begin{DoxyCompactList}\small\item\em Keep track whever we are using the CPU or the GPU. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This script is used to train neural networks to predict gait characteristics from the sensors data. 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacedeep__neural__training_a91e159d90a9e3ecf785ac5a12569af07}\label{namespacedeep__neural__training_a91e159d90a9e3ecf785ac5a12569af07}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!compute\_morlet\_transform@{compute\_morlet\_transform}}
+\index{compute\_morlet\_transform@{compute\_morlet\_transform}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{compute\_morlet\_transform()}{compute\_morlet\_transform()}}
+{\footnotesize\ttfamily  np.\+ndarray deep\+\_\+neural\+\_\+training.\+compute\+\_\+morlet\+\_\+transform (\begin{DoxyParamCaption}\item[{}]{pir\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Function that creates an image from the Continuous Wavelet Transform of a signal. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pir\+\_\+data} & The signal values as a time series\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An image of the CWT of the signal 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacedeep__neural__training_acb7181f8b7a7537d1eff04b628718ea1}\label{namespacedeep__neural__training_acb7181f8b7a7537d1eff04b628718ea1}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!create\_all\_combinaisons@{create\_all\_combinaisons}}
+\index{create\_all\_combinaisons@{create\_all\_combinaisons}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{create\_all\_combinaisons()}{create\_all\_combinaisons()}}
+{\footnotesize\ttfamily def deep\+\_\+neural\+\_\+training.\+create\+\_\+all\+\_\+combinaisons (\begin{DoxyParamCaption}\item[{dict}]{hyperparameters }\end{DoxyParamCaption})}
+
+
+
+From a set of parameters, create all the combinations possible. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hyperparameters} & A dictionary with all the variable you want to vary\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An array with all possible combination as dictionaries 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacedeep__neural__training_a33aed70322ebb5d771aa8105014907f5}\label{namespacedeep__neural__training_a33aed70322ebb5d771aa8105014907f5}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!display@{display}}
+\index{display@{display}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{display()}{display()}}
+{\footnotesize\ttfamily  None deep\+\_\+neural\+\_\+training.\+display (\begin{DoxyParamCaption}\item[{str}]{path\+\_\+to\+\_\+save\+\_\+cnn,  }\item[{str }]{pir\+\_\+transforms\+\_\+filename = {\ttfamily \textquotesingle{}all\+\_\+pirs\+\_\+transformed.data\textquotesingle{}},  }\item[{bool }]{display\+\_\+all\+\_\+models = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Main function to display the results of your trained networks. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path\+\_\+to\+\_\+save\+\_\+cnn} & The location where you stored your trained networks \\
+\hline
+{\em pir\+\_\+transforms\+\_\+filename} & The name of the file containing the dataset \\
+\hline
+{\em display\+\_\+all\+\_\+models} & If True, we will plot the the predictions and the errors of the model on the dataset, instead of just the statistics computed during the training part\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+This can be done only after doing a \mbox{\hyperlink{namespacedeep__neural__training_a21c590956900654d77c57a84d91e4127}{training()}} 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{namespacedeep__neural__training_aa1dd72fda291967ef622ef447ab5a354}\label{namespacedeep__neural__training_aa1dd72fda291967ef622ef447ab5a354}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!display\_classification\_test\_results@{display\_classification\_test\_results}}
+\index{display\_classification\_test\_results@{display\_classification\_test\_results}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{display\_classification\_test\_results()}{display\_classification\_test\_results()}}
+{\footnotesize\ttfamily def deep\+\_\+neural\+\_\+training.\+display\+\_\+classification\+\_\+test\+\_\+results (\begin{DoxyParamCaption}\item[{dict}]{results,  }\item[{List}]{classes }\end{DoxyParamCaption})}
+
+
+
+Function to display the results when testing a classifier This function cannot be used for regression, but might be useful for an action classifier for example. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em results} & The results from a model testing \\
+\hline
+{\em classes} & The name of the classes for the classification task \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{namespacedeep__neural__training_a1eee5dccc1cd8716b39c8ec9528fd2c2}\label{namespacedeep__neural__training_a1eee5dccc1cd8716b39c8ec9528fd2c2}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!display\_models@{display\_models}}
+\index{display\_models@{display\_models}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{display\_models()}{display\_models()}}
+{\footnotesize\ttfamily  Tuple\mbox{[}Any, pd.\+Data\+Frame\mbox{]} deep\+\_\+neural\+\_\+training.\+display\+\_\+models (\begin{DoxyParamCaption}\item[{str}]{filename,  }\item[{}]{test\+\_\+loader,  }\item[{float }]{ignore\+\_\+if\+\_\+accuracy\+\_\+lower = {\ttfamily 0.0},  }\item[{float }]{ignore\+\_\+if\+\_\+val\+\_\+err\+\_\+higher = {\ttfamily math.inf},  }\item[{float }]{max\+\_\+y\+\_\+val = {\ttfamily math.inf},  }\item[{str }]{ignored\+\_\+files = {\ttfamily \textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{}},  }\item[{List }]{scalers = {\ttfamily None},  }\item[{str }]{order\+\_\+by = {\ttfamily \textquotesingle{}correlation\textquotesingle{}},  }\item[{bool }]{bigger\+\_\+is\+\_\+better = {\ttfamily True},  }\item[{bool }]{display\+\_\+all\+\_\+models = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Display all the trained models with the learning curve and the results of the best model. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em filename} & Name of the file where trained model are stored \\
+\hline
+{\em test\+\_\+loader} & Dataset containing test data \\
+\hline
+{\em ignore\+\_\+if\+\_\+accuracy\+\_\+lower} & Unused parameter \\
+\hline
+{\em ignore\+\_\+if\+\_\+val\+\_\+err\+\_\+higher} & Unused parameter \\
+\hline
+{\em max\+\_\+y\+\_\+val} & Maximum loss value displayed on the learning curves \\
+\hline
+{\em ignored\+\_\+files} & Prefix used for models that should be ignored (very bad results) \\
+\hline
+{\em scalers} & List of scalers used to transform the dataset \\
+\hline
+{\em order\+\_\+by} & The criteria to find the best model. Criteria can be
+\begin{DoxyItemize}
+\item correlation
+\item MAE
+\item MSE 
+\end{DoxyItemize}\\
+\hline
+{\em bigger\+\_\+is\+\_\+better} & Set to True if the \char`\"{}order\+\_\+by\char`\"{} must be big to be a good model (ex\+: for \char`\"{}correlation\char`\"{}) and set to False if \char`\"{}order\+\_\+by\char`\"{} must be low (ex\+: \char`\"{}\+MSE\char`\"{} or \char`\"{}\+MAE\char`\"{}) \\
+\hline
+{\em display\+\_\+all\+\_\+models} & Set to True to see the results of each model, and not just the best one \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{namespacedeep__neural__training_a646a2750ead77aee2340eeff3dc2105b}\label{namespacedeep__neural__training_a646a2750ead77aee2340eeff3dc2105b}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!merge\_models\_in\_one\_file@{merge\_models\_in\_one\_file}}
+\index{merge\_models\_in\_one\_file@{merge\_models\_in\_one\_file}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{merge\_models\_in\_one\_file()}{merge\_models\_in\_one\_file()}}
+{\footnotesize\ttfamily  None deep\+\_\+neural\+\_\+training.\+merge\+\_\+models\+\_\+in\+\_\+one\+\_\+file (\begin{DoxyParamCaption}\item[{str}]{path\+\_\+to\+\_\+cnn,  }\item[{str }]{ignored\+\_\+files = {\ttfamily \textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{}} }\end{DoxyParamCaption})}
+
+
+
+When doing a training, each model is stored in a different file. 
+
+With this function you can merge all files into a single one. It might not always be a good idea as the file might be way too big at the end if lots of training has been done, and I\textquotesingle{}m not sure about the consequences on the GPU memory when unpickling the file. 
+\begin{DoxyParams}{Parameters}
+{\em path\+\_\+to\+\_\+cnn} & The path where your models have been saved \\
+\hline
+{\em ignored\+\_\+files} & The prefix given to models that had very bad results and can be ignored\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+If you want to first remove useless files\+: see \mbox{\hyperlink{namespacedeep__neural__training_abb4a346f91a6b046e14e92047e18eaf7}{remove\+\_\+useless\+\_\+models()}} 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{namespacedeep__neural__training_a923cd9728ba05288c9a3350a3c2b227e}\label{namespacedeep__neural__training_a923cd9728ba05288c9a3350a3c2b227e}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!normalize@{normalize}}
+\index{normalize@{normalize}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{normalize()}{normalize()}}
+{\footnotesize\ttfamily  Tuple\mbox{[}pd.\+Data\+Frame, Dict\mbox{]} deep\+\_\+neural\+\_\+training.\+normalize (\begin{DoxyParamCaption}\item[{pd.\+Data\+Frame}]{df,  }\item[{Union\mbox{[}list, str\mbox{]} }]{concerned\+\_\+columns = {\ttfamily \textquotesingle{}all\textquotesingle{}},  }\item[{list }]{ignored\+\_\+columns = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Function to normalize the data from a Data\+Frame. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em df} & The Data\+Frame containing all the data \\
+\hline
+{\em concerned\+\_\+columns} & The names of the columns you want to normalize. Set to \textquotesingle{}all\textquotesingle{} to normalize everything \\
+\hline
+{\em ignored\+\_\+columns} & If \char`\"{}concerned\+\_\+columns\char`\"{} is set to \textquotesingle{}all\textquotesingle{}, you can give the name of columns you actually DON\textquotesingle{}T want to normalize\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A tuple containing the new Data\+Frame with normalized values and a list of the scalers used in the normalization process for each column. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacedeep__neural__training_ae9f6d73feb68eb129f56d68dcf292e89}\label{namespacedeep__neural__training_ae9f6d73feb68eb129f56d68dcf292e89}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!plot\_confusion\_matrix@{plot\_confusion\_matrix}}
+\index{plot\_confusion\_matrix@{plot\_confusion\_matrix}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{plot\_confusion\_matrix()}{plot\_confusion\_matrix()}}
+{\footnotesize\ttfamily def deep\+\_\+neural\+\_\+training.\+plot\+\_\+confusion\+\_\+matrix (\begin{DoxyParamCaption}\item[{}]{cm,  }\item[{List}]{classes }\end{DoxyParamCaption})}
+
+
+
+Function to display the confusion matrix (for models doing classification only) I leave this function here if you need to use it in the future (doing action classification for example) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em cm} & The computed confusion matrix \\
+\hline
+{\em classes} & The name of the classes for the classification task\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Code greatly inspired by \href{https://deeplizard.com/learn/video/0LhiS6yu2qQ}{\texttt{ https\+://deeplizard.\+com/learn/video/0\+Lhi\+S6yu2qQ}} 
+\end{DoxyNote}
+\mbox{\Hypertarget{namespacedeep__neural__training_a0a0c3e668e77b9622f09b05dbb33afc0}\label{namespacedeep__neural__training_a0a0c3e668e77b9622f09b05dbb33afc0}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!precompute\_morlet\_transforms@{precompute\_morlet\_transforms}}
+\index{precompute\_morlet\_transforms@{precompute\_morlet\_transforms}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{precompute\_morlet\_transforms()}{precompute\_morlet\_transforms()}}
+{\footnotesize\ttfamily  Dict deep\+\_\+neural\+\_\+training.\+precompute\+\_\+morlet\+\_\+transforms (\begin{DoxyParamCaption}\item[{pd.\+Data\+Frame}]{raw\+\_\+data,  }\item[{str }]{pir\+\_\+transforms\+\_\+filename = {\ttfamily \textquotesingle{}all\+\_\+pirs\+\_\+transformed.data\textquotesingle{}},  }\item[{Union\mbox{[}str, bool\mbox{]} }]{output\+\_\+filename = {\ttfamily True} }\end{DoxyParamCaption})}
+
+
+
+Function that compute all the Continuous Wavelet Transforms of the dataset and store them in a Pickle file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em raw\+\_\+data} & A Data\+Frame containing all the data of the dataset. This might be the content of \textquotesingle{}gait\+\_\+values.\+csv\textquotesingle{} \\
+\hline
+{\em pir\+\_\+transforms\+\_\+filename} & The name of the file in which you want to save the CWT data \\
+\hline
+{\em output\+\_\+filename} & Can be a boolean set to True to effectively save the CWT data or False to not save the file and just return the results in the script.~\newline
+ Can also be a string if you want to save the CWT data in another file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The dataset values containing the Continuous Wavelet Transform of each sensor and the ground truth of all walking parameters.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+If the file \char`\"{}pir\+\_\+transform\+\_\+filename\char`\"{} already exists, none of the sequences contained inside is computed again. For a fresh start (your CWT computation has been modified, there was error on the data or else), you must delete the previous file in order to compute completely all the sequences 
+\end{DoxyNote}
+\mbox{\Hypertarget{namespacedeep__neural__training_abb4a346f91a6b046e14e92047e18eaf7}\label{namespacedeep__neural__training_abb4a346f91a6b046e14e92047e18eaf7}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!remove\_useless\_models@{remove\_useless\_models}}
+\index{remove\_useless\_models@{remove\_useless\_models}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{remove\_useless\_models()}{remove\_useless\_models()}}
+{\footnotesize\ttfamily  None deep\+\_\+neural\+\_\+training.\+remove\+\_\+useless\+\_\+models (\begin{DoxyParamCaption}\item[{str}]{path\+\_\+to\+\_\+cnn,  }\item[{str }]{ignored\+\_\+files = {\ttfamily \textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{}} }\end{DoxyParamCaption})}
+
+
+
+Function to store the models with really bad results in a file containing the \char`\"{}ignore\+\_\+file\char`\"{} pattern, so it won\textquotesingle{}t be taken in consideration during the display process of the training results. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path\+\_\+to\+\_\+cnn} & The path where your models have been saved \\
+\hline
+{\em ignored\+\_\+files} & The prefix given to models that had very bad results and can be ignored\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+The process is exactly the same as \mbox{\hyperlink{namespacedeep__neural__training_a646a2750ead77aee2340eeff3dc2105b}{merge\+\_\+models\+\_\+in\+\_\+one\+\_\+file()}}, but without the merging of the good models. 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{namespacedeep__neural__training_af9c0f5944fa212a1cd9307a68c6a878d}\label{namespacedeep__neural__training_af9c0f5944fa212a1cd9307a68c6a878d}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!test\_model@{test\_model}}
+\index{test\_model@{test\_model}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{test\_model()}{test\_model()}}
+{\footnotesize\ttfamily def deep\+\_\+neural\+\_\+training.\+test\+\_\+model (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classtraining__models_1_1CustomModel}{Custom\+Model}}}]{model,  }\item[{}]{testloader,  }\item[{str }]{estimated\+\_\+parameter = {\ttfamily \textquotesingle{}body\+\_\+speed\textquotesingle{}},  }\item[{}]{scalers = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Function to test a model on a dataset The procedure is the same as the training, except we don\textquotesingle{}t update the model. 
+
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{namespacedeep__neural__training_a4b6b01bf6c8f23259827b9a65f68a5f2}{train\+\_\+model()}}
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+{\em model} & The trained model you want to test \\
+\hline
+{\em testloader} & The dataset used for the testing \\
+\hline
+{\em estimated\+\_\+parameter} & The name of the walking parameter you want to test on \\
+\hline
+{\em scalers} & The list of scalers that is used on the dataset, defined in the creation of dataset function\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A dictionary containing stats about the testing 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacedeep__neural__training_a4b6b01bf6c8f23259827b9a65f68a5f2}\label{namespacedeep__neural__training_a4b6b01bf6c8f23259827b9a65f68a5f2}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!train\_model@{train\_model}}
+\index{train\_model@{train\_model}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{train\_model()}{train\_model()}}
+{\footnotesize\ttfamily def deep\+\_\+neural\+\_\+training.\+train\+\_\+model (\begin{DoxyParamCaption}\item[{}]{trainloader,  }\item[{}]{validationloader,  }\item[{Type\mbox{[}\mbox{\hyperlink{classtraining__models_1_1CustomModel}{Custom\+Model}}\mbox{]} }]{model\+\_\+class = {\ttfamily \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule}{Multiple\+Wavelets\+Module}}},  }\item[{Dict }]{model\+\_\+parameters = {\ttfamily None},  }\item[{Type\mbox{[}nn.\+Module\mbox{]} }]{loss\+\_\+function = {\ttfamily nn.CrossEntropyLoss},  }\item[{bool }]{training\+\_\+for\+\_\+autoencoder = {\ttfamily False},  }\item[{Any }]{optimizer = {\ttfamily None},  }\item[{float }]{learning\+\_\+rate = {\ttfamily 0.010},  }\item[{int }]{num\+\_\+epochs = {\ttfamily 5},  }\item[{Union\mbox{[}bool, int\mbox{]} }]{early\+\_\+stopping = {\ttfamily False},  }\item[{float }]{display\+\_\+precision = {\ttfamily 100},  }\item[{Union\mbox{[}bool, int\mbox{]} }]{verbose = {\ttfamily True},  }\item[{str }]{estimated\+\_\+parameter = {\ttfamily \textquotesingle{}body\+\_\+speed\textquotesingle{}} }\end{DoxyParamCaption})}
+
+
+
+Train function, give it your dataset, the parameters of your model, and there you go. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em trainloader} & the training part of your dataset \\
+\hline
+{\em validationloader} & the testing / validation part of your dataset \\
+\hline
+{\em model\+\_\+class} & Specify the class of the model you want to train \\
+\hline
+{\em model\+\_\+parameters} & parameters that will be given to the {\bfseries{init}}() function of your model \\
+\hline
+{\em loss\+\_\+function} & Specify the loss function you want to use. default is Cross Entropy \\
+\hline
+{\em training\+\_\+for\+\_\+autoencoder} & will simply change the target for the loss \\
+\hline
+{\em optimizer} & Specify your optimizer. default is SGD \\
+\hline
+{\em learning\+\_\+rate} & parameter given to the optimizer \\
+\hline
+{\em num\+\_\+epochs} & number of epochs for the training \\
+\hline
+{\em early\+\_\+stopping} & if True, will stop if the validation loss starts increasing If a integer value, defines the \char`\"{}patience\char`\"{} (number of minibatch to study before officially stops for overfitting) \\
+\hline
+{\em display\+\_\+precision} & if verbose, number of minibatch seen when printing results. And because we didn\textquotesingle{}t work very well, it also defines the precision for early stopping... \\
+\hline
+{\em verbose} & level of verbosity \\
+\hline
+{\em estimated\+\_\+parameter} & The parameter that you want to estimate with your model\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A dictionary with training results and the trained model 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacedeep__neural__training_a21c590956900654d77c57a84d91e4127}\label{namespacedeep__neural__training_a21c590956900654d77c57a84d91e4127}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!training@{training}}
+\index{training@{training}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{training()}{training()}}
+{\footnotesize\ttfamily  None deep\+\_\+neural\+\_\+training.\+training (\begin{DoxyParamCaption}\item[{str}]{path\+\_\+to\+\_\+save\+\_\+cnn,  }\item[{str }]{pir\+\_\+transforms\+\_\+filename = {\ttfamily \textquotesingle{}all\+\_\+pirs\+\_\+transformed.data\textquotesingle{}},  }\item[{str }]{estimated\+\_\+parameter = {\ttfamily \textquotesingle{}body\+\_\+speed\textquotesingle{}},  }\item[{int }]{number\+\_\+of\+\_\+models\+\_\+trained = {\ttfamily math.inf} }\end{DoxyParamCaption})}
+
+
+
+Main training function that make dataloader from the dataset, defines the model parameters and training parameters that will be used to train all the models. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path\+\_\+to\+\_\+save\+\_\+cnn} & Path where the trained models should be saved \\
+\hline
+{\em pir\+\_\+transforms\+\_\+filename} & Path to the file containing the dataset (the one with Continuous Wavelet Transforms computed) to create the dataloader \\
+\hline
+{\em estimated\+\_\+parameter} & The walking parameter that will be estimated by the models \\
+\hline
+{\em number\+\_\+of\+\_\+models\+\_\+trained} & You can give a maximum number of models to train before the program stops \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{namespacedeep__neural__training_a6baf55a45d6651841e446f206e60debd}\label{namespacedeep__neural__training_a6baf55a45d6651841e446f206e60debd}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!try\_all\_models@{try\_all\_models}}
+\index{try\_all\_models@{try\_all\_models}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{try\_all\_models()}{try\_all\_models()}}
+{\footnotesize\ttfamily def deep\+\_\+neural\+\_\+training.\+try\+\_\+all\+\_\+models (\begin{DoxyParamCaption}\item[{dict}]{hyperparameters,  }\item[{}]{train\+\_\+set,  }\item[{}]{validation\+\_\+set,  }\item[{}]{testing\+\_\+set,  }\item[{dict }]{training\+\_\+parameters = {\ttfamily \{\}},  }\item[{Type\mbox{[}\mbox{\hyperlink{classtraining__models_1_1CustomModel}{Custom\+Model}}\mbox{]} }]{model\+\_\+class = {\ttfamily \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule}{Multiple\+Wavelets\+Module}}},  }\item[{Type\mbox{[}nn.\+modules.\+loss.\+Module\mbox{]} }]{loss\+\_\+function = {\ttfamily nn.CrossEntropyLoss},  }\item[{}]{optimizer = {\ttfamily False},  }\item[{bool }]{training\+\_\+for\+\_\+autoencoder = {\ttfamily False},  }\item[{float }]{learning\+\_\+rate = {\ttfamily 0.001},  }\item[{int }]{num\+\_\+epochs = {\ttfamily 5},  }\item[{Union\mbox{[}float, int\mbox{]} }]{display\+\_\+precision = {\ttfamily 1.0},  }\item[{Union\mbox{[}bool, int\mbox{]} }]{early\+\_\+stopping = {\ttfamily True},  }\item[{Union\mbox{[}bool, str\mbox{]} }]{save\+\_\+as = {\ttfamily False},  }\item[{bool }]{start\+\_\+from\+\_\+beginning = {\ttfamily True},  }\item[{Union\mbox{[}bool, int\mbox{]} }]{verbose = {\ttfamily 3},  }\item[{str }]{ignored\+\_\+files = {\ttfamily \textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{}},  }\item[{List }]{scalers = {\ttfamily None},  }\item[{int }]{max\+\_\+number\+\_\+of\+\_\+models = {\ttfamily math.inf},  }\item[{str }]{estimated\+\_\+parameter = {\ttfamily \textquotesingle{}body\+\_\+speed\textquotesingle{}} }\end{DoxyParamCaption})}
+
+
+
+Launch the training function for every possible combination of neural network. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hyperparameters} & All the parameters that can be changed in the model \\
+\hline
+{\em train\+\_\+set} & The training set \\
+\hline
+{\em validation\+\_\+set} & The validation set \\
+\hline
+{\em testing\+\_\+set} & The testing set \\
+\hline
+{\em training\+\_\+parameters} & A dictionary with possible parameters for the training \\
+\hline
+{\em model\+\_\+class} & Specify the class of the models you want to train \\
+\hline
+{\em loss\+\_\+function} & Specify the loss function you want to use. default is Cross Entropy (classification task) \\
+\hline
+{\em training\+\_\+for\+\_\+autoencoder} & Will simply change the target for the loss, but some small changes should be done in the training if you want to use it \\
+\hline
+{\em optimizer} & Specify your optimizer. default is SGD \\
+\hline
+{\em learning\+\_\+rate} & Learning rate parameter given to the optimizer \\
+\hline
+{\em num\+\_\+epochs} & Number of epochs for the training. This can be shorten if early\+\_\+stopping is set to True \\
+\hline
+{\em display\+\_\+precision} & The rate at which we do a validation pass, and display the current loss results of the training \\
+\hline
+{\em early\+\_\+stopping} & if True, will stop if the validation loss starts increasing If an integer value is given, defines the \char`\"{}patience\char`\"{} (number of minibatch to study before officially stops because of overfitting) \\
+\hline
+{\em save\+\_\+as} & Specify the name of the file where we save all the statistics (including the model itself) a timestamp is added to the file name \\
+\hline
+{\em start\+\_\+from\+\_\+beginning} & Remove all previously saved models if True, otherwise will ignore previously calculated combinations \\
+\hline
+{\em verbose} & level of verbosity \\
+\hline
+{\em ignored\+\_\+files} & The prefix used for files that are considered \char`\"{}useless\char`\"{} (results really, really bad) \\
+\hline
+{\em scalers} & The list of scalers used to transform the dataset \\
+\hline
+{\em max\+\_\+number\+\_\+of\+\_\+models} & The number of model you want to train \\
+\hline
+{\em estimated\+\_\+parameter} & The walking parameter considered by the models \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{namespacedeep__neural__training_ad8c130af96124879abb7a6e134a49676}\label{namespacedeep__neural__training_ad8c130af96124879abb7a6e134a49676}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!visualize\_model@{visualize\_model}}
+\index{visualize\_model@{visualize\_model}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{visualize\_model()}{visualize\_model()}}
+{\footnotesize\ttfamily def deep\+\_\+neural\+\_\+training.\+visualize\+\_\+model (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classtraining__models_1_1CustomModel}{Custom\+Model}}}]{model,  }\item[{}]{testloader,  }\item[{str }]{estimated\+\_\+parameter = {\ttfamily \textquotesingle{}body\+\_\+speed\textquotesingle{}},  }\item[{dict }]{scalers = {\ttfamily None},  }\item[{bool }]{results\+\_\+with\+\_\+color = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Function that display the results of a model on a dataset. 
+
+This will print the outputs and the errors 
+\begin{DoxyParams}{Parameters}
+{\em model} & The neural model you want to see \\
+\hline
+{\em testloader} & The dataset on which we test the model \\
+\hline
+{\em estimated\+\_\+parameter} & The walking parameter we want to consider with the model \\
+\hline
+{\em scalers} & A dictionary containing the scalers used to transform the data in the dataset \\
+\hline
+{\em results\+\_\+with\+\_\+color} & Set this to True if you want to display the predictions with colors and shapes depending on the corridor/direction used. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespacedeep__neural__training_a8efe93674bff0c401758141a221389e3}\label{namespacedeep__neural__training_a8efe93674bff0c401758141a221389e3}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!all\_pretrained\_models@{all\_pretrained\_models}}
+\index{all\_pretrained\_models@{all\_pretrained\_models}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{all\_pretrained\_models}{all\_pretrained\_models}}
+{\footnotesize\ttfamily dictionary all\+\_\+pretrained\+\_\+models}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 =  \{}
+\DoxyCodeLine{2     \textcolor{stringliteral}{'resnet18'}: torchvision.models.resnet18,}
+\DoxyCodeLine{3     \textcolor{stringliteral}{'alexnet'}: torchvision.models.alexnet,}
+\DoxyCodeLine{4     \textcolor{stringliteral}{'squeezenet'}: torchvision.models.squeezenet1\_0,}
+\DoxyCodeLine{5     \textcolor{stringliteral}{'vgg16'}: torchvision.models.vgg16,}
+\DoxyCodeLine{6     \textcolor{stringliteral}{'densenet'}: torchvision.models.densenet161,}
+\DoxyCodeLine{7     \textcolor{comment}{\# 'inception': torchvision.models.inception\_v3,}}
+\DoxyCodeLine{8     \textcolor{comment}{\# 'googlenet': torchvision.models.googlenet,}}
+\DoxyCodeLine{9     \textcolor{stringliteral}{'shufflenet'}: torchvision.models.shufflenet\_v2\_x1\_0,}
+\DoxyCodeLine{10     \textcolor{stringliteral}{'mobilenet\_v2'}: torchvision.models.mobilenet\_v2,}
+\DoxyCodeLine{11     \textcolor{stringliteral}{'mobilenet\_v3\_large'}: torchvision.models.mobilenet\_v3\_large,}
+\DoxyCodeLine{12     \textcolor{stringliteral}{'mobilenet\_v3\_small'}: torchvision.models.mobilenet\_v3\_small,}
+\DoxyCodeLine{13     \textcolor{stringliteral}{'resnext50\_32x4d'}: torchvision.models.resnext50\_32x4d,}
+\DoxyCodeLine{14     \textcolor{stringliteral}{'wide\_resnet50\_2'}: torchvision.models.wide\_resnet50\_2,}
+\DoxyCodeLine{15     \textcolor{stringliteral}{'mnasnet'}: torchvision.models.mnasnet1\_0}
+\DoxyCodeLine{16 \}}
+
+\end{DoxyCode}
+
+
+List of all \char`\"{}pretrained\char`\"{} models that can be used in the training. 
+
+\mbox{\Hypertarget{namespacedeep__neural__training_a1b46d1a004c17152d9ded1343a55c430}\label{namespacedeep__neural__training_a1b46d1a004c17152d9ded1343a55c430}} 
+\index{deep\_neural\_training@{deep\_neural\_training}!estimable\_parameters@{estimable\_parameters}}
+\index{estimable\_parameters@{estimable\_parameters}!deep\_neural\_training@{deep\_neural\_training}}
+\doxysubsubsection{\texorpdfstring{estimable\_parameters}{estimable\_parameters}}
+{\footnotesize\ttfamily dictionary estimable\+\_\+parameters}
+
+
+
+List of walking parameters on which we can train a network. 
+
+Additional data is used in order to display the results automatically 

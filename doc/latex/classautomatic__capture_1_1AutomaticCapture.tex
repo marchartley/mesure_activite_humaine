@@ -1,0 +1,212 @@
+\hypertarget{classautomatic__capture_1_1AutomaticCapture}{}\doxysection{Automatic\+Capture Class Reference}
+\label{classautomatic__capture_1_1AutomaticCapture}\index{AutomaticCapture@{AutomaticCapture}}
+
+
+The Automatic capture will use the output from the skeleton tracker to start or not the recording of a sequence.  
+
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a74c6116db36dc983340852e3fbbd2b4c}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, bool enable=True, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker}{skeleton\+\_\+tracker.\+Skeleton\+Tracker}} \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_abec0b9ee4648af3b77db73e8070f1736}{tracker}}=None, rs.\+pipeline \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a2320134bb04bbea3b4d6ff0569d3a746}{pipeline}}=None, str \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_af51d2c20a17ddb170c4bc9f6a20e0d73}{recording\+\_\+dir}}=\char`\"{}\char`\"{}, float \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a750524522833b141c7659fe21d485394}{latency}}=3.\+0)
+\begin{DoxyCompactList}\small\item\em The Automatic Capture constructor. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a8b8dfd56c79e297b204df695afac575a}{associate\+\_\+pipeline}} (self, \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a2320134bb04bbea3b4d6ff0569d3a746}{pipeline}})
+\begin{DoxyCompactList}\small\item\em Function to associate a new Real\+Sense pipeline to the Automatic Capture system. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_abc860d5120cea3e9f99f6a148281843d}{associate\+\_\+tracker}} (self, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker}{skeleton\+\_\+tracker.\+Skeleton\+Tracker}} \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_abec0b9ee4648af3b77db73e8070f1736}{tracker}})
+\begin{DoxyCompactList}\small\item\em Function to associate a new tracker to the automatic capture to be able to find a person in the screen. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a9c0d11611d4a68393e18a7cb04d34756}{capture}} (self)
+\begin{DoxyCompactList}\small\item\em Function to start the recording if it hasn\textquotesingle{}t began already. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_ac6e334d707d6d06456edb2cbc7ce73a4}\label{classautomatic__capture_1_1AutomaticCapture_ac6e334d707d6d06456edb2cbc7ce73a4}} 
+def {\bfseries disable\+\_\+automatic\+\_\+capture} (self)
+\begin{DoxyCompactList}\small\item\em Function to disable the automatic capture system. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a425c0f46d5664a2e91c4e023cf8c63f1}\label{classautomatic__capture_1_1AutomaticCapture_a425c0f46d5664a2e91c4e023cf8c63f1}} 
+def {\bfseries enable\+\_\+automatic\+\_\+capture} (self)
+\begin{DoxyCompactList}\small\item\em Function to enable the automatic capture system. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_abd47eb7ca31650ba0df0d8d346d585a7}\label{classautomatic__capture_1_1AutomaticCapture_abd47eb7ca31650ba0df0d8d346d585a7}} 
+def {\bfseries is\+Capturing} (self)
+\begin{DoxyCompactList}\small\item\em Check if the system is currently capturing. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_ac4ac6968b2f8fcbcee4b85f1633eba29}{set\+\_\+automatic\+\_\+capture}} (self, is\+Automatic\+Capture)
+\begin{DoxyCompactList}\small\item\em Function to enable or disable to automatic capture system. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_afe249a505a11f3b0ed07968a6354d153}{stop\+\_\+capture}} (self)
+\begin{DoxyCompactList}\small\item\em Function to stop the recording if it has been started. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a6dfb5e91521a5f0f4d35f6bcc8fe58bc}{update}} (self)
+\begin{DoxyCompactList}\small\item\em Function to call at each frame to let the automatic capture system check whever it has to continue/start the recording. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a7396be206269725f33cc6019c3efb007}\label{classautomatic__capture_1_1AutomaticCapture_a7396be206269725f33cc6019c3efb007}} 
+{\bfseries AUTOMATIC\+\_\+\+CAPTURE}
+\begin{DoxyCompactList}\small\item\em Boolean that define if the automatic capture is on or not. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a750524522833b141c7659fe21d485394}{latency}}
+\begin{DoxyCompactList}\small\item\em The time the system continues to capture if nobody is on screen. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a2320134bb04bbea3b4d6ff0569d3a746}\label{classautomatic__capture_1_1AutomaticCapture_a2320134bb04bbea3b4d6ff0569d3a746}} 
+{\bfseries pipeline}
+\begin{DoxyCompactList}\small\item\em Pipeline defined from realsense that transform data from the camera into an image using their SDK. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_af51d2c20a17ddb170c4bc9f6a20e0d73}\label{classautomatic__capture_1_1AutomaticCapture_af51d2c20a17ddb170c4bc9f6a20e0d73}} 
+{\bfseries recording\+\_\+dir}
+\begin{DoxyCompactList}\small\item\em Folder in which we save the recordings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_abec0b9ee4648af3b77db73e8070f1736}\label{classautomatic__capture_1_1AutomaticCapture_abec0b9ee4648af3b77db73e8070f1736}} 
+{\bfseries tracker}
+\begin{DoxyCompactList}\small\item\em The tracker is the skeleton tracker that find skeletons in an image. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_af517790a0e46f6c25722ddc4e33d4bdd}\label{classautomatic__capture_1_1AutomaticCapture_af517790a0e46f6c25722ddc4e33d4bdd}} 
+def {\bfseries \+\_\+check\+\_\+if\+\_\+body\+\_\+found} (self, skeleton\+\_\+results)
+\begin{DoxyCompactList}\small\item\em Function that will be called at each frame that the skeleton tracker will process It will modify the private attribute \char`\"{}\+\_\+body\+\_\+detected\char`\"{} depending on the result. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_afe0e77b44ac931a615c9dfb860ed449c}\label{classautomatic__capture_1_1AutomaticCapture_afe0e77b44ac931a615c9dfb860ed449c}} 
+{\bfseries \+\_\+body\+\_\+detected}
+\begin{DoxyCompactList}\small\item\em Variable that store whever a person is currently on screen This variable should not be manipulated from outside the class. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a6578a28819de972b23f922bac50fe355}\label{classautomatic__capture_1_1AutomaticCapture_a6578a28819de972b23f922bac50fe355}} 
+{\bfseries \+\_\+currently\+\_\+capturing}
+\begin{DoxyCompactList}\small\item\em Is the system currently recording or not. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a19e794b32d37357e429c085407aed135}{\+\_\+last\+\_\+seen\+\_\+time}}
+\begin{DoxyCompactList}\small\item\em Time at which the last person was seen on screen. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The Automatic capture will use the output from the skeleton tracker to start or not the recording of a sequence. 
+
+It will check if a person is present on screen using threads to avoid slowing down the program. The \textquotesingle{}latency\textquotesingle{} parameter is the elapsed time in seconds between two checks 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a74c6116db36dc983340852e3fbbd2b4c}\label{classautomatic__capture_1_1AutomaticCapture_a74c6116db36dc983340852e3fbbd2b4c}} 
+\index{AutomaticCapture@{AutomaticCapture}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{bool }]{enable = {\ttfamily True},  }\item[{\mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker}{skeleton\+\_\+tracker.\+Skeleton\+Tracker}} }]{tracker = {\ttfamily None},  }\item[{rs.\+pipeline }]{pipeline = {\ttfamily None},  }\item[{str }]{recording\+\_\+dir = {\ttfamily \char`\"{}\char`\"{}},  }\item[{float }]{latency = {\ttfamily 3.0} }\end{DoxyParamCaption})}
+
+
+
+The Automatic Capture constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em enable} & Starts directly the automatic capture system or not \\
+\hline
+{\em tracker} & The skeleton tracker used to find humans in the camera field of view \\
+\hline
+{\em pipeline} & The Real\+Sense pipeline that allows to manipulate the camera data \\
+\hline
+{\em recording\+\_\+dir} & The folder in which you want to save the rosbag files \\
+\hline
+{\em latency} & The offset time during which the system continues to record even if nobody is on screen\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An instance of the Automatic Capture 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a8b8dfd56c79e297b204df695afac575a}\label{classautomatic__capture_1_1AutomaticCapture_a8b8dfd56c79e297b204df695afac575a}} 
+\index{AutomaticCapture@{AutomaticCapture}!associate\_pipeline@{associate\_pipeline}}
+\index{associate\_pipeline@{associate\_pipeline}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{associate\_pipeline()}{associate\_pipeline()}}
+{\footnotesize\ttfamily def associate\+\_\+pipeline (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{pipeline }\end{DoxyParamCaption})}
+
+
+
+Function to associate a new Real\+Sense pipeline to the Automatic Capture system. 
+
+This can be used in order to change the dedicated camera, for instance. \mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_abc860d5120cea3e9f99f6a148281843d}\label{classautomatic__capture_1_1AutomaticCapture_abc860d5120cea3e9f99f6a148281843d}} 
+\index{AutomaticCapture@{AutomaticCapture}!associate\_tracker@{associate\_tracker}}
+\index{associate\_tracker@{associate\_tracker}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{associate\_tracker()}{associate\_tracker()}}
+{\footnotesize\ttfamily def associate\+\_\+tracker (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{\mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker}{skeleton\+\_\+tracker.\+Skeleton\+Tracker}}}]{tracker }\end{DoxyParamCaption})}
+
+
+
+Function to associate a new tracker to the automatic capture to be able to find a person in the screen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tracker} & The skeleton tracker that will be used\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+This will add a callback to the tracker so the automatic capture will receive events when somebody is on screen 
+\end{DoxyNote}
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a9c0d11611d4a68393e18a7cb04d34756}\label{classautomatic__capture_1_1AutomaticCapture_a9c0d11611d4a68393e18a7cb04d34756}} 
+\index{AutomaticCapture@{AutomaticCapture}!capture@{capture}}
+\index{capture@{capture}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{capture()}{capture()}}
+{\footnotesize\ttfamily def capture (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Function to start the recording if it hasn\textquotesingle{}t began already. 
+
+\begin{DoxyNote}{Note}
+A pipeline must be set in order to record anything 
+\end{DoxyNote}
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_ac4ac6968b2f8fcbcee4b85f1633eba29}\label{classautomatic__capture_1_1AutomaticCapture_ac4ac6968b2f8fcbcee4b85f1633eba29}} 
+\index{AutomaticCapture@{AutomaticCapture}!set\_automatic\_capture@{set\_automatic\_capture}}
+\index{set\_automatic\_capture@{set\_automatic\_capture}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{set\_automatic\_capture()}{set\_automatic\_capture()}}
+{\footnotesize\ttfamily def set\+\_\+automatic\+\_\+capture (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{is\+Automatic\+Capture }\end{DoxyParamCaption})}
+
+
+
+Function to enable or disable to automatic capture system. 
+
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_a425c0f46d5664a2e91c4e023cf8c63f1}{enable\+\_\+automatic\+\_\+capture()}} and \mbox{\hyperlink{classautomatic__capture_1_1AutomaticCapture_ac6e334d707d6d06456edb2cbc7ce73a4}{disable\+\_\+automatic\+\_\+capture()}} 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_afe249a505a11f3b0ed07968a6354d153}\label{classautomatic__capture_1_1AutomaticCapture_afe249a505a11f3b0ed07968a6354d153}} 
+\index{AutomaticCapture@{AutomaticCapture}!stop\_capture@{stop\_capture}}
+\index{stop\_capture@{stop\_capture}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{stop\_capture()}{stop\_capture()}}
+{\footnotesize\ttfamily def stop\+\_\+capture (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Function to stop the recording if it has been started. 
+
+\begin{DoxyNote}{Note}
+A pipeline must be set to start/stop a recording 
+\end{DoxyNote}
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a6dfb5e91521a5f0f4d35f6bcc8fe58bc}\label{classautomatic__capture_1_1AutomaticCapture_a6dfb5e91521a5f0f4d35f6bcc8fe58bc}} 
+\index{AutomaticCapture@{AutomaticCapture}!update@{update}}
+\index{update@{update}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily def update (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Function to call at each frame to let the automatic capture system check whever it has to continue/start the recording. 
+
+\begin{DoxyReturn}{Returns}
+A boolean that indicates whever a person is in sight or not. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a19e794b32d37357e429c085407aed135}\label{classautomatic__capture_1_1AutomaticCapture_a19e794b32d37357e429c085407aed135}} 
+\index{AutomaticCapture@{AutomaticCapture}!\_last\_seen\_time@{\_last\_seen\_time}}
+\index{\_last\_seen\_time@{\_last\_seen\_time}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{\_last\_seen\_time}{\_last\_seen\_time}}
+{\footnotesize\ttfamily \+\_\+last\+\_\+seen\+\_\+time\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Time at which the last person was seen on screen. 
+
+This time will be used to stop the capture at the time \char`\"{}\+\_\+last\+\_\+seen\+\_\+time + latency\char`\"{} \mbox{\Hypertarget{classautomatic__capture_1_1AutomaticCapture_a750524522833b141c7659fe21d485394}\label{classautomatic__capture_1_1AutomaticCapture_a750524522833b141c7659fe21d485394}} 
+\index{AutomaticCapture@{AutomaticCapture}!latency@{latency}}
+\index{latency@{latency}!AutomaticCapture@{AutomaticCapture}}
+\doxysubsubsection{\texorpdfstring{latency}{latency}}
+{\footnotesize\ttfamily latency}
+
+
+
+The time the system continues to capture if nobody is on screen. 
+
+This is useful if a person could reappear few seconds after being in a blind spot 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{automatic__capture_8py}{automatic\+\_\+capture.\+py}}\end{DoxyCompactItemize}

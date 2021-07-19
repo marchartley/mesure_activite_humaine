@@ -1,0 +1,156 @@
+\hypertarget{classtraining__models_1_1MultipleWaveletsModule}{}\doxysection{Multiple\+Wavelets\+Module Class Reference}
+\label{classtraining__models_1_1MultipleWaveletsModule}\index{MultipleWaveletsModule@{MultipleWaveletsModule}}
+
+
+Class that use convolutions and poolings.  
+
+
+Inheritance diagram for Multiple\+Wavelets\+Module\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtraining__models_1_1MultipleWaveletsModule}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a21788b4625919aacc92a4a972bf99ab4}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, int \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a368acbb705802766090ed1a1ef8b4b81}{input\+\_\+size}}=512, int \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_ae47dabc502cc0c46bc8569808aebd52a}{mid\+\_\+output\+\_\+size}}=10, Union\mbox{[}int, Tuple\mbox{[}int, int\mbox{]}\mbox{]} \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a3538c94f8bccfb35742b32fd1642d7c4}{kernel\+\_\+size}}=3, int \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a62776fc9a874ba37d166f3233a5edba0}{number\+\_\+of\+\_\+filters}}=2, int \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_af80d8614247dbfb96343c2b435dfc277}{number\+\_\+of\+\_\+layers}}=8, Union\mbox{[}int, List\mbox{[}int\mbox{]}\mbox{]} \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a2d4a50b239a7d111c3e50c9d81fb7e9b}{hidden\+\_\+cells}}=\mbox{[}$\,$\mbox{]}, bool \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_afbd544c2fb63cdf2f2dcf6cf33110b09}{dropout}}=False, bool \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a1e83df075734cb7c5bebb742760fb715}{use\+\_\+concat\+\_\+pir}}=True, int \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a60bc6e9da1b956f08b0ec90f897633d8}{number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer}}=1, bool \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_acae8f00cf715c533e3753b1b75af59c8}{pure\+\_\+\+CNN}}=False, nn.\+Module \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a294d6d387742f5ab6dbe8b1ad4ff41ef}{layer\+\_\+relu}}=None, int \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a6c1914309d8bff13cf186b5c74149aca}{reduce\+\_\+last\+\_\+conv}}=0, Union\mbox{[}bool, str\mbox{]} \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a9d30fd1d4a5cabb751cc396c2140c8e2}{use\+\_\+exponential}}=False, int \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a9f8cdd1722935de699a4c018b77b02e0}{number\+\_\+of\+\_\+outputs}}=1, bool \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a1d5c4de6dd067e932dfaa1171c4ecdd9}{using\+\_\+batch\+\_\+norm}}=True, $\ast$$\ast$useless)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a3fd5e53c89dd0bb2cdafbcb37b281ef9}\label{classtraining__models_1_1MultipleWaveletsModule_a3fd5e53c89dd0bb2cdafbcb37b281ef9}} 
+def {\bfseries forward} (self, pir0, pir1, pir2, pir3, concat\+\_\+pir)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_aa48453322cd6972bb7e361b37af402cc}\label{classtraining__models_1_1MultipleWaveletsModule_aa48453322cd6972bb7e361b37af402cc}} 
+{\bfseries activation\+\_\+functions}
+\begin{DoxyCompactList}\small\item\em In any case, the activation is a Dense of shape (4$\ast$output x 1) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_afbd544c2fb63cdf2f2dcf6cf33110b09}\label{classtraining__models_1_1MultipleWaveletsModule_afbd544c2fb63cdf2f2dcf6cf33110b09}} 
+{\bfseries dropout}
+\begin{DoxyCompactList}\small\item\em Defines if a dropout is applied at the beginning of the dense part of the network. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a2d4a50b239a7d111c3e50c9d81fb7e9b}\label{classtraining__models_1_1MultipleWaveletsModule_a2d4a50b239a7d111c3e50c9d81fb7e9b}} 
+{\bfseries hidden\+\_\+cells}
+\begin{DoxyCompactList}\small\item\em The number of hidden neurons on the dense part of the network. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a368acbb705802766090ed1a1ef8b4b81}\label{classtraining__models_1_1MultipleWaveletsModule_a368acbb705802766090ed1a1ef8b4b81}} 
+{\bfseries input\+\_\+size}
+\begin{DoxyCompactList}\small\item\em Width (and height) of the images to process. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a3538c94f8bccfb35742b32fd1642d7c4}\label{classtraining__models_1_1MultipleWaveletsModule_a3538c94f8bccfb35742b32fd1642d7c4}} 
+{\bfseries kernel\+\_\+size}
+\begin{DoxyCompactList}\small\item\em The size of the kernel used during the convolutions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a294d6d387742f5ab6dbe8b1ad4ff41ef}\label{classtraining__models_1_1MultipleWaveletsModule_a294d6d387742f5ab6dbe8b1ad4ff41ef}} 
+{\bfseries layer\+\_\+relu}
+\begin{DoxyCompactList}\small\item\em Activation function used after each convolution layer. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_ae47dabc502cc0c46bc8569808aebd52a}\label{classtraining__models_1_1MultipleWaveletsModule_ae47dabc502cc0c46bc8569808aebd52a}} 
+{\bfseries mid\+\_\+output\+\_\+size}
+\begin{DoxyCompactList}\small\item\em Number of neurons at the beginning of the linear part of the model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a1bc11e3f431f6f17a7332bcdb216ea8e}\label{classtraining__models_1_1MultipleWaveletsModule_a1bc11e3f431f6f17a7332bcdb216ea8e}} 
+{\bfseries multiple\+\_\+wavelet\+\_\+modules}
+\begin{DoxyCompactList}\small\item\em Create one module per sensor signal (used when not using the concat\+\_\+pir version) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a60bc6e9da1b956f08b0ec90f897633d8}\label{classtraining__models_1_1MultipleWaveletsModule_a60bc6e9da1b956f08b0ec90f897633d8}} 
+{\bfseries number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer}
+\begin{DoxyCompactList}\small\item\em Number of convolution done before each Max Pooling. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a62776fc9a874ba37d166f3233a5edba0}{number\+\_\+of\+\_\+filters}}
+\begin{DoxyCompactList}\small\item\em The number of filters at the end of a convolution. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_af80d8614247dbfb96343c2b435dfc277}\label{classtraining__models_1_1MultipleWaveletsModule_af80d8614247dbfb96343c2b435dfc277}} 
+{\bfseries number\+\_\+of\+\_\+layers}
+\begin{DoxyCompactList}\small\item\em Number of times we do a Convolution+\+Max pooling in the network. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a9f8cdd1722935de699a4c018b77b02e0}\label{classtraining__models_1_1MultipleWaveletsModule_a9f8cdd1722935de699a4c018b77b02e0}} 
+{\bfseries number\+\_\+of\+\_\+outputs}
+\begin{DoxyCompactList}\small\item\em Number of desired outputs. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_acae8f00cf715c533e3753b1b75af59c8}\label{classtraining__models_1_1MultipleWaveletsModule_acae8f00cf715c533e3753b1b75af59c8}} 
+{\bfseries pure\+\_\+\+CNN}
+\begin{DoxyCompactList}\small\item\em Defines if you prefer a classic CNN with a Dense Layer using each pixel of each filter at the end of the convolutional part as neurons, or if you want to apply a Global Average pooling to reduce greatly the size of the dense layers. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a6c1914309d8bff13cf186b5c74149aca}\label{classtraining__models_1_1MultipleWaveletsModule_a6c1914309d8bff13cf186b5c74149aca}} 
+{\bfseries reduce\+\_\+last\+\_\+conv}
+\begin{DoxyCompactList}\small\item\em If greater than 0, apply a last convolution with \char`\"{}reduce\+\_\+last\+\_\+conv\char`\"{} filters to reduce the number of neurons in the dense part. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_af673b0a3111d200062f370efb5f850e1}\label{classtraining__models_1_1MultipleWaveletsModule_af673b0a3111d200062f370efb5f850e1}} 
+{\bfseries unique\+\_\+wavelet\+\_\+module}
+\begin{DoxyCompactList}\small\item\em Create one unique module that take the 4 PIR data at once. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a1e83df075734cb7c5bebb742760fb715}\label{classtraining__models_1_1MultipleWaveletsModule_a1e83df075734cb7c5bebb742760fb715}} 
+{\bfseries use\+\_\+concat\+\_\+pir}
+\begin{DoxyCompactList}\small\item\em Defines if you want to have one tensor containing the 4 sensors\textquotesingle{} data or whever you prefer having one unique process for each sensor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a9d30fd1d4a5cabb751cc396c2140c8e2}\label{classtraining__models_1_1MultipleWaveletsModule_a9d30fd1d4a5cabb751cc396c2140c8e2}} 
+{\bfseries use\+\_\+exponential}
+\begin{DoxyCompactList}\small\item\em The artificial activation function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a1d5c4de6dd067e932dfaa1171c4ecdd9}\label{classtraining__models_1_1MultipleWaveletsModule_a1d5c4de6dd067e932dfaa1171c4ecdd9}} 
+{\bfseries using\+\_\+batch\+\_\+norm}
+\begin{DoxyCompactList}\small\item\em Set to True if you want a Batch Normalization before each convolution. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class that use convolutions and poolings. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a21788b4625919aacc92a4a972bf99ab4}\label{classtraining__models_1_1MultipleWaveletsModule_a21788b4625919aacc92a4a972bf99ab4}} 
+\index{MultipleWaveletsModule@{MultipleWaveletsModule}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!MultipleWaveletsModule@{MultipleWaveletsModule}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{int }]{input\+\_\+size = {\ttfamily 512},  }\item[{int }]{mid\+\_\+output\+\_\+size = {\ttfamily 10},  }\item[{Union\mbox{[}int, Tuple\mbox{[}int, int\mbox{]}\mbox{]} }]{kernel\+\_\+size = {\ttfamily 3},  }\item[{int }]{number\+\_\+of\+\_\+filters = {\ttfamily 2},  }\item[{int }]{number\+\_\+of\+\_\+layers = {\ttfamily 8},  }\item[{Union\mbox{[}int, List\mbox{[}int\mbox{]}\mbox{]} }]{hidden\+\_\+cells = {\ttfamily \mbox{[}\mbox{]}},  }\item[{bool }]{dropout = {\ttfamily False},  }\item[{bool }]{use\+\_\+concat\+\_\+pir = {\ttfamily True},  }\item[{int }]{number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer = {\ttfamily 1},  }\item[{bool }]{pure\+\_\+\+CNN = {\ttfamily False},  }\item[{nn.\+Module }]{layer\+\_\+relu = {\ttfamily None},  }\item[{int }]{reduce\+\_\+last\+\_\+conv = {\ttfamily 0},  }\item[{Union\mbox{[}bool, str\mbox{]} }]{use\+\_\+exponential = {\ttfamily False},  }\item[{int }]{number\+\_\+of\+\_\+outputs = {\ttfamily 1},  }\item[{bool }]{using\+\_\+batch\+\_\+norm = {\ttfamily True},  }\item[{$\ast$$\ast$}]{useless }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em input\+\_\+size} & Width (and height) of the images to process \\
+\hline
+{\em mid\+\_\+output\+\_\+size} & Number of neurons at the beginning of the linear part of the model \\
+\hline
+{\em kernel\+\_\+size} & The size of the kernel used during the convolutions \\
+\hline
+{\em number\+\_\+of\+\_\+filters} & The number of filters at the end of a convolution. In our program this number doesn\textquotesingle{}t vary after each convolution, but you could program to do so if you have some patience. \\
+\hline
+{\em number\+\_\+of\+\_\+layers} & Number of times we do a Convolution+\+Max pooling in the network \\
+\hline
+{\em hidden\+\_\+cells} & The number of hidden neurons on the dense part of the network. If integer, it makes a unique hidden layer with this number of neurons but if you pass an array of integers, it will make multiple hidden layers with the desired number of neurons \\
+\hline
+{\em dropout} & Defines if a dropout is applied at the beginning of the dense part of the network. If True, it will apply a 0.\+5 dropout but you can pass a float instead to define yourself the desired value. If you want to take the time to put dropouts somewhere else, feel free to program it \\
+\hline
+{\em use\+\_\+concat\+\_\+pir} & Defines if you want to have one tensor containing the 4 sensors\textquotesingle{} data or whever you prefer having one unique process for each sensor. (I think it doesn\textquotesingle{}t change much, maybe keep it to True) \\
+\hline
+{\em number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer} & Number of convolution done before each Max Pooling \\
+\hline
+{\em pure\+\_\+\+CNN} & Defines if you prefer a classic CNN with a Dense Layer using each pixel of each filter at the end of the convolutional part as neurons, or if you want to apply a Global Average pooling to reduce greatly the size of the dense layers. (without \char`\"{}pure\+\_\+\+CNN\char`\"{}, the number of neurons is (input\+\_\+size / 2$^\wedge$number\+\_\+of\+\_\+layers) $\ast$ number\+\_\+of\+\_\+filters, while with \char`\"{}pure\+\_\+\+CNN\char`\"{}, the number of neurons is equal to number\+\_\+of\+\_\+filters.) With a bit more of programming, you can increase the number of filters during the process to improve the network. \\
+\hline
+{\em layer\+\_\+relu} & Activation function used after each convolution layer. \\
+\hline
+{\em reduce\+\_\+last\+\_\+conv} & If greater than 0, apply a last convolution with \char`\"{}reduce\+\_\+last\+\_\+conv\char`\"{} filters to reduce the number of neurons in the dense part. \\
+\hline
+{\em use\+\_\+exponential} & The artificial activation function. Values can be \+:
+\begin{DoxyItemize}
+\item True for using exponential
+\item False for not using anything
+\item \char`\"{}pow\char`\"{} to apply a squaring operation But this parameter should stay to False for a real explainable model 
+\end{DoxyItemize}\\
+\hline
+{\em number\+\_\+of\+\_\+outputs} & Number of desired outputs. Can be set to $>$1 for doing multi-\/task, but that should require some changes in the training and displaying functions. \\
+\hline
+{\em using\+\_\+batch\+\_\+norm} & Set to True if you want a Batch Normalization before each convolution.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An instance of Multiple\+Wavelet\+Module 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classtraining__models_1_1CustomModel_ae64f0875afe3067b97ba370b354b9213}{Custom\+Model}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtraining__models_1_1MultipleWaveletsModule_a62776fc9a874ba37d166f3233a5edba0}\label{classtraining__models_1_1MultipleWaveletsModule_a62776fc9a874ba37d166f3233a5edba0}} 
+\index{MultipleWaveletsModule@{MultipleWaveletsModule}!number\_of\_filters@{number\_of\_filters}}
+\index{number\_of\_filters@{number\_of\_filters}!MultipleWaveletsModule@{MultipleWaveletsModule}}
+\doxysubsubsection{\texorpdfstring{number\_of\_filters}{number\_of\_filters}}
+{\footnotesize\ttfamily number\+\_\+of\+\_\+filters}
+
+
+
+The number of filters at the end of a convolution. 
+
+In our program this number doesn\textquotesingle{}t vary after each convolution, but you could program to do so if you have some patience. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{training__models_8py}{training\+\_\+models.\+py}}\end{DoxyCompactItemize}

@@ -1,0 +1,127 @@
+\hypertarget{classtraining__models_1_1ResidualNet}{}\doxysection{Residual\+Net Class Reference}
+\label{classtraining__models_1_1ResidualNet}\index{ResidualNet@{ResidualNet}}
+
+
+The Res\+Net adaptation.  
+
+
+Inheritance diagram for Residual\+Net\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtraining__models_1_1ResidualNet}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classtraining__models_1_1ResidualNet_ad162e933a1e877547dda0690e6c85829}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, int input\+\_\+size, int output\+\_\+size=1, int \mbox{\hyperlink{classtraining__models_1_1CustomModel_a9f8cdd1722935de699a4c018b77b02e0}{number\+\_\+of\+\_\+outputs}}=1, int \mbox{\hyperlink{classtraining__models_1_1ResidualNet_a3538c94f8bccfb35742b32fd1642d7c4}{kernel\+\_\+size}}=3, int \mbox{\hyperlink{classtraining__models_1_1ResidualNet_a62776fc9a874ba37d166f3233a5edba0}{number\+\_\+of\+\_\+filters}}=2, int \mbox{\hyperlink{classtraining__models_1_1ResidualNet_af80d8614247dbfb96343c2b435dfc277}{number\+\_\+of\+\_\+layers}}=1, Union\mbox{[}int, List\mbox{[}int\mbox{]}\mbox{]} \mbox{\hyperlink{classtraining__models_1_1ResidualNet_a2d4a50b239a7d111c3e50c9d81fb7e9b}{hidden\+\_\+cells}}=None, int \mbox{\hyperlink{classtraining__models_1_1ResidualNet_a60bc6e9da1b956f08b0ec90f897633d8}{number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer}}=1, \mbox{\hyperlink{classtraining__models_1_1ResidualNet_a294d6d387742f5ab6dbe8b1ad4ff41ef}{layer\+\_\+relu}}=None, last\+Activation=None, bool \mbox{\hyperlink{classtraining__models_1_1ResidualNet_a1e83df075734cb7c5bebb742760fb715}{use\+\_\+concat\+\_\+pir}}=True, $\ast$$\ast$useless)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a3fd5e53c89dd0bb2cdafbcb37b281ef9}\label{classtraining__models_1_1ResidualNet_a3fd5e53c89dd0bb2cdafbcb37b281ef9}} 
+def {\bfseries forward} (self, pir0, pir1, pir2, pir3, concat\+\_\+pir)
+\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a7455177e76e3c702479189fceb194cdc}\label{classtraining__models_1_1ResidualNet_a7455177e76e3c702479189fceb194cdc}} 
+def {\bfseries forward\+\_\+process} (self, torch.\+Tensor x)
+\begin{DoxyCompactList}\small\item\em The forward pass that applies the residual blocks. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a2d4a50b239a7d111c3e50c9d81fb7e9b}\label{classtraining__models_1_1ResidualNet_a2d4a50b239a7d111c3e50c9d81fb7e9b}} 
+{\bfseries hidden\+\_\+cells}
+\begin{DoxyCompactList}\small\item\em Number of hidden neurons to create in the dense part. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a103b82be924bbf6bff7f0b22e076cdc5}\label{classtraining__models_1_1ResidualNet_a103b82be924bbf6bff7f0b22e076cdc5}} 
+{\bfseries init\+\_\+conv}
+\begin{DoxyCompactList}\small\item\em The initial convolution. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a3538c94f8bccfb35742b32fd1642d7c4}\label{classtraining__models_1_1ResidualNet_a3538c94f8bccfb35742b32fd1642d7c4}} 
+{\bfseries kernel\+\_\+size}
+\begin{DoxyCompactList}\small\item\em The size of the kernels used in the convolutions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a294d6d387742f5ab6dbe8b1ad4ff41ef}\label{classtraining__models_1_1ResidualNet_a294d6d387742f5ab6dbe8b1ad4ff41ef}} 
+{\bfseries layer\+\_\+relu}
+\begin{DoxyCompactList}\small\item\em The activation function used before each convolution. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_afb06738168650692db6404978ea8b418}\label{classtraining__models_1_1ResidualNet_afb06738168650692db6404978ea8b418}} 
+{\bfseries linear\+\_\+layers}
+\begin{DoxyCompactList}\small\item\em Linear part of the network. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a60bc6e9da1b956f08b0ec90f897633d8}\label{classtraining__models_1_1ResidualNet_a60bc6e9da1b956f08b0ec90f897633d8}} 
+{\bfseries number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer}
+\begin{DoxyCompactList}\small\item\em Number of convolutions applied during each residual block. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a62776fc9a874ba37d166f3233a5edba0}\label{classtraining__models_1_1ResidualNet_a62776fc9a874ba37d166f3233a5edba0}} 
+{\bfseries number\+\_\+of\+\_\+filters}
+\begin{DoxyCompactList}\small\item\em Number of filters created by the convolutions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_af80d8614247dbfb96343c2b435dfc277}\label{classtraining__models_1_1ResidualNet_af80d8614247dbfb96343c2b435dfc277}} 
+{\bfseries number\+\_\+of\+\_\+layers}
+\begin{DoxyCompactList}\small\item\em Number of residual blocks that will be created. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_af527392e9ccff8c26a771e0ead5a9ee8}\label{classtraining__models_1_1ResidualNet_af527392e9ccff8c26a771e0ead5a9ee8}} 
+{\bfseries residual\+\_\+blocks}
+\begin{DoxyCompactList}\small\item\em List of residual blocks being used. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtraining__models_1_1ResidualNet_a1e83df075734cb7c5bebb742760fb715}{use\+\_\+concat\+\_\+pir}}
+\begin{DoxyCompactList}\small\item\em Defines if we are using one input containing the 4 sensors data or if we do 4 processes individually. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The Res\+Net adaptation. 
+
+This networks apply convolutions on the images but associate them with parts of the image without transformations. For more detail about the Res\+Net process, see papers about it / google it. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_ad162e933a1e877547dda0690e6c85829}\label{classtraining__models_1_1ResidualNet_ad162e933a1e877547dda0690e6c85829}} 
+\index{ResidualNet@{ResidualNet}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!ResidualNet@{ResidualNet}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{int}]{input\+\_\+size,  }\item[{int }]{output\+\_\+size = {\ttfamily 1},  }\item[{int }]{number\+\_\+of\+\_\+outputs = {\ttfamily 1},  }\item[{int }]{kernel\+\_\+size = {\ttfamily 3},  }\item[{int }]{number\+\_\+of\+\_\+filters = {\ttfamily 2},  }\item[{int }]{number\+\_\+of\+\_\+layers = {\ttfamily 1},  }\item[{Union\mbox{[}int, List\mbox{[}int\mbox{]}\mbox{]} }]{hidden\+\_\+cells = {\ttfamily None},  }\item[{int }]{number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer = {\ttfamily 1},  }\item[{}]{layer\+\_\+relu = {\ttfamily None},  }\item[{}]{last\+Activation = {\ttfamily None},  }\item[{bool }]{use\+\_\+concat\+\_\+pir = {\ttfamily True},  }\item[{$\ast$$\ast$}]{useless }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+\begin{DoxyNote}{Note}
+Remark\+: The names of some attributes are not very explicit. I tried to use variable names that are used in other models because that reduces the size of the \char`\"{}training hyperparameters\char`\"{} from the training function in \char`\"{}deep\+\_\+neural\+\_\+training.\+py\char`\"{}
+\end{DoxyNote}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{namespacedeep__neural__training_a21c590956900654d77c57a84d91e4127}{deep\+\_\+neural\+\_\+training\+::training()}}
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+{\em input\+\_\+size} & The width (and height) of the input images \\
+\hline
+{\em output\+\_\+size} & The number of outputs desired. Can be useful for multi-\/task, but needs some adaptations in the code \\
+\hline
+{\em number\+\_\+of\+\_\+outputs} & Useless \\
+\hline
+{\em kernel\+\_\+size} & The size of the kernels used in the convolutions \\
+\hline
+{\em number\+\_\+of\+\_\+filters} & Number of filters created by the convolutions \\
+\hline
+{\em number\+\_\+of\+\_\+layers} & Number of residual blocks that will be created. \\
+\hline
+{\em hidden\+\_\+cells} & Number of hidden neurons to create in the dense part. If an integer is provided, a unique hidden layer is created, if an array is provided there will be multiple hidden layers. \\
+\hline
+{\em number\+\_\+of\+\_\+conv\+\_\+per\+\_\+layer} & Number of convolutions applied during each residual block \\
+\hline
+{\em layer\+\_\+relu} & The activation function used before each convolution \\
+\hline
+{\em last\+Activation} & The activation function applied at the end of the network \\
+\hline
+{\em use\+\_\+concat\+\_\+pir} & Defines if we are using one input containing the 4 sensors data or if we do 4 processes individually. Better to keep it to True, I guess. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classtraining__models_1_1CustomModel_ae64f0875afe3067b97ba370b354b9213}{Custom\+Model}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtraining__models_1_1ResidualNet_a1e83df075734cb7c5bebb742760fb715}\label{classtraining__models_1_1ResidualNet_a1e83df075734cb7c5bebb742760fb715}} 
+\index{ResidualNet@{ResidualNet}!use\_concat\_pir@{use\_concat\_pir}}
+\index{use\_concat\_pir@{use\_concat\_pir}!ResidualNet@{ResidualNet}}
+\doxysubsubsection{\texorpdfstring{use\_concat\_pir}{use\_concat\_pir}}
+{\footnotesize\ttfamily use\+\_\+concat\+\_\+pir}
+
+
+
+Defines if we are using one input containing the 4 sensors data or if we do 4 processes individually. 
+
+Better to keep it to True, I guess. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{training__models_8py}{training\+\_\+models.\+py}}\end{DoxyCompactItemize}

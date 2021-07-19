@@ -1,0 +1,46 @@
+\hypertarget{train__action__classifier_8py}{}\doxysection{train\+\_\+action\+\_\+classifier.\+py File Reference}
+\label{train__action__classifier_8py}\index{train\_action\_classifier.py@{train\_action\_classifier.py}}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacetrain__action__classifier}{train\+\_\+action\+\_\+classifier}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_a7904d29cc9d82617f4f777b6eaafb809}\label{namespacetrain__action__classifier_a7904d29cc9d82617f4f777b6eaafb809}} 
+def {\bfseries calculate\+\_\+and\+\_\+normalize\+\_\+joints\+\_\+distances} (keypoints)
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_a0d89d6c4070fe37bf17636fc5e48d87b}\label{namespacetrain__action__classifier_a0d89d6c4070fe37bf17636fc5e48d87b}} 
+def {\bfseries find\+\_\+best\+\_\+nb\+\_\+poses} (X, Y)
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_a509b7b30daace1328ca2cef54b45c84c}\label{namespacetrain__action__classifier_a509b7b30daace1328ca2cef54b45c84c}} 
+def {\bfseries from\+\_\+video\+\_\+annotation\+\_\+to\+\_\+action\+\_\+list} (str filename, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} db\+\_\+client)
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_ac1b5b5147c55b28b1439b9351ef75e24}\label{namespacetrain__action__classifier_ac1b5b5147c55b28b1439b9351ef75e24}} 
+def {\bfseries process\+\_\+classification} (data, truth, number\+\_\+of\+\_\+poses=10, make\+\_\+prediction=False)
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_aa01b9231fc321004fd6c0e88c324591e}\label{namespacetrain__action__classifier_aa01b9231fc321004fd6c0e88c324591e}} 
+def {\bfseries process\+\_\+\+Florence3\+D\+\_\+datset} (str path\+\_\+to\+\_\+training)
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_a7fb1780882f24e726ad1ea06f125b1f4}\label{namespacetrain__action__classifier_a7fb1780882f24e726ad1ea06f125b1f4}} 
+def {\bfseries process\+\_\+\+KARD\+\_\+datset} (str path\+\_\+to\+\_\+videos)
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_ad6db62d854163c6654468a587d400b5b}\label{namespacetrain__action__classifier_ad6db62d854163c6654468a587d400b5b}} 
+def {\bfseries process\+\_\+training\+\_\+file\+\_\+\+UTKinect\+\_\+dataset} (str path\+\_\+to\+\_\+training)
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_a750f8aef83f06a12f292750e2415fc1a}\label{namespacetrain__action__classifier_a750f8aef83f06a12f292750e2415fc1a}} 
+def {\bfseries process\+\_\+\+UTKinect\+\_\+datset} (str path\+\_\+to\+\_\+sequences, str path\+\_\+to\+\_\+training)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_a6d1fbd5097c18d163fbfc7e906f3625a}\label{namespacetrain__action__classifier_a6d1fbd5097c18d163fbfc7e906f3625a}} 
+{\bfseries action\+\_\+classification\+\_\+svm} = sklearn.\+multiclass.\+One\+Vs\+One\+Classifier(sklearn.\+svm.\+Linear\+SVC(max\+\_\+iter = 10000))
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_ac51b57a703ba1c5869228690c93e1701}\label{namespacetrain__action__classifier_ac51b57a703ba1c5869228690c93e1701}} 
+{\bfseries X}
+\item 
+\mbox{\Hypertarget{namespacetrain__action__classifier_a0867f43e27585e019c13f7f4b7c4ab6b}\label{namespacetrain__action__classifier_a0867f43e27585e019c13f7f4b7c4ab6b}} 
+{\bfseries Y}
+\end{DoxyCompactItemize}

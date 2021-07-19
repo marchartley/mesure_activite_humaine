@@ -1,0 +1,428 @@
+\hypertarget{classInfluxDB__connection_1_1ListicClientDB}{}\doxysection{Listic\+Client\+DB Class Reference}
+\label{classInfluxDB__connection_1_1ListicClientDB}\index{ListicClientDB@{ListicClientDB}}
+
+
+The Influx\+DB client that can be used in our programs.  
+
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_aad513884f6c4a65892fb1d2677f95640}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, bool server\+\_\+side=None, str host=None, int port=None, str login=None, str pwd=None, str database=None)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a6508025197b9eeda9a0af817d0f8ca26}{get\+\_\+all\+\_\+pir\+\_\+timestamps}} (self)
+\begin{DoxyCompactList}\small\item\em Function to extract all the timestamps at which the sensors were in use. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a02d3f30bfea4f61ab0ca876e86c8393e}{get\+\_\+all\+\_\+pir\+\_\+values}} (self, Union\mbox{[}str, float\mbox{]} start=None, Union\mbox{[}str, float\mbox{]} end=None, bool group\+\_\+by\+\_\+move=False, str sensor\+\_\+height=None)
+\begin{DoxyCompactList}\small\item\em Extract all the data from the sensors database. \end{DoxyCompactList}\item 
+Tuple\mbox{[}Dict\mbox{[}int, dict\mbox{]}, Dict\mbox{[}int, dict\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a14d6748d29762f77758edb64a9f971fa}{get\+\_\+all\+\_\+skeletons}} (self)
+\begin{DoxyCompactList}\small\item\em Function to retrieve skeletons stored since 26/04/2021. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a96c184416db1289d47a378a640b8eb68}{get\+\_\+closest\+\_\+timestamp}} (self, float timestamp)
+\begin{DoxyCompactList}\small\item\em Function to find the closest data from the sensors relative to the timestamp given as input. \end{DoxyCompactList}\item 
+Dict\mbox{[}str, List\mbox{[}int\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a8ad382830dfb8e5c605158317f044544}{get\+\_\+pir\+\_\+values\+\_\+from\+\_\+walking\+\_\+sequence}} (self, Dict skeleton\+\_\+data=None, int start\+\_\+time=None, int end\+\_\+time=None, int id\+\_\+sequence=None, float time\+\_\+offset=5.\+0, float time\+\_\+between\+\_\+sequences=20.\+0, str sensor\+\_\+height=None)
+\begin{DoxyCompactList}\small\item\em From the skeleton data extracted during a sequence (by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} ) or by defining temporal boundaries, extract the data from sensors during this sequence. \end{DoxyCompactList}\item 
+Union\mbox{[}List\mbox{[}Tuple\mbox{]}, Tuple\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences}} (self, str sequence\+\_\+filename=None, int start\+\_\+time=None, int end\+\_\+time=None, bool merge\+\_\+skeleton\+\_\+ids=True, float time\+\_\+between\+\_\+sequences=20.\+0, int sequence\+\_\+index=None, float ignore\+\_\+small\+\_\+sequences=None)
+\begin{DoxyCompactList}\small\item\em Function to get the skeletons of persons walking in front of the camera divided in sequences. \end{DoxyCompactList}\item 
+Dict\mbox{[}str, List\mbox{[}Tuple\mbox{[}int, int\mbox{]}\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_ac79fb541f7939ecd110dac4f4ecaaa62}{get\+\_\+splitted\+\_\+presence\+\_\+or\+\_\+not\+\_\+boundaries}} (self, int start\+\_\+time=None, int end\+\_\+time=None, float time\+\_\+between\+\_\+sequences=2.\+0, float ignore\+\_\+small\+\_\+sequences=None)
+\begin{DoxyCompactList}\small\item\em Function to get the temporal boundaries of sequences during which a person is walking and sequences where nobody is walking. \end{DoxyCompactList}\item 
+List\mbox{[}Tuple\mbox{[}float, float\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries}} (self, str sequence\+\_\+filename=None, int start\+\_\+time=None, int end\+\_\+time=None, float time\+\_\+between\+\_\+sequences=20.\+0, float ignore\+\_\+small\+\_\+sequences=None)
+\begin{DoxyCompactList}\small\item\em Function to get the temporal boundaries of sequences during which a person is walking in front of sensors. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a67fcc0d8affc8a83dcdb8d2bdb6b5295}{insert\+\_\+skeleton\+\_\+keypoints}} (self, Dict coord2D=None, Dict coord3D=None, float timestamp=None, int skeleton\+\_\+id=0, str device=None, bool ignore\+\_\+\+None\+\_\+values=True, bool send\+\_\+immediately=True, float walking\+\_\+speed=None, float footsteps\+\_\+width=None, float number\+\_\+of\+\_\+footsteps=None, float stride\+\_\+length=None, float step\+\_\+length=None, str timestamp\+\_\+unit=\textquotesingle{}ms\textquotesingle{}, Dict raw\+\_\+coord\+\_\+2D=None, Dict raw\+\_\+coord\+\_\+3D=None)
+\begin{DoxyCompactList}\small\item\em Insert coordinates of a skeleton by passing the array like the one that is created by the Human\+Skeleton class. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}{insert\+\_\+walking\+\_\+metrics}} (self, float timestamp, float walking\+\_\+speed, float footsteps\+\_\+width, float number\+\_\+of\+\_\+footsteps, float stride\+\_\+length, float step\+\_\+length, bool send\+\_\+immediately=False, str timestamp\+\_\+unit=\textquotesingle{}ms\textquotesingle{}, int skeleton\+\_\+id=0, str device=None, bool ignore\+\_\+\+None\+\_\+values=True)
+\begin{DoxyCompactList}\small\item\em Function that insert the computed walking parameters into the database. \end{DoxyCompactList}\item 
+pd.\+Data\+Frame \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_ac619c7e0133bc0861b60ead1431326d1}{pir\+\_\+values\+\_\+to\+\_\+\+DF}} (self, db.\+client.\+Result\+Set query\+\_\+results)
+\begin{DoxyCompactList}\small\item\em From the results of a query to Influx\+DB, transform the data into a Data\+Frame. \end{DoxyCompactList}\item 
+Dict\mbox{[}str, List\mbox{[}int\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a1e9bd9f21e0ce1fa906e9bd4851a6506}{pir\+\_\+values\+\_\+to\+\_\+json}} (self, db.\+client.\+Result\+Set query\+\_\+results)
+\begin{DoxyCompactList}\small\item\em From the results of a query to Influx\+DB, transform the data into a JSON/dictionary variable. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a0d03067fe1ec7e0a08cbafabd6d93aec}{retrieve\+\_\+skeleton\+\_\+keypoints}} (self, str sequence\+\_\+filename=None, float start\+\_\+time=None, float end\+\_\+time=None, bool merge\+\_\+skeleton\+\_\+ids=True)
+\begin{DoxyCompactList}\small\item\em Function to get the skeletons of persons walking in front of the camera. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4f616c5105b7d8864d26837d444250fe}{send\+\_\+to\+\_\+db}} (self, timestamp\+\_\+unit=\textquotesingle{}ms\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Function that send all the data stored by this client into the Influx\+DB server. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a55206da615e75dfb2cd3afbf9020b1db}\label{classInfluxDB__connection_1_1ListicClientDB_a55206da615e75dfb2cd3afbf9020b1db}} 
+def {\bfseries timestamp\+\_\+to\+\_\+date\+\_\+format} (self, float timestamp, str unit=\textquotesingle{}ms\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Small function used to transform a timestamp to a pretty date format (for visual purpose) It can also be used to format the queries sent to Influx\+DB. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_adb411260a3d54e3207e096f9680cc001}\label{classInfluxDB__connection_1_1ListicClientDB_adb411260a3d54e3207e096f9680cc001}} 
+def {\bfseries check\+\_\+if\+\_\+body\+\_\+will\+\_\+reappear} (dict skeleton\+\_\+data, float current\+\_\+timestamp)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_ad5bc32b75da65fe60067f501a4bb6665}\label{classInfluxDB__connection_1_1ListicClientDB_ad5bc32b75da65fe60067f501a4bb6665}} 
+{\bfseries client}
+\begin{DoxyCompactList}\small\item\em The real instance of the Influx\+DB client. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a56769f9571309e500baff2824392226f}\label{classInfluxDB__connection_1_1ListicClientDB_a56769f9571309e500baff2824392226f}} 
+{\bfseries stored\+\_\+points}
+\begin{DoxyCompactList}\small\item\em The values that needs to be injected in Influx\+DB are stored temporarily in this array. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_aaa8e75625c0e80c22e4583d97e431654}\label{classInfluxDB__connection_1_1ListicClientDB_aaa8e75625c0e80c22e4583d97e431654}} 
+{\bfseries walking\+\_\+metrics}
+\begin{DoxyCompactList}\small\item\em Some walking features can be estimated and stored in the database, but it is not used after (if I remember well) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The Influx\+DB client that can be used in our programs. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_aad513884f6c4a65892fb1d2677f95640}\label{classInfluxDB__connection_1_1ListicClientDB_aad513884f6c4a65892fb1d2677f95640}} 
+\index{ListicClientDB@{ListicClientDB}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{bool }]{server\+\_\+side = {\ttfamily None},  }\item[{str }]{host = {\ttfamily None},  }\item[{int }]{port = {\ttfamily None},  }\item[{str }]{login = {\ttfamily None},  }\item[{str }]{pwd = {\ttfamily None},  }\item[{str }]{database = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em server\+\_\+side} & Setting this to True will configure the client to access the real server from Listic without having to define the other parameters. Setting it to False will set the other parameters to be able to access directly your local server (if correctly installed). If trying to connect to Listic server, you have to be connected on the Wifi\+Listic (or have access to the address 192.\+168.\+143.\+29) \\
+\hline
+{\em host} & The address to connect to the server. \\
+\hline
+{\em port} & The port number on which your Influx\+DB instance is installed (default\+: 8086) \\
+\hline
+{\em login} & The login used when you connect to Influx\+DB (same as Grafana) \\
+\hline
+{\em pwd} & The password used when you connect to Influx\+DB (same as Grafana) \\
+\hline
+{\em database} & The database you want to use in Influx\+DB \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a6508025197b9eeda9a0af817d0f8ca26}\label{classInfluxDB__connection_1_1ListicClientDB_a6508025197b9eeda9a0af817d0f8ca26}} 
+\index{ListicClientDB@{ListicClientDB}!get\_all\_pir\_timestamps@{get\_all\_pir\_timestamps}}
+\index{get\_all\_pir\_timestamps@{get\_all\_pir\_timestamps}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{get\_all\_pir\_timestamps()}{get\_all\_pir\_timestamps()}}
+{\footnotesize\ttfamily def get\+\_\+all\+\_\+pir\+\_\+timestamps (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Function to extract all the timestamps at which the sensors were in use. 
+
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000002}{Deprecated}}]This function was in use quite a while ago, I don\textquotesingle{}t see any use of this anymore. (used in \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}{insert\+\_\+walking\+\_\+metrics()}}, which is a useless function...)\end{DoxyRefDesc}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a02d3f30bfea4f61ab0ca876e86c8393e}\label{classInfluxDB__connection_1_1ListicClientDB_a02d3f30bfea4f61ab0ca876e86c8393e}} 
+\index{ListicClientDB@{ListicClientDB}!get\_all\_pir\_values@{get\_all\_pir\_values}}
+\index{get\_all\_pir\_values@{get\_all\_pir\_values}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{get\_all\_pir\_values()}{get\_all\_pir\_values()}}
+{\footnotesize\ttfamily def get\+\_\+all\+\_\+pir\+\_\+values (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{Union\mbox{[}str, float\mbox{]} }]{start = {\ttfamily None},  }\item[{Union\mbox{[}str, float\mbox{]} }]{end = {\ttfamily None},  }\item[{bool }]{group\+\_\+by\+\_\+move = {\ttfamily False},  }\item[{str }]{sensor\+\_\+height = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Extract all the data from the sensors database. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em start} & The lower time limit for which we extract the data (as a formatted string or as a timestamp in ms) \\
+\hline
+{\em end} & The upper time limit for which we extract the data (as a formatted string or as a timestamp in ms) \\
+\hline
+{\em group\+\_\+by\+\_\+move} & Set to True to separate the extracted data depending on the predefined moving direction. This was useful when we were not taking data \char`\"{}in the wild\char`\"{}, now we don\textquotesingle{}t have any predefined moves \\
+\hline
+{\em sensor\+\_\+height} & Providing this parameter let the system filter to get only sequences where the sensors were in a certain position. For now the choice is \char`\"{}hips\char`\"{} or \char`\"{}ankles\char`\"{}. But maybe we will add \char`\"{}one\+\_\+sided\char`\"{}, or even \char`\"{}other\+\_\+sensors\+\_\+hips\char`\"{}, \char`\"{}other\+\_\+sensors\+\_\+ankles\char`\"{}, etc... \+:return\+: \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a14d6748d29762f77758edb64a9f971fa}\label{classInfluxDB__connection_1_1ListicClientDB_a14d6748d29762f77758edb64a9f971fa}} 
+\index{ListicClientDB@{ListicClientDB}!get\_all\_skeletons@{get\_all\_skeletons}}
+\index{get\_all\_skeletons@{get\_all\_skeletons}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{get\_all\_skeletons()}{get\_all\_skeletons()}}
+{\footnotesize\ttfamily  Tuple\mbox{[}Dict\mbox{[}int, dict\mbox{]}, Dict\mbox{[}int, dict\mbox{]}\mbox{]} get\+\_\+all\+\_\+skeletons (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Function to retrieve skeletons stored since 26/04/2021. 
+
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000001}{Deprecated}}]This function is never really used because it is time consuming. Use other functions like \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} to work with skeletons. \end{DoxyRefDesc}
+\begin{DoxyReturn}{Returns}
+A tuple containing the coordinates as a Dict with data in 2D and another Dict for coordinates 3D. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a96c184416db1289d47a378a640b8eb68}\label{classInfluxDB__connection_1_1ListicClientDB_a96c184416db1289d47a378a640b8eb68}} 
+\index{ListicClientDB@{ListicClientDB}!get\_closest\_timestamp@{get\_closest\_timestamp}}
+\index{get\_closest\_timestamp@{get\_closest\_timestamp}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{get\_closest\_timestamp()}{get\_closest\_timestamp()}}
+{\footnotesize\ttfamily def get\+\_\+closest\+\_\+timestamp (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{float}]{timestamp }\end{DoxyParamCaption})}
+
+
+
+Function to find the closest data from the sensors relative to the timestamp given as input. 
+
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000003}{Deprecated}}]This function was in use quite a while ago, I don\textquotesingle{}t see any use of this anymore. (used in \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}{insert\+\_\+walking\+\_\+metrics()}}, which is a useless function...) \end{DoxyRefDesc}
+
+\begin{DoxyParams}{Parameters}
+{\em timestamp} & the timestamp you want to compare with. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a8ad382830dfb8e5c605158317f044544}\label{classInfluxDB__connection_1_1ListicClientDB_a8ad382830dfb8e5c605158317f044544}} 
+\index{ListicClientDB@{ListicClientDB}!get\_pir\_values\_from\_walking\_sequence@{get\_pir\_values\_from\_walking\_sequence}}
+\index{get\_pir\_values\_from\_walking\_sequence@{get\_pir\_values\_from\_walking\_sequence}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{get\_pir\_values\_from\_walking\_sequence()}{get\_pir\_values\_from\_walking\_sequence()}}
+{\footnotesize\ttfamily  Dict\mbox{[}str, List\mbox{[}int\mbox{]}\mbox{]} get\+\_\+pir\+\_\+values\+\_\+from\+\_\+walking\+\_\+sequence (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{Dict }]{skeleton\+\_\+data = {\ttfamily None},  }\item[{int }]{start\+\_\+time = {\ttfamily None},  }\item[{int }]{end\+\_\+time = {\ttfamily None},  }\item[{int }]{id\+\_\+sequence = {\ttfamily None},  }\item[{float }]{time\+\_\+offset = {\ttfamily 5.0},  }\item[{float }]{time\+\_\+between\+\_\+sequences = {\ttfamily 20.0},  }\item[{str }]{sensor\+\_\+height = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+From the skeleton data extracted during a sequence (by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} ) or by defining temporal boundaries, extract the data from sensors during this sequence. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em skeleton\+\_\+data} & The skeleton data extracted from a sequence with the functions \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}}. \\
+\hline
+{\em start\+\_\+time} & If the skeleton data is not provided, give the starting time (in ms) of a sequence to extract the sensors data. \\
+\hline
+{\em end\+\_\+time} & If the skeleton data is not provided, give the ending time (in ms) of a sequence to extract the sensors data. \\
+\hline
+{\em id\+\_\+sequence} & If none of the above is provided, just give the ID of the sequence and it will fetch the good starting/ending time. (But I\textquotesingle{}m pretty sure this method is not the best possible...) \\
+\hline
+{\em time\+\_\+offset} & The time (in sec) that is added before and after the camera stopped seen somebody. In our experiments, the sensors had a greater field of view so it is important to get some offset time. \\
+\hline
+{\em time\+\_\+between\+\_\+sequences} & If using the \char`\"{}id\+\_\+sequence\char`\"{}, it\textquotesingle{}s the needed time (in sec) between two timestamps for which we consider that doesn\textquotesingle{}t belong in the same sequence. \\
+\hline
+{\em sensor\+\_\+height} & Providing this parameter let the system filter to get only sequences where the sensors were in a certain position. For now the choice is \char`\"{}hips\char`\"{} or \char`\"{}ankles\char`\"{}. But maybe we will add \char`\"{}one\+\_\+sided\char`\"{}, or even \char`\"{}other\+\_\+sensors\+\_\+hips\char`\"{}, \char`\"{}other\+\_\+sensors\+\_\+ankles\char`\"{}, etc... \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}\label{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}} 
+\index{ListicClientDB@{ListicClientDB}!get\_skeletons\_in\_splitted\_sequences@{get\_skeletons\_in\_splitted\_sequences}}
+\index{get\_skeletons\_in\_splitted\_sequences@{get\_skeletons\_in\_splitted\_sequences}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{get\_skeletons\_in\_splitted\_sequences()}{get\_skeletons\_in\_splitted\_sequences()}}
+{\footnotesize\ttfamily  Union\mbox{[}List\mbox{[}Tuple\mbox{]}, Tuple\mbox{]} get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{str }]{sequence\+\_\+filename = {\ttfamily None},  }\item[{int }]{start\+\_\+time = {\ttfamily None},  }\item[{int }]{end\+\_\+time = {\ttfamily None},  }\item[{bool }]{merge\+\_\+skeleton\+\_\+ids = {\ttfamily True},  }\item[{float }]{time\+\_\+between\+\_\+sequences = {\ttfamily 20.0},  }\item[{int }]{sequence\+\_\+index = {\ttfamily None},  }\item[{float }]{ignore\+\_\+small\+\_\+sequences = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Function to get the skeletons of persons walking in front of the camera divided in sequences. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sequence\+\_\+filename} & If given a rosbag file (recording from the camera), the start and end limits are extracted from it. But rosbag files are not really used anymore... \\
+\hline
+{\em start\+\_\+time} & The lower limit at which we can detect a sequence (in ms) \\
+\hline
+{\em end\+\_\+time} & The upper limit at which we can detect a sequence (in ms) \\
+\hline
+{\em merge\+\_\+skeleton\+\_\+ids} & Useless \\
+\hline
+{\em time\+\_\+between\+\_\+sequences} & The needed time (in sec) between two timestamps for which we consider that doesn\textquotesingle{}t belong in the same sequence. \\
+\hline
+{\em sequence\+\_\+index} & Set this value to the ID of a sequence to get only this specific sequence. -\/1 to get the last sequence. \\
+\hline
+{\em ignore\+\_\+small\+\_\+sequences} & If some skeletons are detected in a sequence but that this sequence is smaller than a threshold (in sec), ignore it.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+If \char`\"{}sequence\+\_\+index\char`\"{} is defined, return a tuple containing a dictionary that defines all coordinates of a sequence with coordinates in 2D and coordinates in 3D as defined by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}}. ~\newline
+ Otherwise, return an array of these tuple for each sequence found. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_ac79fb541f7939ecd110dac4f4ecaaa62}\label{classInfluxDB__connection_1_1ListicClientDB_ac79fb541f7939ecd110dac4f4ecaaa62}} 
+\index{ListicClientDB@{ListicClientDB}!get\_splitted\_presence\_or\_not\_boundaries@{get\_splitted\_presence\_or\_not\_boundaries}}
+\index{get\_splitted\_presence\_or\_not\_boundaries@{get\_splitted\_presence\_or\_not\_boundaries}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{get\_splitted\_presence\_or\_not\_boundaries()}{get\_splitted\_presence\_or\_not\_boundaries()}}
+{\footnotesize\ttfamily  Dict\mbox{[}str, List\mbox{[}Tuple\mbox{[}int, int\mbox{]}\mbox{]}\mbox{]} get\+\_\+splitted\+\_\+presence\+\_\+or\+\_\+not\+\_\+boundaries (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{int }]{start\+\_\+time = {\ttfamily None},  }\item[{int }]{end\+\_\+time = {\ttfamily None},  }\item[{float }]{time\+\_\+between\+\_\+sequences = {\ttfamily 2.0},  }\item[{float }]{ignore\+\_\+small\+\_\+sequences = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Function to get the temporal boundaries of sequences during which a person is walking and sequences where nobody is walking. 
+
+This can be used to create a dataset for a classifier that do person detection and maybe (with improvement in this code, I guess) an estimator of number of persons.
+
+
+\begin{DoxyParams}{Parameters}
+{\em start\+\_\+time} & The lower limit at which we can detect a sequence (in ms) \\
+\hline
+{\em end\+\_\+time} & The upper limit at which we can detect a sequence (in ms) \\
+\hline
+{\em time\+\_\+between\+\_\+sequences} & The needed time (in sec) between two timestamps for which we consider that doesn\textquotesingle{}t belong in the same sequence. \\
+\hline
+{\em ignore\+\_\+small\+\_\+sequences} & If some skeletons are detected in a sequence but that this sequence is smaller than a threshold (in sec), ignore it.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A dictionary with keys\+:
+\begin{DoxyItemize}
+\item \textquotesingle{}presence\textquotesingle{}\+: an array of tuple (start\+\_\+time, end\+\_\+time) of sequences with someone walking
+\item \textquotesingle{}no\+\_\+presence\textquotesingle{}\+: an array of tuple(start\+\_\+time, end\+\_\+time) of sequences without anybody
+\end{DoxyItemize}
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+If you don\textquotesingle{}t care for absence sequences, see \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}}. 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}\label{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}} 
+\index{ListicClientDB@{ListicClientDB}!get\_splitted\_sequences\_boundaries@{get\_splitted\_sequences\_boundaries}}
+\index{get\_splitted\_sequences\_boundaries@{get\_splitted\_sequences\_boundaries}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{get\_splitted\_sequences\_boundaries()}{get\_splitted\_sequences\_boundaries()}}
+{\footnotesize\ttfamily  List\mbox{[}Tuple\mbox{[}float, float\mbox{]}\mbox{]} get\+\_\+splitted\+\_\+sequences\+\_\+boundaries (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{str }]{sequence\+\_\+filename = {\ttfamily None},  }\item[{int }]{start\+\_\+time = {\ttfamily None},  }\item[{int }]{end\+\_\+time = {\ttfamily None},  }\item[{float }]{time\+\_\+between\+\_\+sequences = {\ttfamily 20.0},  }\item[{float }]{ignore\+\_\+small\+\_\+sequences = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Function to get the temporal boundaries of sequences during which a person is walking in front of sensors. 
+
+This function can be useless as so, but is used to improve execution speed of \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em sequence\+\_\+filename} & If given a rosbag file (recording from the camera), the start and end limits are extracted from it. But rosbag files are not really used anymore... \\
+\hline
+{\em start\+\_\+time} & The lower limit at which we can detect a sequence (in ms) \\
+\hline
+{\em end\+\_\+time} & The upper limit at which we can detect a sequence (in ms) \\
+\hline
+{\em time\+\_\+between\+\_\+sequences} & The needed time (in sec) between two timestamps for which we consider that doesn\textquotesingle{}t belong in the same sequence. \\
+\hline
+{\em ignore\+\_\+small\+\_\+sequences} & If some skeletons are detected in a sequence but that this sequence is smaller than a threshold (in sec), ignore it.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A dictionary with keys\+:
+\begin{DoxyItemize}
+\item \textquotesingle{}presence\textquotesingle{}\+: an array of tuple (start\+\_\+time, end\+\_\+time) of sequences with someone walking
+\item \textquotesingle{}no\+\_\+presence\textquotesingle{}\+: an array of tuple(start\+\_\+time, end\+\_\+time) of sequences without anybody 
+\end{DoxyItemize}
+\end{DoxyReturn}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a67fcc0d8affc8a83dcdb8d2bdb6b5295}\label{classInfluxDB__connection_1_1ListicClientDB_a67fcc0d8affc8a83dcdb8d2bdb6b5295}} 
+\index{ListicClientDB@{ListicClientDB}!insert\_skeleton\_keypoints@{insert\_skeleton\_keypoints}}
+\index{insert\_skeleton\_keypoints@{insert\_skeleton\_keypoints}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{insert\_skeleton\_keypoints()}{insert\_skeleton\_keypoints()}}
+{\footnotesize\ttfamily  None insert\+\_\+skeleton\+\_\+keypoints (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{Dict }]{coord2D = {\ttfamily None},  }\item[{Dict }]{coord3D = {\ttfamily None},  }\item[{float }]{timestamp = {\ttfamily None},  }\item[{int }]{skeleton\+\_\+id = {\ttfamily 0},  }\item[{str }]{device = {\ttfamily None},  }\item[{bool }]{ignore\+\_\+\+None\+\_\+values = {\ttfamily True},  }\item[{bool }]{send\+\_\+immediately = {\ttfamily True},  }\item[{float }]{walking\+\_\+speed = {\ttfamily None},  }\item[{float }]{footsteps\+\_\+width = {\ttfamily None},  }\item[{float }]{number\+\_\+of\+\_\+footsteps = {\ttfamily None},  }\item[{float }]{stride\+\_\+length = {\ttfamily None},  }\item[{float }]{step\+\_\+length = {\ttfamily None},  }\item[{str }]{timestamp\+\_\+unit = {\ttfamily \textquotesingle{}ms\textquotesingle{}},  }\item[{Dict }]{raw\+\_\+coord\+\_\+2D = {\ttfamily None},  }\item[{Dict }]{raw\+\_\+coord\+\_\+3D = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Insert coordinates of a skeleton by passing the array like the one that is created by the Human\+Skeleton class. 
+
+\begin{DoxySeeAlso}{See also}
+Human\+Skeleton
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+{\em coord2D} & The coordinates on the screen that you want to save \\
+\hline
+{\em coord3D} & The coordinates on the real world that you want to save \\
+\hline
+{\em timestamp} & The timestamp at which these coordinates has been recorded \\
+\hline
+{\em skeleton\+\_\+id} & The ID of the person in the sequence. Most processes takes only the sequences with the person ID == 0, so try to have all skeleton on a sequence with a unique person to have an ID = 0. \\
+\hline
+{\em device} & The name of the device that recorded the person. You then are able to filter sequences filmed by a camera D400 or the L515, or any new camera you are using. \\
+\hline
+{\em ignore\+\_\+\+None\+\_\+values} & Set to False if you want to insert a NULL value for keypoints that aren\textquotesingle{}t seen on screen. I\textquotesingle{}m not really sure about the changes needed if you insert NULL values, so the best is to keep this argument to True, I guess... \\
+\hline
+{\em send\+\_\+immediately} & Set to True to send these coordinates to Influx\+DB (which can take up to 0.\+5 second) or set it to False to wait to have more data and send all the data at once. \\
+\hline
+{\em walking\+\_\+speed} & If already computed, you can store the estimation of the walking speed. \\
+\hline
+{\em footsteps\+\_\+width} & If already computed, you can store the estimation of the footsteps width. \\
+\hline
+{\em number\+\_\+of\+\_\+footsteps} & If already computed, you can store the estimation of the number of footsteps. \\
+\hline
+{\em stride\+\_\+length} & If already computed, you can store the estimation of the stride length. \\
+\hline
+{\em step\+\_\+length} & If already computed, you can store the estimation of the step length. \\
+\hline
+{\em timestamp\+\_\+unit} & The unit used as timestamp (\textquotesingle{}ms\textquotesingle{} or \textquotesingle{}s\textquotesingle{}) \\
+\hline
+{\em raw\+\_\+coord\+\_\+2D} & The coordinates without any translation/rotation, in case the transformation had an math error \\
+\hline
+{\em raw\+\_\+coord\+\_\+3D} & The coordinates without any translation/rotation, in case the transformation had an math error \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}\label{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}} 
+\index{ListicClientDB@{ListicClientDB}!insert\_walking\_metrics@{insert\_walking\_metrics}}
+\index{insert\_walking\_metrics@{insert\_walking\_metrics}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{insert\_walking\_metrics()}{insert\_walking\_metrics()}}
+{\footnotesize\ttfamily  None insert\+\_\+walking\+\_\+metrics (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{float}]{timestamp,  }\item[{float}]{walking\+\_\+speed,  }\item[{float}]{footsteps\+\_\+width,  }\item[{float}]{number\+\_\+of\+\_\+footsteps,  }\item[{float}]{stride\+\_\+length,  }\item[{float}]{step\+\_\+length,  }\item[{bool }]{send\+\_\+immediately = {\ttfamily False},  }\item[{str }]{timestamp\+\_\+unit = {\ttfamily \textquotesingle{}ms\textquotesingle{}},  }\item[{int }]{skeleton\+\_\+id = {\ttfamily 0},  }\item[{str }]{device = {\ttfamily None},  }\item[{bool }]{ignore\+\_\+\+None\+\_\+values = {\ttfamily True} }\end{DoxyParamCaption})}
+
+
+
+Function that insert the computed walking parameters into the database. 
+
+\begin{DoxyNote}{Note}
+Note\+: The data in this measurement are never used after in this project, so I\textquotesingle{}m not taking the time to describe it. 
+\end{DoxyNote}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_ac619c7e0133bc0861b60ead1431326d1}\label{classInfluxDB__connection_1_1ListicClientDB_ac619c7e0133bc0861b60ead1431326d1}} 
+\index{ListicClientDB@{ListicClientDB}!pir\_values\_to\_DF@{pir\_values\_to\_DF}}
+\index{pir\_values\_to\_DF@{pir\_values\_to\_DF}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{pir\_values\_to\_DF()}{pir\_values\_to\_DF()}}
+{\footnotesize\ttfamily  pd.\+Data\+Frame pir\+\_\+values\+\_\+to\+\_\+\+DF (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{db.\+client.\+Result\+Set}]{query\+\_\+results }\end{DoxyParamCaption})}
+
+
+
+From the results of a query to Influx\+DB, transform the data into a Data\+Frame. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+results} & The result of a query from the client with self.\+client.\+query()\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A Data\+Frame containing all the data from each sensor and all the timestamps from the data 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a1e9bd9f21e0ce1fa906e9bd4851a6506}\label{classInfluxDB__connection_1_1ListicClientDB_a1e9bd9f21e0ce1fa906e9bd4851a6506}} 
+\index{ListicClientDB@{ListicClientDB}!pir\_values\_to\_json@{pir\_values\_to\_json}}
+\index{pir\_values\_to\_json@{pir\_values\_to\_json}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{pir\_values\_to\_json()}{pir\_values\_to\_json()}}
+{\footnotesize\ttfamily  Dict\mbox{[}str, List\mbox{[}int\mbox{]}\mbox{]} pir\+\_\+values\+\_\+to\+\_\+json (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{db.\+client.\+Result\+Set}]{query\+\_\+results }\end{DoxyParamCaption})}
+
+
+
+From the results of a query to Influx\+DB, transform the data into a JSON/dictionary variable. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+results} & The result of a query from the client with self.\+client.\+query()\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A dictionary containing all the data from each sensor and all the timestamps from the data 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a0d03067fe1ec7e0a08cbafabd6d93aec}\label{classInfluxDB__connection_1_1ListicClientDB_a0d03067fe1ec7e0a08cbafabd6d93aec}} 
+\index{ListicClientDB@{ListicClientDB}!retrieve\_skeleton\_keypoints@{retrieve\_skeleton\_keypoints}}
+\index{retrieve\_skeleton\_keypoints@{retrieve\_skeleton\_keypoints}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{retrieve\_skeleton\_keypoints()}{retrieve\_skeleton\_keypoints()}}
+{\footnotesize\ttfamily def retrieve\+\_\+skeleton\+\_\+keypoints (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{str }]{sequence\+\_\+filename = {\ttfamily None},  }\item[{float }]{start\+\_\+time = {\ttfamily None},  }\item[{float }]{end\+\_\+time = {\ttfamily None},  }\item[{bool }]{merge\+\_\+skeleton\+\_\+ids = {\ttfamily True} }\end{DoxyParamCaption})}
+
+
+
+Function to get the skeletons of persons walking in front of the camera. 
+
+This function is the one used by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}}. 
+\begin{DoxyParams}{Parameters}
+{\em sequence\+\_\+filename} & If given a rosbag file (recording from the camera), the start and end limits are extracted from it. But rosbag files are not really used anymore... \\
+\hline
+{\em start\+\_\+time} & The lower limit at which we can detect a sequence (in ms) \\
+\hline
+{\em end\+\_\+time} & The upper limit at which we can detect a sequence (in ms) \\
+\hline
+{\em merge\+\_\+skeleton\+\_\+ids} & If True, skeleton coordinates are extracted as if only one person was walking. Otherwise, the results will contain one list of coordinates per person.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A tuple containing a dictionary that defines all coordinates of a sequence with coordinates in 2D and coordinates in 3D 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a4f616c5105b7d8864d26837d444250fe}\label{classInfluxDB__connection_1_1ListicClientDB_a4f616c5105b7d8864d26837d444250fe}} 
+\index{ListicClientDB@{ListicClientDB}!send\_to\_db@{send\_to\_db}}
+\index{send\_to\_db@{send\_to\_db}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{send\_to\_db()}{send\_to\_db()}}
+{\footnotesize\ttfamily def send\+\_\+to\+\_\+db (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{timestamp\+\_\+unit = {\ttfamily \textquotesingle{}ms\textquotesingle{}} }\end{DoxyParamCaption})}
+
+
+
+Function that send all the data stored by this client into the Influx\+DB server. 
+
+\begin{DoxyNote}{Note}
+Note This operation can take some time (up to 0.\+5s), so avoid doing this too many times and think about setting \char`\"{}send\+\_\+immediately\char`\"{} argument from \char`\"{}insert\+\_\+skeleton\+\_\+keypoints()\char`\"{} to False if it\textquotesingle{}s not needed 
+\end{DoxyNote}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a67fcc0d8affc8a83dcdb8d2bdb6b5295}{insert\+\_\+skeleton\+\_\+keypoints()}}
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+{\em timestamp\+\_\+unit} & The unit used on your timestamps. If your data hasn\textquotesingle{}t been saved at the desired timestamp, check the units. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{InfluxDB__connection_8py}{Influx\+DB\+\_\+connection.\+py}}\end{DoxyCompactItemize}

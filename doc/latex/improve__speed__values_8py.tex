@@ -1,0 +1,64 @@
+\hypertarget{improve__speed__values_8py}{}\doxysection{improve\+\_\+speed\+\_\+values.\+py File Reference}
+\label{improve__speed__values_8py}\index{improve\_speed\_values.py@{improve\_speed\_values.py}}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceimprove__speed__values}{improve\+\_\+speed\+\_\+values}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a1cb90176c2b8a443d4af0fce13ccc6c2}\label{namespaceimprove__speed__values_a1cb90176c2b8a443d4af0fce13ccc6c2}} 
+def {\bfseries get\+\_\+all\+\_\+gait\+\_\+sequences} ()
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_af90e002477a27177881b745795252ed5}\label{namespaceimprove__speed__values_af90e002477a27177881b745795252ed5}} 
+def {\bfseries get\+\_\+all\+\_\+speeds\+\_\+recorded} ()
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a6d3577b5c29558aa3631e2f1bc056503}\label{namespaceimprove__speed__values_a6d3577b5c29558aa3631e2f1bc056503}} 
+def {\bfseries get\+\_\+all\+\_\+speeds\+\_\+recorded\+\_\+local} ()
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a0e450c1cab466bf2bf78600417b78e34}\label{namespaceimprove__speed__values_a0e450c1cab466bf2bf78600417b78e34}} 
+def {\bfseries split\+\_\+sequences} (pd.\+Data\+Frame pir\+\_\+df)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_ad74a04abba8db100ea23a1f99ed7dfa7}\label{namespaceimprove__speed__values_ad74a04abba8db100ea23a1f99ed7dfa7}} 
+dictionary {\bfseries all\+\_\+data} = \{\textquotesingle{}coordinates\textquotesingle{}\+: \{\}, \textquotesingle{}timestamps\textquotesingle{}\+: \mbox{[}$\,$\mbox{]}\}
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a183a57ea314fa21f616253f626d728cf}\label{namespaceimprove__speed__values_a183a57ea314fa21f616253f626d728cf}} 
+int {\bfseries current\+\_\+sequence\+\_\+id} = -\/1
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a511ae0b1c13f95e5f08f1a0dd3da3d93}\label{namespaceimprove__speed__values_a511ae0b1c13f95e5f08f1a0dd3da3d93}} 
+{\bfseries data} = json.\+load(open(file, \char`\"{}r\char`\"{}))
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_abce9f5dc9c83f2639b72024fdee5d388}\label{namespaceimprove__speed__values_abce9f5dc9c83f2639b72024fdee5d388}} 
+int {\bfseries end} = dateutil.\+parser.\+isoparse(seq\mbox{[}\textquotesingle{}time\textquotesingle{}\mbox{]}.iloc\mbox{[}-\/1\mbox{]}.replace(\char`\"{}Z\char`\"{}, \char`\"{}+00\+:00\char`\"{})).timestamp() $\ast$ 1000
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a837c6e3c9f653e8f2ce467a2e8ba1d42}\label{namespaceimprove__speed__values_a837c6e3c9f653e8f2ce467a2e8ba1d42}} 
+{\bfseries human} = \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton}{human\+\_\+skeleton.\+Human\+Skeleton}}()
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a918ecd42bdf304fda9fac406b29a633a}\label{namespaceimprove__speed__values_a918ecd42bdf304fda9fac406b29a633a}} 
+int {\bfseries number\+\_\+of\+\_\+keys} = 0
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a181830007f8691d942a480e4e74b8686}\label{namespaceimprove__speed__values_a181830007f8691d942a480e4e74b8686}} 
+{\bfseries pir\+\_\+data} = pd.\+read\+\_\+csv(\char`\"{}all\+\_\+pir\+\_\+values.\+csv\char`\"{})
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a9b637e512bff3ac1b8f769f0ad136d3f}\label{namespaceimprove__speed__values_a9b637e512bff3ac1b8f769f0ad136d3f}} 
+{\bfseries sequence\+\_\+id} = seq\mbox{[}\textquotesingle{}sequence\+\_\+id\textquotesingle{}\mbox{]}.iloc\mbox{[}0\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a0df26d0e6cc5042a08832535a9f36ef7}\label{namespaceimprove__speed__values_a0df26d0e6cc5042a08832535a9f36ef7}} 
+def {\bfseries sequences} = split\+\_\+sequences(pir\+\_\+data)
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a7941f4be44d7f43826cb8db9d6bfc510}\label{namespaceimprove__speed__values_a7941f4be44d7f43826cb8db9d6bfc510}} 
+float {\bfseries speed\+\_\+high\+\_\+bound} = 3.\+0
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_af6757d7659f5931721657410cab11068}\label{namespaceimprove__speed__values_af6757d7659f5931721657410cab11068}} 
+float {\bfseries speed\+\_\+low\+\_\+bound} = 0.\+1
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_adf688662452fb689ae9186ed06b368e4}\label{namespaceimprove__speed__values_adf688662452fb689ae9186ed06b368e4}} 
+dictionary {\bfseries speeds} = \{\}
+\item 
+\mbox{\Hypertarget{namespaceimprove__speed__values_a37722a150250e2a5a98e5e0d11e53449}\label{namespaceimprove__speed__values_a37722a150250e2a5a98e5e0d11e53449}} 
+int {\bfseries start} = dateutil.\+parser.\+isoparse(seq\mbox{[}\textquotesingle{}time\textquotesingle{}\mbox{]}.iloc\mbox{[}0\mbox{]}.replace(\char`\"{}Z\char`\"{}, \char`\"{}+00\+:00\char`\"{})).timestamp() $\ast$ 1000
+\end{DoxyCompactItemize}

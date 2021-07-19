@@ -1,0 +1,137 @@
+\hypertarget{namespacepir__training__2}{}\doxysection{pir\+\_\+training\+\_\+2 Namespace Reference}
+\label{namespacepir__training__2}\index{pir\_training\_2@{pir\_training\_2}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_ae43bef310484881134c7318c56e8537f}\label{namespacepir__training__2_ae43bef310484881134c7318c56e8537f}} 
+def {\bfseries get\+\_\+sequence\+\_\+features} (sequence, number\+\_\+of\+\_\+peaks)
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a1717cbf07958ec4b6aec2a1b3e92005d}\label{namespacepir__training__2_a1717cbf07958ec4b6aec2a1b3e92005d}} 
+def {\bfseries get\+\_\+signal\+\_\+features} (signal, number\+\_\+of\+\_\+peaks)
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a336e2d90f73c131123b5359c8672bb6c}\label{namespacepir__training__2_a336e2d90f73c131123b5359c8672bb6c}} 
+def {\bfseries split\+\_\+sequences} (pd.\+Data\+Frame pir\+\_\+df)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+list \mbox{\hyperlink{namespacepir__training__2_a501bfc1867c9d0b5d91873982919a191}{classifiers}}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_aec70d633e7619583eb3a08a7afd638b4}\label{namespacepir__training__2_aec70d633e7619583eb3a08a7afd638b4}} 
+{\bfseries clf} = item
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a37dbdc30935031c05304482e1be89d8f}\label{namespacepir__training__2_a37dbdc30935031c05304482e1be89d8f}} 
+{\bfseries color}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_ad3d76d5710f473896c301464e8b5d9ee}\label{namespacepir__training__2_ad3d76d5710f473896c301464e8b5d9ee}} 
+{\bfseries cv\+\_\+score\+\_\+abs\+\_\+error} = -\/sklearn.\+model\+\_\+selection.\+cross\+\_\+val\+\_\+score(\mbox{\hyperlink{namespacepir__training__2_aec70d633e7619583eb3a08a7afd638b4}{clf}}, \mbox{\hyperlink{namespacepir__training__2_a895a95733c1be54e87b8ba38b92eb030}{test\+\_\+X}}, \mbox{\hyperlink{namespacepir__training__2_a2e5979b1414ec1494c22821af6e2cde5}{test\+\_\+y}}, cv=5, scoring = \textquotesingle{}neg\+\_\+median\+\_\+absolute\+\_\+error\textquotesingle{})
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_ae24288058f05273dde490ee48661816c}\label{namespacepir__training__2_ae24288058f05273dde490ee48661816c}} 
+{\bfseries cv\+\_\+score\+\_\+accuracy} = sklearn.\+model\+\_\+selection.\+cross\+\_\+val\+\_\+score(\mbox{\hyperlink{namespacepir__training__2_aec70d633e7619583eb3a08a7afd638b4}{clf}}, \mbox{\hyperlink{namespacepir__training__2_a895a95733c1be54e87b8ba38b92eb030}{test\+\_\+X}}, \mbox{\hyperlink{namespacepir__training__2_a2e5979b1414ec1494c22821af6e2cde5}{test\+\_\+y}}, cv=5, scoring = \textquotesingle{}accuracy\textquotesingle{})
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a09e05b29d02ced2dbefe63e52604d406}\label{namespacepir__training__2_a09e05b29d02ced2dbefe63e52604d406}} 
+{\bfseries cv\+\_\+score\+\_\+mean\+\_\+error} = -\/sklearn.\+model\+\_\+selection.\+cross\+\_\+val\+\_\+score(\mbox{\hyperlink{namespacepir__training__2_aec70d633e7619583eb3a08a7afd638b4}{clf}}, \mbox{\hyperlink{namespacepir__training__2_a895a95733c1be54e87b8ba38b92eb030}{test\+\_\+X}}, \mbox{\hyperlink{namespacepir__training__2_a2e5979b1414ec1494c22821af6e2cde5}{test\+\_\+y}}, cv=5, scoring = \textquotesingle{}neg\+\_\+mean\+\_\+absolute\+\_\+error\textquotesingle{})
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a738d8a34f2ae6c5e620aceb2d3612510}\label{namespacepir__training__2_a738d8a34f2ae6c5e620aceb2d3612510}} 
+{\bfseries cv\+\_\+score\+\_\+r2} = sklearn.\+model\+\_\+selection.\+cross\+\_\+val\+\_\+score(\mbox{\hyperlink{namespacepir__training__2_aec70d633e7619583eb3a08a7afd638b4}{clf}}, \mbox{\hyperlink{namespacepir__training__2_a895a95733c1be54e87b8ba38b92eb030}{test\+\_\+X}}, \mbox{\hyperlink{namespacepir__training__2_a2e5979b1414ec1494c22821af6e2cde5}{test\+\_\+y}}, cv=5, scoring = \textquotesingle{}r2\textquotesingle{})
+\item 
+\mbox{\hyperlink{namespacepir__training__2_ab07a1e75cd06d10073f76b0b1d17a498}{df\+\_\+sequences}} = pd.\+read\+\_\+csv(\char`\"{}sequences\+\_\+resumed.\+csv\char`\"{})
+\begin{DoxyCompactList}\small\item\em Part for direction \#\#\#. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacepir__training__2_ab73efa221fe792c72b13b495f9af615e}\label{namespacepir__training__2_ab73efa221fe792c72b13b495f9af615e}} 
+{\bfseries ground\+\_\+truth} = Y.\+values
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a6d635b430d3bf505523d9748bc03ee38}\label{namespacepir__training__2_a6d635b430d3bf505523d9748bc03ee38}} 
+list {\bfseries input\+\_\+cols} = \mbox{[}\textquotesingle{}period\+\_\+pir0\textquotesingle{}, \textquotesingle{}time\+\_\+pir0\textquotesingle{}, \textquotesingle{}period\+\_\+pir1\textquotesingle{}, \textquotesingle{}time\+\_\+pir1\textquotesingle{}, \textquotesingle{}period\+\_\+pir2\textquotesingle{}, \textquotesingle{}time\+\_\+pir2\textquotesingle{}, \textquotesingle{}period\+\_\+pir3\textquotesingle{}, \textquotesingle{}time\+\_\+pir3\textquotesingle{}, \textquotesingle{}delta\+\_\+time\+\_\+0\+\_\+2\textquotesingle{}, \textquotesingle{}delta\+\_\+time\+\_\+1\+\_\+3\textquotesingle{}\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a22f45a3cb4f074e609f58ebaeef0ecf9}\label{namespacepir__training__2_a22f45a3cb4f074e609f58ebaeef0ecf9}} 
+{\bfseries label}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a00517e243ecc7a1f68908830b744fdae}\label{namespacepir__training__2_a00517e243ecc7a1f68908830b744fdae}} 
+list {\bfseries predictions} = \mbox{\hyperlink{namespacepir__training__2_a501bfc1867c9d0b5d91873982919a191}{classifiers}}\mbox{[}-\/1\mbox{]}.predict(\mbox{\hyperlink{namespacepir__training__2_ac51b57a703ba1c5869228690c93e1701}{X}})
+\item 
+list \mbox{\hyperlink{namespacepir__training__2_a11697963aa35f6bb85512237c1c2ccf0}{regression\+\_\+models}}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a230e4624bbd228799deb958efb829e10}\label{namespacepir__training__2_a230e4624bbd228799deb958efb829e10}} 
+list {\bfseries results} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_aca1364cff723c057d811b54f2e4431b5}\label{namespacepir__training__2_aca1364cff723c057d811b54f2e4431b5}} 
+{\bfseries test\+\_\+size}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a895a95733c1be54e87b8ba38b92eb030}\label{namespacepir__training__2_a895a95733c1be54e87b8ba38b92eb030}} 
+{\bfseries test\+\_\+X}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a2e5979b1414ec1494c22821af6e2cde5}\label{namespacepir__training__2_a2e5979b1414ec1494c22821af6e2cde5}} 
+{\bfseries test\+\_\+y}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_abbbad544fefeb39806f5f76cc02df92f}\label{namespacepir__training__2_abbbad544fefeb39806f5f76cc02df92f}} 
+{\bfseries train\+\_\+X}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_ab6ed8ce596bb14e0c50edd2a4ec8e5dd}\label{namespacepir__training__2_ab6ed8ce596bb14e0c50edd2a4ec8e5dd}} 
+{\bfseries train\+\_\+y}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_ac51b57a703ba1c5869228690c93e1701}\label{namespacepir__training__2_ac51b57a703ba1c5869228690c93e1701}} 
+{\bfseries X} = \mbox{\hyperlink{namespacepir__training__2_ab07a1e75cd06d10073f76b0b1d17a498}{df\+\_\+sequences}}\mbox{[}\mbox{\hyperlink{namespacepir__training__2_a6d635b430d3bf505523d9748bc03ee38}{input\+\_\+cols}}\mbox{]}
+\item 
+\mbox{\Hypertarget{namespacepir__training__2_a0867f43e27585e019c13f7f4b7c4ab6b}\label{namespacepir__training__2_a0867f43e27585e019c13f7f4b7c4ab6b}} 
+{\bfseries Y} = \mbox{\hyperlink{namespacepir__training__2_ab07a1e75cd06d10073f76b0b1d17a498}{df\+\_\+sequences}}\mbox{[}\textquotesingle{}corridor\textquotesingle{}\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespacepir__training__2_a501bfc1867c9d0b5d91873982919a191}\label{namespacepir__training__2_a501bfc1867c9d0b5d91873982919a191}} 
+\index{pir\_training\_2@{pir\_training\_2}!classifiers@{classifiers}}
+\index{classifiers@{classifiers}!pir\_training\_2@{pir\_training\_2}}
+\doxysubsubsection{\texorpdfstring{classifiers}{classifiers}}
+{\footnotesize\ttfamily list classifiers}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 =  [}
+\DoxyCodeLine{2     sklearn.neighbors.KNeighborsClassifier(3),}
+\DoxyCodeLine{3     sklearn.svm.SVC(kernel=\textcolor{stringliteral}{"{}linear"{}}, C=0.025),}
+\DoxyCodeLine{4     sklearn.svm.SVC(gamma=2, C=1),}
+\DoxyCodeLine{5     sklearn.gaussian\_process.GaussianProcessClassifier(1.0 * sklearn.gaussian\_process.kernels.RBF(1.0)),}
+\DoxyCodeLine{6     sklearn.tree.DecisionTreeClassifier(max\_depth=10),}
+\DoxyCodeLine{7     sklearn.ensemble.RandomForestClassifier(max\_depth=10, n\_estimators=10, max\_features=10),}
+\DoxyCodeLine{8     sklearn.neural\_network.MLPClassifier(alpha=1, max\_iter=1000),}
+\DoxyCodeLine{9     sklearn.ensemble.AdaBoostClassifier(),}
+\DoxyCodeLine{10     sklearn.naive\_bayes.GaussianNB(),}
+\DoxyCodeLine{11     sklearn.discriminant\_analysis.QuadraticDiscriminantAnalysis()}
+\DoxyCodeLine{12 ]}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{namespacepir__training__2_ab07a1e75cd06d10073f76b0b1d17a498}\label{namespacepir__training__2_ab07a1e75cd06d10073f76b0b1d17a498}} 
+\index{pir\_training\_2@{pir\_training\_2}!df\_sequences@{df\_sequences}}
+\index{df\_sequences@{df\_sequences}!pir\_training\_2@{pir\_training\_2}}
+\doxysubsubsection{\texorpdfstring{df\_sequences}{df\_sequences}}
+{\footnotesize\ttfamily df\+\_\+sequences = pd.\+read\+\_\+csv(\char`\"{}sequences\+\_\+resumed.\+csv\char`\"{})}
+
+
+
+Part for direction \#\#\#. 
+
+Part for corridor \#\#\# \mbox{\Hypertarget{namespacepir__training__2_a11697963aa35f6bb85512237c1c2ccf0}\label{namespacepir__training__2_a11697963aa35f6bb85512237c1c2ccf0}} 
+\index{pir\_training\_2@{pir\_training\_2}!regression\_models@{regression\_models}}
+\index{regression\_models@{regression\_models}!pir\_training\_2@{pir\_training\_2}}
+\doxysubsubsection{\texorpdfstring{regression\_models}{regression\_models}}
+{\footnotesize\ttfamily list regression\+\_\+models}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 =  [}
+\DoxyCodeLine{2     sklearn.svm.SVR(),}
+\DoxyCodeLine{3     sklearn.svm.LinearSVR(),}
+\DoxyCodeLine{4     \textcolor{comment}{\# sklearn.linear\_model.SGDRegressor(),}}
+\DoxyCodeLine{5     sklearn.linear\_model.BayesianRidge(),}
+\DoxyCodeLine{6     sklearn.linear\_model.LassoLars(),}
+\DoxyCodeLine{7     sklearn.linear\_model.ARDRegression(),}
+\DoxyCodeLine{8     sklearn.linear\_model.PassiveAggressiveRegressor(),}
+\DoxyCodeLine{9     sklearn.linear\_model.TheilSenRegressor(),}
+\DoxyCodeLine{10     sklearn.linear\_model.LinearRegression(),}
+\DoxyCodeLine{11     sklearn.linear\_model.Ridge(),}
+\DoxyCodeLine{12     sklearn.linear\_model.ElasticNet(),}
+\DoxyCodeLine{13     sklearn.linear\_model.HuberRegressor(),}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15 ]}
+
+\end{DoxyCode}

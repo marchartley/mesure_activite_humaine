@@ -1,0 +1,78 @@
+\hypertarget{namespaceelan__annotation}{}\doxysection{elan\+\_\+annotation Namespace Reference}
+\label{namespaceelan__annotation}\index{elan\_annotation@{elan\_annotation}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_adb909f7cbb040787573b32095b7aa14e}\label{namespaceelan__annotation_adb909f7cbb040787573b32095b7aa14e}} 
+def {\bfseries create\+\_\+elan\+\_\+file} (str directory, str elan\+\_\+filename)
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_ae61faee3f328a952f251384d30d3b6fc}\label{namespaceelan__annotation_ae61faee3f328a952f251384d30d3b6fc}} 
+def {\bfseries decode\+\_\+elan\+\_\+file} (content)
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_a45c7dbe5a4515b262a67cec93ebd0ae0}\label{namespaceelan__annotation_a45c7dbe5a4515b262a67cec93ebd0ae0}} 
+def {\bfseries decode\+\_\+filename\+\_\+elan} (str original\+\_\+string)
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_a3baab93f1f628f364d64d95be421d0aa}\label{namespaceelan__annotation_a3baab93f1f628f364d64d95be421d0aa}} 
+def {\bfseries read\+\_\+annotations\+\_\+as\+\_\+csv} (filename)
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_a456f9f2eb0fb911a083e903045b8cb02}\label{namespaceelan__annotation_a456f9f2eb0fb911a083e903045b8cb02}} 
+def {\bfseries read\+\_\+annotations\+\_\+as\+\_\+json} (filename)
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_a11a3671518b4604bae7c83229235cb56}\label{namespaceelan__annotation_a11a3671518b4604bae7c83229235cb56}} 
+def {\bfseries read\+\_\+annotations\+\_\+as\+\_\+txt} (filename, separator=\char`\"{}\textbackslash{}t\char`\"{})
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_a86a72d9d2e2c7019ac1a0f293ecc1147}\label{namespaceelan__annotation_a86a72d9d2e2c7019ac1a0f293ecc1147}} 
+def {\bfseries update\+\_\+annotations\+\_\+timestamps} (annotations)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_a19d307fd4dab1fef900bf42e1d421e27}\label{namespaceelan__annotation_a19d307fd4dab1fef900bf42e1d421e27}} 
+string {\bfseries error\+\_\+message\+\_\+csv} = \mbox{\hyperlink{namespaceelan__annotation_a15da9cb1b39042257ae490676351c0be}{error\+\_\+message\+\_\+txt}}
+\item 
+\mbox{\Hypertarget{namespaceelan__annotation_a75694531604691daeac080ae3fd25fca}\label{namespaceelan__annotation_a75694531604691daeac080ae3fd25fca}} 
+string {\bfseries error\+\_\+message\+\_\+json} = \char`\"{}\char`\"{}
+\item 
+string \mbox{\hyperlink{namespaceelan__annotation_a15da9cb1b39042257ae490676351c0be}{error\+\_\+message\+\_\+txt}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceelan__annotation_a15da9cb1b39042257ae490676351c0be}\label{namespaceelan__annotation_a15da9cb1b39042257ae490676351c0be}} 
+\index{elan\_annotation@{elan\_annotation}!error\_message\_txt@{error\_message\_txt}}
+\index{error\_message\_txt@{error\_message\_txt}!elan\_annotation@{elan\_annotation}}
+\doxysubsubsection{\texorpdfstring{error\_message\_txt}{error\_message\_txt}}
+{\footnotesize\ttfamily string error\+\_\+message\+\_\+txt}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 =  \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{2 \textcolor{stringliteral}{The file should contain 12 columns. Please make sure you have not changed any parameters in }}
+\DoxyCodeLine{3 \textcolor{stringliteral}{the Elan software. When exporting as TXT, make sure that you have included the time values }}
+\DoxyCodeLine{4 \textcolor{stringliteral}{for:}}
+\DoxyCodeLine{5 \textcolor{stringliteral}{-\/ start time,}}
+\DoxyCodeLine{6 \textcolor{stringliteral}{-\/ end time}}
+\DoxyCodeLine{7 \textcolor{stringliteral}{-\/ duration}}
+\DoxyCodeLine{8 \textcolor{stringliteral}{These values have to be in 3 first formats }}
+\DoxyCodeLine{9 \textcolor{stringliteral}{proposed by Elan : }}
+\DoxyCodeLine{10 \textcolor{stringliteral}{-\/ 'hh:mm:ss.ms'}}
+\DoxyCodeLine{11 \textcolor{stringliteral}{-\/'ss.msec'}}
+\DoxyCodeLine{12 \textcolor{stringliteral}{-\/'msec'}}
+\DoxyCodeLine{13 \textcolor{stringliteral}{}}
+\DoxyCodeLine{14 \textcolor{stringliteral}{This should by the configuration when clicking the export button:}}
+\DoxyCodeLine{15 \textcolor{stringliteral}{[ ] Limité à l'interval de temps séléctionné}}
+\DoxyCodeLine{16 \textcolor{stringliteral}{[x] Ajouter l'offset média principal à l'annotation}}
+\DoxyCodeLine{17 \textcolor{stringliteral}{[x] Include header lines containing media file information}}
+\DoxyCodeLine{18 \textcolor{stringliteral}{[ ] Exclude tier name from output}}
+\DoxyCodeLine{19 \textcolor{stringliteral}{[ ] Exclude participant name from output}}
+\DoxyCodeLine{20 \textcolor{stringliteral}{[ ] Colonne séparée pour chaque piste}}
+\DoxyCodeLine{21 \textcolor{stringliteral}{[ ] Include description from the controlled vocabulary}}
+\DoxyCodeLine{22 \textcolor{stringliteral}{}}
+\DoxyCodeLine{23 \textcolor{stringliteral}{Inclure la colonne d'heure pour: | Inclure le format d'heure:}}
+\DoxyCodeLine{24 \textcolor{stringliteral}{[x] Temps de départ              | [x] hh:mm:ss.ms}}
+\DoxyCodeLine{25 \textcolor{stringliteral}{[x] temps de fin                 | [x] ss.msec}}
+\DoxyCodeLine{26 \textcolor{stringliteral}{[x] Durée                        | [x] msec}}
+\DoxyCodeLine{27 \textcolor{stringliteral}{                                 | [ ] SMPTE Timecode (hh:mm:ss:ff)}}
+\DoxyCodeLine{28 \textcolor{stringliteral}{"{}"{}"{}}}
+
+\end{DoxyCode}

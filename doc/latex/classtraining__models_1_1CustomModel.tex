@@ -1,0 +1,76 @@
+\hypertarget{classtraining__models_1_1CustomModel}{}\doxysection{Custom\+Model Class Reference}
+\label{classtraining__models_1_1CustomModel}\index{CustomModel@{CustomModel}}
+
+
+Main class of Neural networks trained here.  
+
+
+Inheritance diagram for Custom\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.176166cm]{classtraining__models_1_1CustomModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classtraining__models_1_1CustomModel_ae64f0875afe3067b97ba370b354b9213}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1CustomModel_a9a47563093dfc5ba12274b66e368920c}\label{classtraining__models_1_1CustomModel_a9a47563093dfc5ba12274b66e368920c}} 
+def {\bfseries \+\_\+\+\_\+repr\+\_\+\+\_\+} (self)
+\item 
+\mbox{\Hypertarget{classtraining__models_1_1CustomModel_a23e8041ce1015febe4fdace3225714f9}\label{classtraining__models_1_1CustomModel_a23e8041ce1015febe4fdace3225714f9}} 
+def {\bfseries \+\_\+\+\_\+str\+\_\+\+\_\+} (self)
+\begin{DoxyCompactList}\small\item\em The \char`\"{}name\char`\"{} of the networks briefly prints all its parameters. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1CustomModel_acf1944b0e7acf8154d0ea45aa348c953}\label{classtraining__models_1_1CustomModel_acf1944b0e7acf8154d0ea45aa348c953}} 
+def {\bfseries update\+\_\+device} (self)
+\begin{DoxyCompactList}\small\item\em Update the device to move from the CPU to GPU or from GPU to CPU. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtraining__models_1_1CustomModel_a9f8cdd1722935de699a4c018b77b02e0}{number\+\_\+of\+\_\+outputs}}
+\begin{DoxyCompactList}\small\item\em Number of values the model has to predict. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1CustomModel_a1e83df075734cb7c5bebb742760fb715}\label{classtraining__models_1_1CustomModel_a1e83df075734cb7c5bebb742760fb715}} 
+{\bfseries use\+\_\+concat\+\_\+pir}
+\begin{DoxyCompactList}\small\item\em Specify if we have one neural module for each sensor or if we merge them together. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtraining__models_1_1CustomModel_ade3d297940a3ce4166bc3632c2fb7f10}\label{classtraining__models_1_1CustomModel_ade3d297940a3ce4166bc3632c2fb7f10}} 
+{\bfseries use\+\_\+cuda}
+\begin{DoxyCompactList}\small\item\em Specify if this model can be used on the GPU or need the CPU. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Main class of Neural networks trained here. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtraining__models_1_1CustomModel_ae64f0875afe3067b97ba370b354b9213}\label{classtraining__models_1_1CustomModel_ae64f0875afe3067b97ba370b354b9213}} 
+\index{CustomModel@{CustomModel}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!CustomModel@{CustomModel}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+
+Reimplemented in \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsLinearModule_ad8933f9843ae9bb1688670b773d6166e}{Multiple\+Wavelets\+Linear\+Module}}, \mbox{\hyperlink{classtraining__models_1_1ResidualNet_ad162e933a1e877547dda0690e6c85829}{Residual\+Net}}, \mbox{\hyperlink{classtraining__models_1_1MultipleWaveletsModule_a21788b4625919aacc92a4a972bf99ab4}{Multiple\+Wavelets\+Module}}, and \mbox{\hyperlink{classtraining__models_1_1PretrainedModel_ab833151ed42585254abae8d1f4f2be2e}{Pretrained\+Model}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtraining__models_1_1CustomModel_a9f8cdd1722935de699a4c018b77b02e0}\label{classtraining__models_1_1CustomModel_a9f8cdd1722935de699a4c018b77b02e0}} 
+\index{CustomModel@{CustomModel}!number\_of\_outputs@{number\_of\_outputs}}
+\index{number\_of\_outputs@{number\_of\_outputs}!CustomModel@{CustomModel}}
+\doxysubsubsection{\texorpdfstring{number\_of\_outputs}{number\_of\_outputs}}
+{\footnotesize\ttfamily number\+\_\+of\+\_\+outputs}
+
+
+
+Number of values the model has to predict. 
+
+It\textquotesingle{}s way easier for now to predict one single value at a time. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{training__models_8py}{training\+\_\+models.\+py}}\end{DoxyCompactItemize}

@@ -1,0 +1,70 @@
+\hypertarget{deep__neural__training_8py}{}\doxysection{deep\+\_\+neural\+\_\+training.\+py File Reference}
+\label{deep__neural__training_8py}\index{deep\_neural\_training.py@{deep\_neural\_training.py}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classdeep__neural__training_1_1PIR__DataLoader}{PIR\+\_\+\+Data\+Loader}}
+\begin{DoxyCompactList}\small\item\em Class that creates a dataloader that applies the desired transformations to the data before sending them as torch Tensors. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacedeep__neural__training}{deep\+\_\+neural\+\_\+training}}
+\begin{DoxyCompactList}\small\item\em This script is used to train neural networks to predict gait characteristics from the sensors data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+np.\+ndarray \mbox{\hyperlink{namespacedeep__neural__training_a91e159d90a9e3ecf785ac5a12569af07}{compute\+\_\+morlet\+\_\+transform}} (pir\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Function that creates an image from the Continuous Wavelet Transform of a signal. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_a90a4c952181ef24f811adbfc1bf430ba}\label{namespacedeep__neural__training_a90a4c952181ef24f811adbfc1bf430ba}} 
+def {\bfseries correlation\+\_\+loss} (x, y)
+\begin{DoxyCompactList}\small\item\em A custom loss function that tries to optimize the correlation of the predictions with the ground truth Using this method can be interesting if you want your neural models to have better correlations in their results instead of lower errors. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_acb7181f8b7a7537d1eff04b628718ea1}{create\+\_\+all\+\_\+combinaisons}} (dict hyperparameters)
+\begin{DoxyCompactList}\small\item\em From a set of parameters, create all the combinations possible. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{namespacedeep__neural__training_a33aed70322ebb5d771aa8105014907f5}{display}} (str path\+\_\+to\+\_\+save\+\_\+cnn, str pir\+\_\+transforms\+\_\+filename=\textquotesingle{}all\+\_\+pirs\+\_\+transformed.\+data\textquotesingle{}, bool display\+\_\+all\+\_\+models=False)
+\begin{DoxyCompactList}\small\item\em Main function to display the results of your trained networks. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_aa1dd72fda291967ef622ef447ab5a354}{display\+\_\+classification\+\_\+test\+\_\+results}} (dict results, List classes)
+\begin{DoxyCompactList}\small\item\em Function to display the results when testing a classifier This function cannot be used for regression, but might be useful for an action classifier for example. \end{DoxyCompactList}\item 
+Tuple\mbox{[}Any, pd.\+Data\+Frame\mbox{]} \mbox{\hyperlink{namespacedeep__neural__training_a1eee5dccc1cd8716b39c8ec9528fd2c2}{display\+\_\+models}} (str filename, test\+\_\+loader, float ignore\+\_\+if\+\_\+accuracy\+\_\+lower=0.\+0, float ignore\+\_\+if\+\_\+val\+\_\+err\+\_\+higher=math.\+inf, float max\+\_\+y\+\_\+val=math.\+inf, str ignored\+\_\+files=\textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{}, List scalers=None, str order\+\_\+by=\textquotesingle{}correlation\textquotesingle{}, bool bigger\+\_\+is\+\_\+better=True, bool display\+\_\+all\+\_\+models=False)
+\begin{DoxyCompactList}\small\item\em Display all the trained models with the learning curve and the results of the best model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_a17876c3e20a2bb5f13251077dcb1bd58}\label{namespacedeep__neural__training_a17876c3e20a2bb5f13251077dcb1bd58}} 
+def {\bfseries main} ()
+\item 
+None \mbox{\hyperlink{namespacedeep__neural__training_a646a2750ead77aee2340eeff3dc2105b}{merge\+\_\+models\+\_\+in\+\_\+one\+\_\+file}} (str path\+\_\+to\+\_\+cnn, str ignored\+\_\+files=\textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em When doing a training, each model is stored in a different file. \end{DoxyCompactList}\item 
+Tuple\mbox{[}pd.\+Data\+Frame, Dict\mbox{]} \mbox{\hyperlink{namespacedeep__neural__training_a923cd9728ba05288c9a3350a3c2b227e}{normalize}} (pd.\+Data\+Frame df, Union\mbox{[}list, str\mbox{]} concerned\+\_\+columns=\textquotesingle{}all\textquotesingle{}, list ignored\+\_\+columns=None)
+\begin{DoxyCompactList}\small\item\em Function to normalize the data from a Data\+Frame. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_ae9f6d73feb68eb129f56d68dcf292e89}{plot\+\_\+confusion\+\_\+matrix}} (cm, List classes)
+\begin{DoxyCompactList}\small\item\em Function to display the confusion matrix (for models doing classification only) I leave this function here if you need to use it in the future (doing action classification for example) \end{DoxyCompactList}\item 
+Dict \mbox{\hyperlink{namespacedeep__neural__training_a0a0c3e668e77b9622f09b05dbb33afc0}{precompute\+\_\+morlet\+\_\+transforms}} (pd.\+Data\+Frame raw\+\_\+data, str pir\+\_\+transforms\+\_\+filename=\textquotesingle{}all\+\_\+pirs\+\_\+transformed.\+data\textquotesingle{}, Union\mbox{[}str, bool\mbox{]} output\+\_\+filename=True)
+\begin{DoxyCompactList}\small\item\em Function that compute all the Continuous Wavelet Transforms of the dataset and store them in a Pickle file. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{namespacedeep__neural__training_abb4a346f91a6b046e14e92047e18eaf7}{remove\+\_\+useless\+\_\+models}} (str path\+\_\+to\+\_\+cnn, str ignored\+\_\+files=\textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Function to store the models with really bad results in a file containing the \char`\"{}ignore\+\_\+file\char`\"{} pattern, so it won\textquotesingle{}t be taken in consideration during the display process of the training results. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_af9c0f5944fa212a1cd9307a68c6a878d}{test\+\_\+model}} (Custom\+Model model, testloader, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{}, scalers=None)
+\begin{DoxyCompactList}\small\item\em Function to test a model on a dataset The procedure is the same as the training, except we don\textquotesingle{}t update the model. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_a4b6b01bf6c8f23259827b9a65f68a5f2}{train\+\_\+model}} (trainloader, validationloader, Type\mbox{[}Custom\+Model\mbox{]} model\+\_\+class=Multiple\+Wavelets\+Module, Dict model\+\_\+parameters=None, Type\mbox{[}nn.\+Module\mbox{]} loss\+\_\+function=nn.\+Cross\+Entropy\+Loss, bool training\+\_\+for\+\_\+autoencoder=False, Any optimizer=None, float learning\+\_\+rate=0.\+010, int num\+\_\+epochs=5, Union\mbox{[}bool, int\mbox{]} early\+\_\+stopping=False, float display\+\_\+precision=100, Union\mbox{[}bool, int\mbox{]} verbose=True, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Train function, give it your dataset, the parameters of your model, and there you go. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{namespacedeep__neural__training_a21c590956900654d77c57a84d91e4127}{training}} (str path\+\_\+to\+\_\+save\+\_\+cnn, str pir\+\_\+transforms\+\_\+filename=\textquotesingle{}all\+\_\+pirs\+\_\+transformed.\+data\textquotesingle{}, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{}, int number\+\_\+of\+\_\+models\+\_\+trained=math.\+inf)
+\begin{DoxyCompactList}\small\item\em Main training function that make dataloader from the dataset, defines the model parameters and training parameters that will be used to train all the models. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_a6baf55a45d6651841e446f206e60debd}{try\+\_\+all\+\_\+models}} (dict hyperparameters, train\+\_\+set, validation\+\_\+set, testing\+\_\+set, dict training\+\_\+parameters=\{\}, Type\mbox{[}Custom\+Model\mbox{]} model\+\_\+class=Multiple\+Wavelets\+Module, Type\mbox{[}nn.\+modules.\+loss.\+Module\mbox{]} loss\+\_\+function=nn.\+Cross\+Entropy\+Loss, optimizer=False, bool training\+\_\+for\+\_\+autoencoder=False, float learning\+\_\+rate=0.\+001, int num\+\_\+epochs=5, Union\mbox{[}float, int\mbox{]} display\+\_\+precision=1.\+0, Union\mbox{[}bool, int\mbox{]} early\+\_\+stopping=True, Union\mbox{[}bool, str\mbox{]} save\+\_\+as=False, bool start\+\_\+from\+\_\+beginning=True, Union\mbox{[}bool, int\mbox{]} verbose=3, str ignored\+\_\+files=\textquotesingle{}\+\_\+useless\+\_\+\textquotesingle{}, List scalers=None, int max\+\_\+number\+\_\+of\+\_\+models=math.\+inf, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Launch the training function for every possible combination of neural network. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacedeep__neural__training_ad8c130af96124879abb7a6e134a49676}{visualize\+\_\+model}} (Custom\+Model model, testloader, str estimated\+\_\+parameter=\textquotesingle{}body\+\_\+speed\textquotesingle{}, dict scalers=None, bool results\+\_\+with\+\_\+color=False)
+\begin{DoxyCompactList}\small\item\em Function that display the results of a model on a dataset. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+dictionary \mbox{\hyperlink{namespacedeep__neural__training_a8efe93674bff0c401758141a221389e3}{all\+\_\+pretrained\+\_\+models}}
+\begin{DoxyCompactList}\small\item\em List of all \char`\"{}pretrained\char`\"{} models that can be used in the training. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_a9e94c3c0e7581f24802fc332ca1073a0}\label{namespacedeep__neural__training_a9e94c3c0e7581f24802fc332ca1073a0}} 
+{\bfseries cpu} = torch.\+device(\textquotesingle{}cpu\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Device that handle the CPU usage. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_aff103944954c132fd1d6d2cb81f76d73}\label{namespacedeep__neural__training_aff103944954c132fd1d6d2cb81f76d73}} 
+{\bfseries cuda} = torch.\+device(\textquotesingle{}cuda\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Device that handle the GPU usage. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_adbdec58595587fea1750c91cd18315fb}\label{namespacedeep__neural__training_adbdec58595587fea1750c91cd18315fb}} 
+{\bfseries device} = cuda if torch.\+cuda.\+is\+\_\+available() else cpu
+\begin{DoxyCompactList}\small\item\em Current device used\+: CPU or GPU. \end{DoxyCompactList}\item 
+dictionary \mbox{\hyperlink{namespacedeep__neural__training_a1b46d1a004c17152d9ded1343a55c430}{estimable\+\_\+parameters}}
+\begin{DoxyCompactList}\small\item\em List of walking parameters on which we can train a network. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespacedeep__neural__training_a0ad8ed6e0196a9477f123c6bf569233b}\label{namespacedeep__neural__training_a0ad8ed6e0196a9477f123c6bf569233b}} 
+bool {\bfseries use\+\_\+cuda} = True
+\begin{DoxyCompactList}\small\item\em Keep track whever we are using the CPU or the GPU. \end{DoxyCompactList}\end{DoxyCompactItemize}

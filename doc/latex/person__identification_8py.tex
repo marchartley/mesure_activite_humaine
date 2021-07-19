@@ -1,0 +1,140 @@
+\hypertarget{person__identification_8py}{}\doxysection{person\+\_\+identification.\+py File Reference}
+\label{person__identification_8py}\index{person\_identification.py@{person\_identification.py}}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceperson__identification}{person\+\_\+identification}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a9014187426db595ac5541c16b02b2bd5}\label{namespaceperson__identification_a9014187426db595ac5541c16b02b2bd5}} 
+def {\bfseries create\+\_\+encodings} (images\+\_\+filenames, save\+\_\+filename=None, verbose=False)
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_aa786db457ff1b13c25ff233ebc62ca17}\label{namespaceperson__identification_aa786db457ff1b13c25ff233ebc62ca17}} 
+def {\bfseries get\+\_\+classifier\+\_\+for\+\_\+person\+\_\+identification} (filename)
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a39425951b94b7dd4545a0b09c3d93710}\label{namespaceperson__identification_a39425951b94b7dd4545a0b09c3d93710}} 
+def {\bfseries get\+\_\+encodings} (filename, verbose=False)
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a84d3600a27a238db380b27036f143f30}\label{namespaceperson__identification_a84d3600a27a238db380b27036f143f30}} 
+def {\bfseries recognize\+\_\+person} (human, frame, all\+\_\+faces\+\_\+encodings=None, classifier=None)
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_ab3a6cac42276376fc7748731f05be586}\label{namespaceperson__identification_ab3a6cac42276376fc7748731f05be586}} 
+def {\bfseries train\+\_\+classifier\+\_\+for\+\_\+person\+\_\+identification} (images, filename\+\_\+to\+\_\+save\+\_\+classifier=None)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a6c52c4bac77f6744fdc338766e9e8a6f}\label{namespaceperson__identification_a6c52c4bac77f6744fdc338766e9e8a6f}} 
+{\bfseries align} = rs.\+align(align\+\_\+to)
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a918f848730cbedf43d584f821d6270e1}\label{namespaceperson__identification_a918f848730cbedf43d584f821d6270e1}} 
+{\bfseries align\+\_\+to} = rs.\+stream.\+depth
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_ae18647ea0eb016471b964b5dda4ea754}\label{namespaceperson__identification_ae18647ea0eb016471b964b5dda4ea754}} 
+int {\bfseries best\+\_\+match} = -\/1
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a1e1e13bec2639fca768af56dd3b64e9a}\label{namespaceperson__identification_a1e1e13bec2639fca768af56dd3b64e9a}} 
+{\bfseries bottom}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a83725fb4531b757b74f93cd1ee9ca8ba}\label{namespaceperson__identification_a83725fb4531b757b74f93cd1ee9ca8ba}} 
+def {\bfseries classifier} = train\+\_\+classifier\+\_\+for\+\_\+person\+\_\+identification(images, \char`\"{}models/svc.\+classif\char`\"{})
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a3cf365ee8b53915a597f9077bc613933}\label{namespaceperson__identification_a3cf365ee8b53915a597f9077bc613933}} 
+{\bfseries color\+\_\+frame} = frames.\+get\+\_\+color\+\_\+frame()
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a49499f173e93f624ecf78344e9cfac0a}\label{namespaceperson__identification_a49499f173e93f624ecf78344e9cfac0a}} 
+int {\bfseries current\+\_\+timestamp} = 0
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_ad83cf0efa33217619285a87ae9bdfa54}\label{namespaceperson__identification_ad83cf0efa33217619285a87ae9bdfa54}} 
+{\bfseries data2D}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a550bc0d2ce737ff41a63a5026216064b}\label{namespaceperson__identification_a550bc0d2ce737ff41a63a5026216064b}} 
+{\bfseries data3D}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a963cec8555428bd6970240adca640a11}\label{namespaceperson__identification_a963cec8555428bd6970240adca640a11}} 
+{\bfseries depth\+\_\+frame} = frames.\+get\+\_\+depth\+\_\+frame()
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_aee6c987e504d42df8561efa619587d43}\label{namespaceperson__identification_aee6c987e504d42df8561efa619587d43}} 
+list {\bfseries distance} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a5db79e1f23b9b1582931d99810de92ba}\label{namespaceperson__identification_a5db79e1f23b9b1582931d99810de92ba}} 
+{\bfseries face\+\_\+distances} = np.\+array(\mbox{[}$\,$\mbox{]})
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a96296160fab7a11501cb349f6d8daf11}\label{namespaceperson__identification_a96296160fab7a11501cb349f6d8daf11}} 
+{\bfseries face\+\_\+encodings} = face\+\_\+recognition.\+face\+\_\+encodings(rgb\+\_\+small\+\_\+frame, face\+\_\+locations, model = \textquotesingle{}small\textquotesingle{})
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a36681b17c8a80a4f7b44d9ca5cbb882e}\label{namespaceperson__identification_a36681b17c8a80a4f7b44d9ca5cbb882e}} 
+list {\bfseries face\+\_\+locations} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a6bd2f7bdb43c22f285a2a2edda6c4cca}\label{namespaceperson__identification_a6bd2f7bdb43c22f285a2a2edda6c4cca}} 
+string {\bfseries found\+\_\+person\+\_\+name} = \char`\"{}\char`\"{}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a76a412a38642b618caf4a30f4cd2703c}\label{namespaceperson__identification_a76a412a38642b618caf4a30f4cd2703c}} 
+{\bfseries frames} = pipeline.\+wait\+\_\+for\+\_\+frames()
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a837c6e3c9f653e8f2ce467a2e8ba1d42}\label{namespaceperson__identification_a837c6e3c9f653e8f2ce467a2e8ba1d42}} 
+{\bfseries human} = None
+\item 
+list \mbox{\hyperlink{namespaceperson__identification_a09fdf86df724fb528e53a740e45fb686}{images}}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_ab052dc7865182b40e326c7bfdbd237f2}\label{namespaceperson__identification_ab052dc7865182b40e326c7bfdbd237f2}} 
+float {\bfseries joint\+\_\+confidence} = 0.\+4
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_ab66ed8e0098c0a86b458672a55a9cca9}\label{namespaceperson__identification_ab66ed8e0098c0a86b458672a55a9cca9}} 
+int {\bfseries k} = cv2.\+wait\+Key(1) \& 0x\+FF
+\item 
+list \mbox{\hyperlink{namespaceperson__identification_a0f59db5220a1b7eca136f6e360055d03}{labels}}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a58c76f848f15df202254c1daec468567}\label{namespaceperson__identification_a58c76f848f15df202254c1daec468567}} 
+{\bfseries left}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a3ad9ce11a44ad14666413c46b51b412f}\label{namespaceperson__identification_a3ad9ce11a44ad14666413c46b51b412f}} 
+int {\bfseries min\+\_\+height} = 1000
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a82643a978b4e724d30ea7b3e8eae3645}\label{namespaceperson__identification_a82643a978b4e724d30ea7b3e8eae3645}} 
+{\bfseries mini} = np.\+zeros((1, 1, 3))
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_aa10295c7de455aedafd7eefe33a2d164}\label{namespaceperson__identification_aa10295c7de455aedafd7eefe33a2d164}} 
+int {\bfseries num\+\_\+frame} = 0
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_aedb80de0d37c4e75d206b73b7449fbba}\label{namespaceperson__identification_aedb80de0d37c4e75d206b73b7449fbba}} 
+int {\bfseries number\+\_\+of\+\_\+faces\+\_\+detection} = 0
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a2320134bb04bbea3b4d6ff0569d3a746}\label{namespaceperson__identification_a2320134bb04bbea3b4d6ff0569d3a746}} 
+{\bfseries pipeline} = rs.\+pipeline()
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a0448fec049217e428b9ec21c03e51d52}\label{namespaceperson__identification_a0448fec049217e428b9ec21c03e51d52}} 
+bool {\bfseries playing} = True
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a376096326b9aa22b841978a14e0ddf72}\label{namespaceperson__identification_a376096326b9aa22b841978a14e0ddf72}} 
+int {\bfseries previous\+\_\+timestamp} = 0
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_af5600af02705f729985a5ae291ac5e15}\label{namespaceperson__identification_af5600af02705f729985a5ae291ac5e15}} 
+float {\bfseries proba} = 0.\+0
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_ae66431416ba96050d5da0dff9c526a58}\label{namespaceperson__identification_ae66431416ba96050d5da0dff9c526a58}} 
+{\bfseries rgb\+\_\+small\+\_\+frame} = color\+\_\+frame.\+copy()
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a25331d5f9601b8cb1ce57490930d7c01}\label{namespaceperson__identification_a25331d5f9601b8cb1ce57490930d7c01}} 
+{\bfseries right}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a3e587535d623a3a344797f5e06280939}\label{namespaceperson__identification_a3e587535d623a3a344797f5e06280939}} 
+{\bfseries server\+\_\+side}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a97b2d29fcdc9388c0b4bf0595a0acfdb}\label{namespaceperson__identification_a97b2d29fcdc9388c0b4bf0595a0acfdb}} 
+{\bfseries skeleton\+\_\+db2D}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a58d65baeec9ce39ec16bd118356d43e4}\label{namespaceperson__identification_a58d65baeec9ce39ec16bd118356d43e4}} 
+{\bfseries skeleton\+\_\+db3D}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_ad35e407055ae17e9ea44bb59cfa999b1}\label{namespaceperson__identification_ad35e407055ae17e9ea44bb59cfa999b1}} 
+{\bfseries specific\+\_\+timestamp}
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a2530c3908f0179486a4c2255f792e27a}\label{namespaceperson__identification_a2530c3908f0179486a4c2255f792e27a}} 
+{\bfseries start\+\_\+time} = time.\+time()
+\item 
+\mbox{\Hypertarget{namespaceperson__identification_a8aab264665f2085687d9eeca4c67a691}\label{namespaceperson__identification_a8aab264665f2085687d9eeca4c67a691}} 
+{\bfseries top}
+\end{DoxyCompactItemize}

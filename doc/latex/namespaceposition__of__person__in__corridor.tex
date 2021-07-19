@@ -1,0 +1,105 @@
+\hypertarget{namespaceposition__of__person__in__corridor}{}\doxysection{position\+\_\+of\+\_\+person\+\_\+in\+\_\+corridor Namespace Reference}
+\label{namespaceposition__of__person__in__corridor}\index{position\_of\_person\_in\_corridor@{position\_of\_person\_in\_corridor}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classposition__of__person__in__corridor_1_1Map}{Map}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_ae760f3974d3ae3840dd028bb8d0d6b7c}\label{namespaceposition__of__person__in__corridor_ae760f3974d3ae3840dd028bb8d0d6b7c}} 
+def {\bfseries add\+\_\+image} (image, new\+\_\+image, new\+\_\+image\+\_\+coord, alpha=1.\+0, image\+\_\+position=\char`\"{}center\char`\"{}, angle=0.\+0)
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a12e21185d9733471c2ffd703eae13d25}\label{namespaceposition__of__person__in__corridor_a12e21185d9733471c2ffd703eae13d25}} 
+def {\bfseries draw\+\_\+arrow} (image, start, end, color=(255, 255, 255), thickness=2)
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a59a3f9bbfc4f9e7e6c4f7f1befb2c956}\label{namespaceposition__of__person__in__corridor_a59a3f9bbfc4f9e7e6c4f7f1befb2c956}} 
+def {\bfseries draw\+\_\+cross} (image, position, cross\+\_\+size=3, color=(0, 0, 0), thickness=2)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a6c52c4bac77f6744fdc338766e9e8a6f}\label{namespaceposition__of__person__in__corridor_a6c52c4bac77f6744fdc338766e9e8a6f}} 
+{\bfseries align} = rs.\+align(rs.\+stream.\+color)
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a2f28482ae4ba02c4483e262ea80d936f}\label{namespaceposition__of__person__in__corridor_a2f28482ae4ba02c4483e262ea80d936f}} 
+{\bfseries aruco\+\_\+dict} = aruco.\+Dictionary\+\_\+get(aruco.\+DICT\+\_\+6\+X6\+\_\+250)
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a55ae8b03585177a8dc663516629ebf26}\label{namespaceposition__of__person__in__corridor_a55ae8b03585177a8dc663516629ebf26}} 
+list {\bfseries aruco\+\_\+origin} = \mbox{[}0, 0, 0\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a3cf365ee8b53915a597f9077bc613933}\label{namespaceposition__of__person__in__corridor_a3cf365ee8b53915a597f9077bc613933}} 
+{\bfseries color\+\_\+frame} = np.\+asanyarray(frames.\+get\+\_\+color\+\_\+frame().get\+\_\+data()).copy()
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_ad2256458892609d0533df5d72a7257ad}\label{namespaceposition__of__person__in__corridor_ad2256458892609d0533df5d72a7257ad}} 
+{\bfseries config} = rs.\+config()
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_af9d23a302c24f0ec934688542ce94817}\label{namespaceposition__of__person__in__corridor_af9d23a302c24f0ec934688542ce94817}} 
+{\bfseries corners}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a963cec8555428bd6970240adca640a11}\label{namespaceposition__of__person__in__corridor_a963cec8555428bd6970240adca640a11}} 
+{\bfseries depth\+\_\+frame} = frames.\+get\+\_\+depth\+\_\+frame()
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a76a412a38642b618caf4a30f4cd2703c}\label{namespaceposition__of__person__in__corridor_a76a412a38642b618caf4a30f4cd2703c}} 
+{\bfseries frames} = pipeline.\+wait\+\_\+for\+\_\+frames()
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a837c6e3c9f653e8f2ce467a2e8ba1d42}\label{namespaceposition__of__person__in__corridor_a837c6e3c9f653e8f2ce467a2e8ba1d42}} 
+{\bfseries human} = \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton}{human\+\_\+skeleton.\+Human\+Skeleton}}()
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a0a9b879f29cc1e1e03ffc7851f7c19b9}\label{namespaceposition__of__person__in__corridor_a0a9b879f29cc1e1e03ffc7851f7c19b9}} 
+{\bfseries ids}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_ab052dc7865182b40e326c7bfdbd237f2}\label{namespaceposition__of__person__in__corridor_ab052dc7865182b40e326c7bfdbd237f2}} 
+float {\bfseries joint\+\_\+confidence} = 0.\+2
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a35af0be900467fedbb610bd6ea65ed78}\label{namespaceposition__of__person__in__corridor_a35af0be900467fedbb610bd6ea65ed78}} 
+int {\bfseries key} = cv2.\+wait\+Key(1) \& 0x\+FF
+\item 
+\mbox{\hyperlink{namespaceposition__of__person__in__corridor_ab95242e4e55ed66b5f56fd1bc08711ec}{maraudeur}}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_aa15584d40162ae8d913e1581b4b8c382}\label{namespaceposition__of__person__in__corridor_aa15584d40162ae8d913e1581b4b8c382}} 
+{\bfseries marked\+\_\+frame}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a5da7fce676a0093a189c425e2373902f}\label{namespaceposition__of__person__in__corridor_a5da7fce676a0093a189c425e2373902f}} 
+{\bfseries marker\+\_\+corners} = None
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a77890c484646396778e01c8c9452090c}\label{namespaceposition__of__person__in__corridor_a77890c484646396778e01c8c9452090c}} 
+{\bfseries marker\+\_\+size} = convert\+\_\+realsense\+\_\+to\+\_\+real\+\_\+world.\+marker\+\_\+size
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a294a441ec8594c36d66418675f9008f2}\label{namespaceposition__of__person__in__corridor_a294a441ec8594c36d66418675f9008f2}} 
+{\bfseries number\+\_\+of\+\_\+persons} = skeletrack.\+get\+\_\+number\+\_\+of\+\_\+skeletons()
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a2320134bb04bbea3b4d6ff0569d3a746}\label{namespaceposition__of__person__in__corridor_a2320134bb04bbea3b4d6ff0569d3a746}} 
+{\bfseries pipeline} = rs.\+pipeline()
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a0448fec049217e428b9ec21c03e51d52}\label{namespaceposition__of__person__in__corridor_a0448fec049217e428b9ec21c03e51d52}} 
+bool {\bfseries playing} = True
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a32bc7630bd2aef23f9b87fd0c7db63bf}\label{namespaceposition__of__person__in__corridor_a32bc7630bd2aef23f9b87fd0c7db63bf}} 
+list {\bfseries previous\+\_\+left} = \mbox{[}0, 0, 0\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a067d44d4e1637ef4da9d37db22d70641}\label{namespaceposition__of__person__in__corridor_a067d44d4e1637ef4da9d37db22d70641}} 
+list {\bfseries previous\+\_\+right} = \mbox{[}0, 0, 0\mbox{]}
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_ae9b106c90d808bcdcc3f8d1ca3764252}\label{namespaceposition__of__person__in__corridor_ae9b106c90d808bcdcc3f8d1ca3764252}} 
+{\bfseries skeletons} = skeletrack.\+track\+\_\+skeletons(\mbox{\hyperlink{namespaceposition__of__person__in__corridor_a3cf365ee8b53915a597f9077bc613933}{color\+\_\+frame}}, debug\+\_\+time=False)
+\item 
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_a3406db06e0d5f946a6816d1b3a15d4b6}\label{namespaceposition__of__person__in__corridor_a3406db06e0d5f946a6816d1b3a15d4b6}} 
+{\bfseries skeletrack} = st.\+Skeleton\+Tracker(choose\+\_\+best\+\_\+module=True, \mbox{\hyperlink{namespaceposition__of__person__in__corridor_a2320134bb04bbea3b4d6ff0569d3a746}{pipeline}}=\mbox{\hyperlink{namespaceposition__of__person__in__corridor_a2320134bb04bbea3b4d6ff0569d3a746}{pipeline}})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceposition__of__person__in__corridor_ab95242e4e55ed66b5f56fd1bc08711ec}\label{namespaceposition__of__person__in__corridor_ab95242e4e55ed66b5f56fd1bc08711ec}} 
+\index{position\_of\_person\_in\_corridor@{position\_of\_person\_in\_corridor}!maraudeur@{maraudeur}}
+\index{maraudeur@{maraudeur}!position\_of\_person\_in\_corridor@{position\_of\_person\_in\_corridor}}
+\doxysubsubsection{\texorpdfstring{maraudeur}{maraudeur}}
+{\footnotesize\ttfamily maraudeur}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 =  Map(10, 10, center\_x=5, center\_y=0, marker\_size=marker\_size,}
+\DoxyCodeLine{2                     marker\_position=\textcolor{stringliteral}{"{}camera"{}})}
+
+\end{DoxyCode}
