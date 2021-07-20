@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['abline_44',['abline',['../namespaceMTL.html#a617694ceec732dd562db9387676a7d78',1,'MTL.abline()'],['../namespaceMLP__training.html#a525fff1877b618c6d75adbe09b932d9a',1,'MLP_training.abline()']]],
+  ['abline_44',['abline',['../namespaceMLP__training.html#a525fff1877b618c6d75adbe09b932d9a',1,'MLP_training.abline()'],['../namespaceMTL.html#a617694ceec732dd562db9387676a7d78',1,'MTL.abline()']]],
   ['accessed_5fservers_45',['accessed_servers',['../namespacegrant__access__server.html#a35e15990246b1accc569abf12ebe999a',1,'grant_access_server']]],
-  ['action_46',['action',['../namespacerosbag__to__videos.html#a2f4ab7bf743142dae2e459aa18f9f1d4',1,'rosbag_to_videos.action()'],['../namespacesave__skeleton__to__server.html#a2f4ab7bf743142dae2e459aa18f9f1d4',1,'save_skeleton_to_server.action()'],['../namespacerecording.html#a2f4ab7bf743142dae2e459aa18f9f1d4',1,'recording.action()'],['../namespacedirect__camera__to__db.html#a2f4ab7bf743142dae2e459aa18f9f1d4',1,'direct_camera_to_db.action()']]],
+  ['action_46',['action',['../namespacesave__skeleton__to__server.html#a2f4ab7bf743142dae2e459aa18f9f1d4',1,'save_skeleton_to_server.action()'],['../namespacerosbag__to__videos.html#a2f4ab7bf743142dae2e459aa18f9f1d4',1,'rosbag_to_videos.action()'],['../namespacerecording.html#a2f4ab7bf743142dae2e459aa18f9f1d4',1,'recording.action()']]],
   ['action_5fbuttons_47',['action_buttons',['../classlabel__editor_1_1AnnotationEditor.html#a844f6f7d388fc4bae8a2bf963c032cff',1,'label_editor::AnnotationEditor']]],
   ['action_5fclassification_5fsvm_48',['action_classification_svm',['../namespacetrain__action__classifier.html#a6d1fbd5097c18d163fbfc7e906f3625a',1,'train_action_classifier']]],
   ['actions_49',['actions',['../namespacelabel__editor.html#a21c5a057476a6f973646c84aab848550',1,'label_editor']]],
@@ -18,9 +18,9 @@ var searchData=
   ['add_5fuser_5ffrom_5ftracker_59',['add_user_from_tracker',['../classuser__position__in__world_1_1Map.html#a493bf223a6f44b4740a7594a71a46dfd',1,'user_position_in_world::Map']]],
   ['add_5fusers_60',['add_users',['../classuser__position__in__world_1_1Map.html#ac1b783dbe7858bc77fc1ee0c629017b6',1,'user_position_in_world::Map']]],
   ['add_5fwalk_5ftracking_61',['add_walk_tracking',['../classuser__position__in__world_1_1Map.html#aa58d6132e98cba6264cb7730439cec90',1,'user_position_in_world::Map']]],
-  ['address_62',['address',['../namespacesave__skeleton__to__server.html#a78cdfcc19dfd37a8fc90b6b4d666c38a',1,'save_skeleton_to_server.address()'],['../namespacedirect__camera__to__db.html#a78cdfcc19dfd37a8fc90b6b4d666c38a',1,'direct_camera_to_db.address()']]],
-  ['align_63',['align',['../namespaceposition__of__person__in__corridor.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'position_of_person_in_corridor.align()'],['../namespacedraw__skeleton.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'draw_skeleton.align()'],['../namespaceopenvino__sample1.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'openvino_sample1.align()'],['../namespaceperson__identification.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'person_identification.align()'],['../namespacerecording.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'recording.align()'],['../namespaceuser__position__in__world.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'user_position_in_world.align()']]],
-  ['align_5fto_64',['align_to',['../namespaceperson__identification.html#a918f848730cbedf43d584f821d6270e1',1,'person_identification.align_to()'],['../namespacedraw__skeleton.html#a918f848730cbedf43d584f821d6270e1',1,'draw_skeleton.align_to()'],['../namespaceopenvino__sample1.html#a918f848730cbedf43d584f821d6270e1',1,'openvino_sample1.align_to()']]],
+  ['address_62',['address',['../namespacesave__skeleton__to__server.html#a78cdfcc19dfd37a8fc90b6b4d666c38a',1,'save_skeleton_to_server']]],
+  ['align_63',['align',['../namespaceposition__of__person__in__corridor.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'position_of_person_in_corridor.align()'],['../namespaceopenvino__sample1.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'openvino_sample1.align()'],['../namespaceperson__identification.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'person_identification.align()'],['../namespacerecording.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'recording.align()'],['../namespaceuser__position__in__world.html#a6c52c4bac77f6744fdc338766e9e8a6f',1,'user_position_in_world.align()']]],
+  ['align_5fto_64',['align_to',['../namespaceperson__identification.html#a918f848730cbedf43d584f821d6270e1',1,'person_identification.align_to()'],['../namespaceopenvino__sample1.html#a918f848730cbedf43d584f821d6270e1',1,'openvino_sample1.align_to()']]],
   ['all_5fdata_65',['all_data',['../namespacedisplay__pir__data.html#aadfceaa754c66ab5bae3cf19fdf6d937',1,'display_pir_data.all_data()'],['../namespaceimprove__speed__values.html#ad74a04abba8db100ea23a1f99ed7dfa7',1,'improve_speed_values.all_data()']]],
   ['all_5ffiles_66',['all_files',['../namespacerosbag__to__videos.html#ad1126d2fbe4b64feb80cc581cb61cc26',1,'rosbag_to_videos']]],
   ['all_5fprecomputed_5fspeeds_67',['all_precomputed_speeds',['../namespacefill__missing__values.html#a414910c1ab8719eba154eeb4f0e2383c',1,'fill_missing_values']]],
@@ -35,7 +35,7 @@ var searchData=
   ['apply_5ffilters_76',['apply_filters',['../namespacerealsense__filters.html#ad29ba625c3c0904b471e8e8f998aa16e',1,'realsense_filters']]],
   ['apply_5fnew_5freference_77',['apply_new_reference',['../classhuman__skeleton_1_1HumanSkeleton.html#a244a363c8bfa7a528a8ee0d08181d5b0',1,'human_skeleton::HumanSkeleton']]],
   ['apply_5ftranslation_78',['apply_translation',['../classdeep__neural__training_1_1PIR__DataLoader.html#a6011ca4938735bdf9bd9fb009ee2bf80',1,'deep_neural_training::PIR_DataLoader']]],
-  ['args_79',['args',['../namespacesave__skeleton__to__server.html#a8187411843a6284ffb964ef3fb9fcab3',1,'save_skeleton_to_server.args()'],['../namespacedirect__camera__to__db.html#a8187411843a6284ffb964ef3fb9fcab3',1,'direct_camera_to_db.args()'],['../namespacerecording.html#a8187411843a6284ffb964ef3fb9fcab3',1,'recording.args()'],['../namespacerosbag__to__videos.html#a8187411843a6284ffb964ef3fb9fcab3',1,'rosbag_to_videos.args()']]],
+  ['args_79',['args',['../namespacesave__skeleton__to__server.html#a8187411843a6284ffb964ef3fb9fcab3',1,'save_skeleton_to_server.args()'],['../namespacerecording.html#a8187411843a6284ffb964ef3fb9fcab3',1,'recording.args()'],['../namespacerosbag__to__videos.html#a8187411843a6284ffb964ef3fb9fcab3',1,'rosbag_to_videos.args()']]],
   ['aruco_5fbox_80',['aruco_box',['../namespaceconvert__realsense__to__real__world.html#a191252daef222fe9b3e8282ccfc7f85d',1,'convert_realsense_to_real_world']]],
   ['aruco_5fdetection_5ffilters_81',['aruco_detection_filters',['../namespacerealsense__filters.html#abc41609a264dc27e4aea6a8f53d4368a',1,'realsense_filters']]],
   ['aruco_5fdict_82',['aruco_dict',['../namespaceuser__position__in__world.html#a2f28482ae4ba02c4483e262ea80d936f',1,'user_position_in_world.aruco_dict()'],['../namespaceposition__of__person__in__corridor.html#a2f28482ae4ba02c4483e262ea80d936f',1,'position_of_person_in_corridor.aruco_dict()']]],
@@ -48,6 +48,5 @@ var searchData=
   ['automatic_5fcapture_2epy_89',['automatic_capture.py',['../automatic__capture_8py.html',1,'']]],
   ['automaticcapture_90',['AutomaticCapture',['../classautomatic__capture_1_1AutomaticCapture.html',1,'automatic_capture']]],
   ['available_5fmodules_5fimportance_91',['available_modules_importance',['../namespaceskeleton__tracker.html#a9a60f6b9428f29b2a32432e14e967843',1,'skeleton_tracker']]],
-  ['ax_92',['ax',['../namespacedisplay__pir__data.html#a8fa675eb2fcec5b95d9d21c670da7f30',1,'display_pir_data']]],
-  ['axis_93',['axis',['../namespacedraw__skeleton.html#accc088009d44c521706aa98d6387ee21',1,'draw_skeleton']]]
+  ['ax_92',['ax',['../namespacedisplay__pir__data.html#a8fa675eb2fcec5b95d9d21c670da7f30',1,'display_pir_data']]]
 ];

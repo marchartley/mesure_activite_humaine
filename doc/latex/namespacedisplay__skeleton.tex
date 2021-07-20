@@ -1,8 +1,41 @@
 \hypertarget{namespacedisplay__skeleton}{}\doxysection{display\+\_\+skeleton Namespace Reference}
 \label{namespacedisplay__skeleton}\index{display\_skeleton@{display\_skeleton}}
+
+
+This small script enables us to display the skeleton in 3D of the last walking stored in the database.  
+
+
 \doxysubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{namespacedisplay__skeleton_a24d9a23442d99d6094df5ac72a6f6c8d}\label{namespacedisplay__skeleton_a24d9a23442d99d6094df5ac72a6f6c8d}} 
-def {\bfseries visual\+\_\+skeleton} ()
+def \mbox{\hyperlink{namespacedisplay__skeleton_a6e476b2dbf3efbb32e9f42f3fe7e839a}{visual\+\_\+skeleton}} (\mbox{\hyperlink{namespacedisplay__skeleton_a9b637e512bff3ac1b8f769f0ad136d3f}{sequence\+\_\+id}}=-\/1)
+\begin{DoxyCompactList}\small\item\em Displays the sequence of a skeleton in a 3D plot. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespacedisplay__skeleton_a9b637e512bff3ac1b8f769f0ad136d3f}\label{namespacedisplay__skeleton_a9b637e512bff3ac1b8f769f0ad136d3f}} 
+{\bfseries sequence\+\_\+id}
 \end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This small script enables us to display the skeleton in 3D of the last walking stored in the database. 
+
+With this script you will discover that the Aruco box doesn\textquotesingle{}t align things very well... A straight walk in the corridor will result in a small deviation on the X-\/axis. Remember that if you want to distinguish walks on the \char`\"{}\+West\char`\"{}, \char`\"{}\+Center\char`\"{} and \char`\"{}\+East\char`\"{}, that you cannot separate only with the X-\/axis position of the person, but you might have to think about a small equation or, if motivated, using a SVM. 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacedisplay__skeleton_a6e476b2dbf3efbb32e9f42f3fe7e839a}\label{namespacedisplay__skeleton_a6e476b2dbf3efbb32e9f42f3fe7e839a}} 
+\index{display\_skeleton@{display\_skeleton}!visual\_skeleton@{visual\_skeleton}}
+\index{visual\_skeleton@{visual\_skeleton}!display\_skeleton@{display\_skeleton}}
+\doxysubsubsection{\texorpdfstring{visual\_skeleton()}{visual\_skeleton()}}
+{\footnotesize\ttfamily def display\+\_\+skeleton.\+visual\+\_\+skeleton (\begin{DoxyParamCaption}\item[{}]{sequence\+\_\+id = {\ttfamily -\/1} }\end{DoxyParamCaption})}
+
+
+
+Displays the sequence of a skeleton in a 3D plot. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sequence\+\_\+id} & The ID of the sequence you want to display \\
+\hline
+\end{DoxyParams}

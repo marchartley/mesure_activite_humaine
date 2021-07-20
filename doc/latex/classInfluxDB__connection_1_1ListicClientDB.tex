@@ -44,9 +44,8 @@ def {\bfseries timestamp\+\_\+to\+\_\+date\+\_\+format} (self, float timestamp, 
 \doxysubsection*{Static Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_adb411260a3d54e3207e096f9680cc001}\label{classInfluxDB__connection_1_1ListicClientDB_adb411260a3d54e3207e096f9680cc001}} 
-def {\bfseries check\+\_\+if\+\_\+body\+\_\+will\+\_\+reappear} (dict skeleton\+\_\+data, float current\+\_\+timestamp)
-\end{DoxyCompactItemize}
+bool \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a94cf1ceb8ae2653a1c11ff4594b26d1a}{check\+\_\+if\+\_\+body\+\_\+will\+\_\+reappear}} (dict skeleton\+\_\+data, float current\+\_\+timestamp)
+\begin{DoxyCompactList}\small\item\em Function that tells us if there are still somebody detected in a sequence after a given time. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
@@ -93,6 +92,26 @@ Constructor.
 
 
 \doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a94cf1ceb8ae2653a1c11ff4594b26d1a}\label{classInfluxDB__connection_1_1ListicClientDB_a94cf1ceb8ae2653a1c11ff4594b26d1a}} 
+\index{ListicClientDB@{ListicClientDB}!check\_if\_body\_will\_reappear@{check\_if\_body\_will\_reappear}}
+\index{check\_if\_body\_will\_reappear@{check\_if\_body\_will\_reappear}!ListicClientDB@{ListicClientDB}}
+\doxysubsubsection{\texorpdfstring{check\_if\_body\_will\_reappear()}{check\_if\_body\_will\_reappear()}}
+{\footnotesize\ttfamily  bool check\+\_\+if\+\_\+body\+\_\+will\+\_\+reappear (\begin{DoxyParamCaption}\item[{dict}]{skeleton\+\_\+data,  }\item[{float}]{current\+\_\+timestamp }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Function that tells us if there are still somebody detected in a sequence after a given time. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em skeleton\+\_\+data} & The data given by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a0d03067fe1ec7e0a08cbafabd6d93aec}{retrieve\+\_\+skeleton\+\_\+keypoints()}} that defines the skeleton in a sequence \\
+\hline
+{\em current\+\_\+timestamp} & The time for which we want to check if the person will be back in screen\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A boolean telling if the person will be back on screen after the given timestamp. 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a6508025197b9eeda9a0af817d0f8ca26}\label{classInfluxDB__connection_1_1ListicClientDB_a6508025197b9eeda9a0af817d0f8ca26}} 
 \index{ListicClientDB@{ListicClientDB}!get\_all\_pir\_timestamps@{get\_all\_pir\_timestamps}}
 \index{get\_all\_pir\_timestamps@{get\_all\_pir\_timestamps}!ListicClientDB@{ListicClientDB}}
@@ -104,7 +123,7 @@ Constructor.
 Function to extract all the timestamps at which the sensors were in use. 
 
 \begin{DoxyRefDesc}{Deprecated}
-\item[\mbox{\hyperlink{deprecated__deprecated000002}{Deprecated}}]This function was in use quite a while ago, I don\textquotesingle{}t see any use of this anymore. (used in \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}{insert\+\_\+walking\+\_\+metrics()}}, which is a useless function...)\end{DoxyRefDesc}
+\item[\mbox{\hyperlink{deprecated__deprecated000003}{Deprecated}}]This function was in use quite a while ago, I don\textquotesingle{}t see any use of this anymore. (used in \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}{insert\+\_\+walking\+\_\+metrics()}}, which is a useless function...)\end{DoxyRefDesc}
 \mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_a02d3f30bfea4f61ab0ca876e86c8393e}\label{classInfluxDB__connection_1_1ListicClientDB_a02d3f30bfea4f61ab0ca876e86c8393e}} 
 \index{ListicClientDB@{ListicClientDB}!get\_all\_pir\_values@{get\_all\_pir\_values}}
 \index{get\_all\_pir\_values@{get\_all\_pir\_values}!ListicClientDB@{ListicClientDB}}
@@ -137,7 +156,7 @@ Extract all the data from the sensors database.
 Function to retrieve skeletons stored since 26/04/2021. 
 
 \begin{DoxyRefDesc}{Deprecated}
-\item[\mbox{\hyperlink{deprecated__deprecated000001}{Deprecated}}]This function is never really used because it is time consuming. Use other functions like \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} to work with skeletons. \end{DoxyRefDesc}
+\item[\mbox{\hyperlink{deprecated__deprecated000002}{Deprecated}}]This function is never really used because it is time consuming. Use other functions like \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} to work with skeletons. \end{DoxyRefDesc}
 \begin{DoxyReturn}{Returns}
 A tuple containing the coordinates as a Dict with data in 2D and another Dict for coordinates 3D. 
 \end{DoxyReturn}
@@ -152,7 +171,7 @@ A tuple containing the coordinates as a Dict with data in 2D and another Dict fo
 Function to find the closest data from the sensors relative to the timestamp given as input. 
 
 \begin{DoxyRefDesc}{Deprecated}
-\item[\mbox{\hyperlink{deprecated__deprecated000003}{Deprecated}}]This function was in use quite a while ago, I don\textquotesingle{}t see any use of this anymore. (used in \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}{insert\+\_\+walking\+\_\+metrics()}}, which is a useless function...) \end{DoxyRefDesc}
+\item[\mbox{\hyperlink{deprecated__deprecated000004}{Deprecated}}]This function was in use quite a while ago, I don\textquotesingle{}t see any use of this anymore. (used in \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_acf92629aab66720f827cb0a293abea00}{insert\+\_\+walking\+\_\+metrics()}}, which is a useless function...) \end{DoxyRefDesc}
 
 \begin{DoxyParams}{Parameters}
 {\em timestamp} & the timestamp you want to compare with. \\

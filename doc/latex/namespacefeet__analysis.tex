@@ -1,83 +1,619 @@
 \hypertarget{namespacefeet__analysis}{}\doxysection{feet\+\_\+analysis Namespace Reference}
 \label{namespacefeet__analysis}\index{feet\_analysis@{feet\_analysis}}
+
+
+This script enables to estimate multiple characteristics of a person\textquotesingle{}s walk through the depth camera.  
+
+
 \doxysubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{namespacefeet__analysis_a24ec5356eaded4a2f798dbb30dcf1e11}\label{namespacefeet__analysis_a24ec5356eaded4a2f798dbb30dcf1e11}} 
-def {\bfseries compute\+\_\+cycle\+\_\+time} (data, motion\+\_\+threshold=0.\+01)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_aec4a4b76b53b12db6850dd9867cbc906}\label{namespacefeet__analysis_aec4a4b76b53b12db6850dd9867cbc906}} 
-def {\bfseries compute\+\_\+double\+\_\+support\+\_\+time} (data, motion\+\_\+threshold=0.\+01)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a24d15b8228c4fce05e65b4f7cbe220cc}\label{namespacefeet__analysis_a24d15b8228c4fce05e65b4f7cbe220cc}} 
-def {\bfseries compute\+\_\+stance\+\_\+ratio} (data, motion\+\_\+threshold=0.\+01, concerned\+\_\+foot=None)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a85b8c5065bbe7e9e38446acb69db1693}\label{namespacefeet__analysis_a85b8c5065bbe7e9e38446acb69db1693}} 
-def {\bfseries compute\+\_\+stance\+\_\+swing\+\_\+ratio} (data, motion\+\_\+threshold=0.\+01, concerned\+\_\+foot=None)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a34d2d2cfc35772bf3e0d49c7f11ce8db}\label{namespacefeet__analysis_a34d2d2cfc35772bf3e0d49c7f11ce8db}} 
-def {\bfseries compute\+\_\+stride\+\_\+length} (data)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_ad05a6da8c7e452bd314a8ee1098980f5}\label{namespacefeet__analysis_ad05a6da8c7e452bd314a8ee1098980f5}} 
-def {\bfseries compute\+\_\+walking\+\_\+speed} (data)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a1b985ef0e50bff8125484b131e59dda7}\label{namespacefeet__analysis_a1b985ef0e50bff8125484b131e59dda7}} 
-def {\bfseries create\+\_\+feet\+\_\+analysis\+\_\+data\+\_\+from\+\_\+humans} (human\+\_\+collection)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a23b99856fb6cee70d6af44f206c451d3}\label{namespacefeet__analysis_a23b99856fb6cee70d6af44f206c451d3}} 
-def {\bfseries display\+\_\+walking\+\_\+features} (dict walking\+\_\+features)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a9d13cd14a353ea080aa8498df081968f}\label{namespacefeet__analysis_a9d13cd14a353ea080aa8498df081968f}} 
-def {\bfseries estimate\+\_\+footsteps} (data, motion\+\_\+threshold=0.\+01)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_ab9bd75187f1cc77113586f44d8a092f5}\label{namespacefeet__analysis_ab9bd75187f1cc77113586f44d8a092f5}} 
-def {\bfseries estimate\+\_\+footsteps\+\_\+by\+\_\+distance} (data, distance\+\_\+range=2)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a8786e877a4e19b6bba5c8c915a9ef3ef}\label{namespacefeet__analysis_a8786e877a4e19b6bba5c8c915a9ef3ef}} 
-def {\bfseries estimate\+\_\+footsteps\+\_\+width} (data)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_adee9de3d4c07abe2360cc04ff9128a9f}\label{namespacefeet__analysis_adee9de3d4c07abe2360cc04ff9128a9f}} 
-def {\bfseries get\+\_\+corridor\+\_\+position} (data)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a7a5d6befbd6ab3a2455e03d61a66d24e}\label{namespacefeet__analysis_a7a5d6befbd6ab3a2455e03d61a66d24e}} 
-def {\bfseries get\+\_\+corridor\+\_\+used} (data)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a09fd59e3eb2097cce99a6944eaa8f72d}\label{namespacefeet__analysis_a09fd59e3eb2097cce99a6944eaa8f72d}} 
-def {\bfseries get\+\_\+data} (json\+\_\+filename)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_ae961579a39b052721bcb1ed152567336}\label{namespacefeet__analysis_ae961579a39b052721bcb1ed152567336}} 
-def {\bfseries get\+\_\+data\+\_\+from\+\_\+db} (sequence\+\_\+id=None, time\+\_\+between\+\_\+sequences=20.\+0, server\+\_\+side=True, start\+\_\+time=0, ignore\+\_\+small\+\_\+sequences=None)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_affebe1a9e483a407739e37822b12961b}\label{namespacefeet__analysis_affebe1a9e483a407739e37822b12961b}} 
-def {\bfseries get\+\_\+walking\+\_\+direction} (data)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a4d54dc976f9364dce7c260ed681d5c8d}\label{namespacefeet__analysis_a4d54dc976f9364dce7c260ed681d5c8d}} 
-def {\bfseries get\+\_\+walking\+\_\+features} (data=None, id\+\_\+sequence=None, time\+\_\+between\+\_\+sequences=1.\+0, server\+\_\+side=True, motion\+\_\+threshold=0.\+8, start\+\_\+time=0, ignore\+\_\+small\+\_\+sequences=None)
-\item 
+float \mbox{\hyperlink{namespacefeet__analysis_af99a719e9d508b49ea6462b755702040}{compute\+\_\+cycle\+\_\+time}} (Dict data, float motion\+\_\+threshold=0.\+01)
+\begin{DoxyCompactList}\small\item\em Get the Cycle time in seconds = duration of the sequence / number of footsteps. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{namespacefeet__analysis_aa14b13f711668025e1f7efd294266cb4}{compute\+\_\+double\+\_\+support\+\_\+time}} (Dict data, float motion\+\_\+threshold=0.\+01)
+\begin{DoxyCompactList}\small\item\em Compute Double Support Time = time with the two feet on the ground. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{namespacefeet__analysis_ab77885e1f4fe1e9fb6063a75519e2b5b}{compute\+\_\+stance\+\_\+ratio}} (Dict data, float motion\+\_\+threshold=0.\+01, str concerned\+\_\+foot=None)
+\begin{DoxyCompactList}\small\item\em Compute the Stance ratio = time with two feet down / time with one foot moving. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{namespacefeet__analysis_aedef1859f23606b5d2cba8929f329e69}{compute\+\_\+stance\+\_\+swing\+\_\+ratio}} (Dict data, float motion\+\_\+threshold=0.\+01, str concerned\+\_\+foot=None)
+\begin{DoxyCompactList}\small\item\em Compute the Stance/\+Swing ratio = time with two feet down / time with one foot moving. \end{DoxyCompactList}\item 
+Tuple\mbox{[}float, float, float\mbox{]} \mbox{\hyperlink{namespacefeet__analysis_aaf48d62ce965d1c723ddb1cb0e886efb}{compute\+\_\+stride\+\_\+length}} (Dict data)
+\begin{DoxyCompactList}\small\item\em Estimate the length of strides from the skeleton of a walking sequence. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{namespacefeet__analysis_a8c97f8ed92de567b053f794644c330d5}{compute\+\_\+walking\+\_\+speed}} (Dict data)
+\begin{DoxyCompactList}\small\item\em Get the walking speed with the average of the movement of the hips. \end{DoxyCompactList}\item 
+Dict \mbox{\hyperlink{namespacefeet__analysis_af7c6c500b2a205f945bc0238f257a54d}{create\+\_\+feet\+\_\+analysis\+\_\+data\+\_\+from\+\_\+humans}} (Dict human\+\_\+collection)
+\begin{DoxyCompactList}\small\item\em From a collection of skeletons created for example by the Human\+Storage, Create the json data that is used in the feet analysis functions The \char`\"{}human\+\_\+collection\char`\"{} must be in the shape\+: \{ \textquotesingle{}timestamp1\textquotesingle{}\+: \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton}{human\+\_\+skeleton.\+Human\+Skeleton()}}, \textquotesingle{}timestamp2\textquotesingle{}\+: \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton}{human\+\_\+skeleton.\+Human\+Skeleton()}}, ... \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacefeet__analysis_ad1c43dff8dd8322eaa2f8300a7807dcd}{display\+\_\+walking\+\_\+features}} (Dict walking\+\_\+features)
+\begin{DoxyCompactList}\small\item\em Pretty display of a dictionary. \end{DoxyCompactList}\item 
+Tuple\mbox{[}int, Dict\mbox{]} \mbox{\hyperlink{namespacefeet__analysis_aea867206c1fbd2f404be41c2a44cf0e1}{estimate\+\_\+footsteps}} (Dict data, float motion\+\_\+threshold=0.\+01)
+\begin{DoxyCompactList}\small\item\em Estimate the number of footsteps on the sequence by computing the velocity of each foot. \end{DoxyCompactList}\item 
+Tuple\mbox{[}int, Dict\mbox{]} \mbox{\hyperlink{namespacefeet__analysis_a52ba79b09c90acf79ac952cd155547ca}{estimate\+\_\+footsteps\+\_\+by\+\_\+distance}} (Dict data, int window\+\_\+size=3)
+\begin{DoxyCompactList}\small\item\em Compute the number of footsteps of a sequence based on the distance between the two feet. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{namespacefeet__analysis_a58acdb4dfee41acecce3eca2357a682a}{estimate\+\_\+footsteps\+\_\+width}} (Dict data)
+\begin{DoxyCompactList}\small\item\em Estimate the stride width, which is the distance between the feet when walking. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{namespacefeet__analysis_a841983771f8a8cab51dc9f7fa79ee21e}{get\+\_\+corridor\+\_\+position}} (Dict data)
+\begin{DoxyCompactList}\small\item\em Estimate the distance of the person from the Eastern wall of the corridor. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{namespacefeet__analysis_a30414fa71781f29d890c59d0c5a8d1d8}{get\+\_\+corridor\+\_\+used}} (Dict data)
+\begin{DoxyCompactList}\small\item\em Estimate the part of the corridor used by the person when walking through the experimental setup. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacefeet__analysis_a377b27d81535cb7ad52b7a2a08fd7666}{get\+\_\+data}} (str json\+\_\+filename)
+\begin{DoxyCompactList}\small\item\em Simply load a json file containing the skeleton coordinates during a sequence. \end{DoxyCompactList}\item 
+Dict \mbox{\hyperlink{namespacefeet__analysis_a3f7959026aba02446be44b481413a205}{get\+\_\+data\+\_\+from\+\_\+db}} (int sequence\+\_\+id=None, float time\+\_\+between\+\_\+sequences=20.\+0, bool server\+\_\+side=True, int start\+\_\+time=0, float ignore\+\_\+small\+\_\+sequences=None)
+\begin{DoxyCompactList}\small\item\em Load the skeletons from Influx\+DB by providing the sequence ID and transforms the data to allow estimations of the gait parameters. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{namespacefeet__analysis_ac2ed473e8fcd0f21ff24263e04886688}{get\+\_\+walking\+\_\+direction}} (Dict data)
+\begin{DoxyCompactList}\small\item\em Indicates if a person is walking from North to South (1) or from South to North (-\/1) in the current (june 2021) experimental setup. \end{DoxyCompactList}\item 
+Dict \mbox{\hyperlink{namespacefeet__analysis_a4aef191b5dd9509750d03d0702f0cc61}{get\+\_\+walking\+\_\+features}} (Dict data=None, int id\+\_\+sequence=None, float time\+\_\+between\+\_\+sequences=1.\+0, bool server\+\_\+side=True, float motion\+\_\+threshold=0.\+01, int start\+\_\+time=0, float ignore\+\_\+small\+\_\+sequences=None)
+\begin{DoxyCompactList}\small\item\em Compute all the features the functions of this script are able to extract on a sequence in database with the ID \char`\"{}id\+\_\+sequence\char`\"{}. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{namespacefeet__analysis_a7d5adf98fa0179ea7e943d51e90602f8}\label{namespacefeet__analysis_a7d5adf98fa0179ea7e943d51e90602f8}} 
 def {\bfseries main} ()
 \item 
-\mbox{\Hypertarget{namespacefeet__analysis_a5d2369f6d48df094b06e2194d7696d72}\label{namespacefeet__analysis_a5d2369f6d48df094b06e2194d7696d72}} 
-def {\bfseries mean\+\_\+smooth\+\_\+data} (values, delta)
-\item 
+np.\+ndarray \mbox{\hyperlink{namespacefeet__analysis_a9a1fa0cb659b7bbbdd268ecede027dfa}{mean\+\_\+smooth\+\_\+data}} (Union\mbox{[}List, np.\+ndarray\mbox{]} values, int windows\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Smooth the curve with a sliding window of size \char`\"{}windows\+\_\+size\char`\"{}. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis}} (original\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Process the data to remove None values and smooth the values to allow more precise computations for walk analysis. \end{DoxyCompactList}\item 
+Dict \mbox{\hyperlink{namespacefeet__analysis_ac27116802cea2010ea57037202ee4b2e}{reduce\+\_\+walking\+\_\+data\+\_\+size}} (Dict original\+\_\+data, int new\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Reduce the size of the keypoint coords/velocities/distances dataset. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{namespacefeet__analysis_ae334cb8a1063dfdd8dfea9577cb4d859}{remove\+\_\+\+None\+\_\+by\+\_\+interpolation}} (Union\mbox{[}List, np.\+ndarray\mbox{]} values, float extreme\+\_\+values=0)
+\begin{DoxyCompactList}\small\item\em Replace None values by interpolating with surrounding values If there is no not-\/\+None surrounding a point, it will use the \char`\"{}extreme\+\_\+value\char`\"{} for the interpolation. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{namespacefeet__analysis_aaeeac9f5cea69c1b63bde1b05445669d}{replace\+\_\+limit\+\_\+values\+\_\+with\+\_\+previous}} (List values, float limit, Any convert\+\_\+\+None\+\_\+to=None)
+\begin{DoxyCompactList}\small\item\em Truncate data by replacing the elements above the limit with the previous value of the series. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{namespacefeet__analysis_a9abbecf6bb2dab01faddddba71bc7e10}{replace\+\_\+trailing\+\_\+and\+\_\+leading\+\_\+zeros\+\_\+in\+\_\+array}} (List array, bool remove\+\_\+leading=True, bool remove\+\_\+trailing=True, Any replace\+\_\+value=None)
+\begin{DoxyCompactList}\small\item\em Replace the beginning or the ending of a series by a desired value if it begins or ends with 0\textquotesingle{}s. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{namespacefeet__analysis_af836bad184c189706afdbfea230d3194}{truncate\+\_\+values}} (Union\mbox{[}List, np.\+ndarray\mbox{]} values, float limit, Any convert\+\_\+\+None\+\_\+to=None)
+\begin{DoxyCompactList}\small\item\em Truncate values to a certain limit. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacefeet__analysis_a9dfe4d79af42174631d8d4aea614dd23}{visualize\+\_\+data}} (Dict data, bool time\+\_\+in\+\_\+seconds=True, bool non\+\_\+blocking=False)
+\begin{DoxyCompactList}\small\item\em Display a plot with the calculation of footsteps by distance and by velocity to compare the results. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This script enables to estimate multiple characteristics of a person\textquotesingle{}s walk through the depth camera. 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacefeet__analysis_af99a719e9d508b49ea6462b755702040}\label{namespacefeet__analysis_af99a719e9d508b49ea6462b755702040}} 
+\index{feet\_analysis@{feet\_analysis}!compute\_cycle\_time@{compute\_cycle\_time}}
+\index{compute\_cycle\_time@{compute\_cycle\_time}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{compute\_cycle\_time()}{compute\_cycle\_time()}}
+{\footnotesize\ttfamily  float feet\+\_\+analysis.\+compute\+\_\+cycle\+\_\+time (\begin{DoxyParamCaption}\item[{Dict}]{data,  }\item[{float }]{motion\+\_\+threshold = {\ttfamily 0.01} }\end{DoxyParamCaption})}
+
+
+
+Get the Cycle time in seconds = duration of the sequence / number of footsteps. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em motion\+\_\+threshold} & The threshold used (in m/s) to distinguish a static point from a moving one\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cycle time extracted from the walking sequence 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_aa14b13f711668025e1f7efd294266cb4}\label{namespacefeet__analysis_aa14b13f711668025e1f7efd294266cb4}} 
+\index{feet\_analysis@{feet\_analysis}!compute\_double\_support\_time@{compute\_double\_support\_time}}
+\index{compute\_double\_support\_time@{compute\_double\_support\_time}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{compute\_double\_support\_time()}{compute\_double\_support\_time()}}
+{\footnotesize\ttfamily  float feet\+\_\+analysis.\+compute\+\_\+double\+\_\+support\+\_\+time (\begin{DoxyParamCaption}\item[{Dict}]{data,  }\item[{float }]{motion\+\_\+threshold = {\ttfamily 0.01} }\end{DoxyParamCaption})}
+
+
+
+Compute Double Support Time = time with the two feet on the ground. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em motion\+\_\+threshold} & The threshold used (in m/s) to distinguish a static point from a moving one\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The estimated double support time (DST) extracted from a walking sequence 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_ab77885e1f4fe1e9fb6063a75519e2b5b}\label{namespacefeet__analysis_ab77885e1f4fe1e9fb6063a75519e2b5b}} 
+\index{feet\_analysis@{feet\_analysis}!compute\_stance\_ratio@{compute\_stance\_ratio}}
+\index{compute\_stance\_ratio@{compute\_stance\_ratio}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{compute\_stance\_ratio()}{compute\_stance\_ratio()}}
+{\footnotesize\ttfamily  float feet\+\_\+analysis.\+compute\+\_\+stance\+\_\+ratio (\begin{DoxyParamCaption}\item[{Dict}]{data,  }\item[{float }]{motion\+\_\+threshold = {\ttfamily 0.01},  }\item[{str }]{concerned\+\_\+foot = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Compute the Stance ratio = time with two feet down / time with one foot moving. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em motion\+\_\+threshold} & The threshold used (in m/s) to distinguish a static point from a moving one \\
+\hline
+{\em concerned\+\_\+foot} & The foot for which you want to compute the stance ratio. Set to None if you want the mean value from the two feet (otherwise\+: \textquotesingle{}LEFT\textquotesingle{} or \textquotesingle{}RIGHT\textquotesingle{})\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The stance ratio extracted from a walking sequence 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_aedef1859f23606b5d2cba8929f329e69}\label{namespacefeet__analysis_aedef1859f23606b5d2cba8929f329e69}} 
+\index{feet\_analysis@{feet\_analysis}!compute\_stance\_swing\_ratio@{compute\_stance\_swing\_ratio}}
+\index{compute\_stance\_swing\_ratio@{compute\_stance\_swing\_ratio}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{compute\_stance\_swing\_ratio()}{compute\_stance\_swing\_ratio()}}
+{\footnotesize\ttfamily  float feet\+\_\+analysis.\+compute\+\_\+stance\+\_\+swing\+\_\+ratio (\begin{DoxyParamCaption}\item[{Dict}]{data,  }\item[{float }]{motion\+\_\+threshold = {\ttfamily 0.01},  }\item[{str }]{concerned\+\_\+foot = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Compute the Stance/\+Swing ratio = time with two feet down / time with one foot moving. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em motion\+\_\+threshold} & The threshold used (in m/s) to distinguish a static point from a moving one \\
+\hline
+{\em concerned\+\_\+foot} & The foot for which you want to compute the stance/swing ratio. Set to None if you want the mean value from the two feet (otherwise\+: \textquotesingle{}LEFT\textquotesingle{} or \textquotesingle{}RIGHT\textquotesingle{})\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The stance/swing ratio extracted from a walking sequence 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_aaf48d62ce965d1c723ddb1cb0e886efb}\label{namespacefeet__analysis_aaf48d62ce965d1c723ddb1cb0e886efb}} 
+\index{feet\_analysis@{feet\_analysis}!compute\_stride\_length@{compute\_stride\_length}}
+\index{compute\_stride\_length@{compute\_stride\_length}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{compute\_stride\_length()}{compute\_stride\_length()}}
+{\footnotesize\ttfamily  Tuple\mbox{[}float, float, float\mbox{]} feet\+\_\+analysis.\+compute\+\_\+stride\+\_\+length (\begin{DoxyParamCaption}\item[{Dict}]{data }\end{DoxyParamCaption})}
+
+
+
+Estimate the length of strides from the skeleton of a walking sequence. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}}\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A tuple containing the estimation of the stride\textquotesingle{}s length, the estimation specific on the right foot and the one specific on the left foot. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a8c97f8ed92de567b053f794644c330d5}\label{namespacefeet__analysis_a8c97f8ed92de567b053f794644c330d5}} 
+\index{feet\_analysis@{feet\_analysis}!compute\_walking\_speed@{compute\_walking\_speed}}
+\index{compute\_walking\_speed@{compute\_walking\_speed}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{compute\_walking\_speed()}{compute\_walking\_speed()}}
+{\footnotesize\ttfamily  float feet\+\_\+analysis.\+compute\+\_\+walking\+\_\+speed (\begin{DoxyParamCaption}\item[{Dict}]{data }\end{DoxyParamCaption})}
+
+
+
+Get the walking speed with the average of the movement of the hips. 
+
+\begin{DoxyAttention}{Attention}
+This function uses the average of the velocities recorded on the hips. Another way to estimate this with a higher accuracy when knowing that the person is walking in a linear path would be to compute the difference of coordinate at the beginning of the sequence and at the end of the sequence. This is a more generic but less accurate way to compute it. It is, still, a pretty good estimation. 
+\end{DoxyAttention}
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}}\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The estimated walking speed 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_af7c6c500b2a205f945bc0238f257a54d}\label{namespacefeet__analysis_af7c6c500b2a205f945bc0238f257a54d}} 
+\index{feet\_analysis@{feet\_analysis}!create\_feet\_analysis\_data\_from\_humans@{create\_feet\_analysis\_data\_from\_humans}}
+\index{create\_feet\_analysis\_data\_from\_humans@{create\_feet\_analysis\_data\_from\_humans}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{create\_feet\_analysis\_data\_from\_humans()}{create\_feet\_analysis\_data\_from\_humans()}}
+{\footnotesize\ttfamily  Dict feet\+\_\+analysis.\+create\+\_\+feet\+\_\+analysis\+\_\+data\+\_\+from\+\_\+humans (\begin{DoxyParamCaption}\item[{Dict}]{human\+\_\+collection }\end{DoxyParamCaption})}
+
+
+
+From a collection of skeletons created for example by the Human\+Storage, Create the json data that is used in the feet analysis functions The \char`\"{}human\+\_\+collection\char`\"{} must be in the shape\+: \{ \textquotesingle{}timestamp1\textquotesingle{}\+: \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton}{human\+\_\+skeleton.\+Human\+Skeleton()}}, \textquotesingle{}timestamp2\textquotesingle{}\+: \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton}{human\+\_\+skeleton.\+Human\+Skeleton()}}, ... 
+
+\} 
+\begin{DoxyParams}{Parameters}
+{\em human\+\_\+collection} & A dictionary with Human\+Skeleton objects with the timestamp as the keys.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Note I think this function is never used, but could be used with \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage}{direct\+\_\+camera\+\_\+to\+\_\+db.\+Human\+Storage}}, I guess. 
+\end{DoxyNote}
+\mbox{\Hypertarget{namespacefeet__analysis_ad1c43dff8dd8322eaa2f8300a7807dcd}\label{namespacefeet__analysis_ad1c43dff8dd8322eaa2f8300a7807dcd}} 
+\index{feet\_analysis@{feet\_analysis}!display\_walking\_features@{display\_walking\_features}}
+\index{display\_walking\_features@{display\_walking\_features}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{display\_walking\_features()}{display\_walking\_features()}}
+{\footnotesize\ttfamily def feet\+\_\+analysis.\+display\+\_\+walking\+\_\+features (\begin{DoxyParamCaption}\item[{Dict}]{walking\+\_\+features }\end{DoxyParamCaption})}
+
+
+
+Pretty display of a dictionary. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em walking\+\_\+features} & The dictionary you want to display \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{namespacefeet__analysis_aea867206c1fbd2f404be41c2a44cf0e1}\label{namespacefeet__analysis_aea867206c1fbd2f404be41c2a44cf0e1}} 
+\index{feet\_analysis@{feet\_analysis}!estimate\_footsteps@{estimate\_footsteps}}
+\index{estimate\_footsteps@{estimate\_footsteps}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{estimate\_footsteps()}{estimate\_footsteps()}}
+{\footnotesize\ttfamily  Tuple\mbox{[}int, Dict\mbox{]} feet\+\_\+analysis.\+estimate\+\_\+footsteps (\begin{DoxyParamCaption}\item[{Dict}]{data,  }\item[{float }]{motion\+\_\+threshold = {\ttfamily 0.01} }\end{DoxyParamCaption})}
+
+
+
+Estimate the number of footsteps on the sequence by computing the velocity of each foot. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em motion\+\_\+threshold} & The needed motion speed of a keypoint to be considered in motion (in m/s)\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A tuple containing the number of steps counted and a dictionary with the list of frames index (and timestamps) at which the step is detected 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a52ba79b09c90acf79ac952cd155547ca}\label{namespacefeet__analysis_a52ba79b09c90acf79ac952cd155547ca}} 
+\index{feet\_analysis@{feet\_analysis}!estimate\_footsteps\_by\_distance@{estimate\_footsteps\_by\_distance}}
+\index{estimate\_footsteps\_by\_distance@{estimate\_footsteps\_by\_distance}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{estimate\_footsteps\_by\_distance()}{estimate\_footsteps\_by\_distance()}}
+{\footnotesize\ttfamily  Tuple\mbox{[}int, Dict\mbox{]} feet\+\_\+analysis.\+estimate\+\_\+footsteps\+\_\+by\+\_\+distance (\begin{DoxyParamCaption}\item[{Dict}]{data,  }\item[{int }]{window\+\_\+size = {\ttfamily 3} }\end{DoxyParamCaption})}
+
+
+
+Compute the number of footsteps of a sequence based on the distance between the two feet. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em window\+\_\+size} & The size of the window used to check if a frame has the maximal distance between the feet. With the precision of the camera we find \char`\"{}noise\char`\"{} making small peaks, so this parameter can reduce them. But the preprocessing of data should smooth the values and avoid using this parameter, but anyway...\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A tuple containing the number of steps counted and a dictionary with the list of frames index (and timestamps) at which the step is detected 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a58acdb4dfee41acecce3eca2357a682a}\label{namespacefeet__analysis_a58acdb4dfee41acecce3eca2357a682a}} 
+\index{feet\_analysis@{feet\_analysis}!estimate\_footsteps\_width@{estimate\_footsteps\_width}}
+\index{estimate\_footsteps\_width@{estimate\_footsteps\_width}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{estimate\_footsteps\_width()}{estimate\_footsteps\_width()}}
+{\footnotesize\ttfamily  float feet\+\_\+analysis.\+estimate\+\_\+footsteps\+\_\+width (\begin{DoxyParamCaption}\item[{Dict}]{data }\end{DoxyParamCaption})}
+
+
+
+Estimate the stride width, which is the distance between the feet when walking. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}}\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The mean width computed during the entire sequence. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a841983771f8a8cab51dc9f7fa79ee21e}\label{namespacefeet__analysis_a841983771f8a8cab51dc9f7fa79ee21e}} 
+\index{feet\_analysis@{feet\_analysis}!get\_corridor\_position@{get\_corridor\_position}}
+\index{get\_corridor\_position@{get\_corridor\_position}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{get\_corridor\_position()}{get\_corridor\_position()}}
+{\footnotesize\ttfamily  float feet\+\_\+analysis.\+get\+\_\+corridor\+\_\+position (\begin{DoxyParamCaption}\item[{Dict}]{data }\end{DoxyParamCaption})}
+
+
+
+Estimate the distance of the person from the Eastern wall of the corridor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}}\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The distance in meters of the person from the eastern wall of the corridor in the current (june 2021) experimental setup 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a30414fa71781f29d890c59d0c5a8d1d8}\label{namespacefeet__analysis_a30414fa71781f29d890c59d0c5a8d1d8}} 
+\index{feet\_analysis@{feet\_analysis}!get\_corridor\_used@{get\_corridor\_used}}
+\index{get\_corridor\_used@{get\_corridor\_used}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{get\_corridor\_used()}{get\_corridor\_used()}}
+{\footnotesize\ttfamily  int feet\+\_\+analysis.\+get\+\_\+corridor\+\_\+used (\begin{DoxyParamCaption}\item[{Dict}]{data }\end{DoxyParamCaption})}
+
+
+
+Estimate the part of the corridor used by the person when walking through the experimental setup. 
+
+\begin{DoxyAttention}{Attention}
+The limits used in the code were just estimated quickly and seems to misclassify a lot of sequences walking in the Western part (classified as Center). Maybe someone can modify the values of the limits. 
+\end{DoxyAttention}
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}}\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\begin{DoxyItemize}
+\item -\/1 if using the Eastern part,
+\item 0 if using the Center part,
+\item 1 if using the Western part 
+\end{DoxyItemize}
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a377b27d81535cb7ad52b7a2a08fd7666}\label{namespacefeet__analysis_a377b27d81535cb7ad52b7a2a08fd7666}} 
+\index{feet\_analysis@{feet\_analysis}!get\_data@{get\_data}}
+\index{get\_data@{get\_data}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{get\_data()}{get\_data()}}
+{\footnotesize\ttfamily def feet\+\_\+analysis.\+get\+\_\+data (\begin{DoxyParamCaption}\item[{str}]{json\+\_\+filename }\end{DoxyParamCaption})}
+
+
+
+Simply load a json file containing the skeleton coordinates during a sequence. 
+
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000001}{Deprecated}}]This was used when the Influx\+DB database wasn\textquotesingle{}t set up yet. This is now useless I guess.\end{DoxyRefDesc}
+\mbox{\Hypertarget{namespacefeet__analysis_a3f7959026aba02446be44b481413a205}\label{namespacefeet__analysis_a3f7959026aba02446be44b481413a205}} 
+\index{feet\_analysis@{feet\_analysis}!get\_data\_from\_db@{get\_data\_from\_db}}
+\index{get\_data\_from\_db@{get\_data\_from\_db}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{get\_data\_from\_db()}{get\_data\_from\_db()}}
+{\footnotesize\ttfamily  Dict feet\+\_\+analysis.\+get\+\_\+data\+\_\+from\+\_\+db (\begin{DoxyParamCaption}\item[{int }]{sequence\+\_\+id = {\ttfamily None},  }\item[{float }]{time\+\_\+between\+\_\+sequences = {\ttfamily 20.0},  }\item[{bool }]{server\+\_\+side = {\ttfamily True},  }\item[{int }]{start\+\_\+time = {\ttfamily 0},  }\item[{float }]{ignore\+\_\+small\+\_\+sequences = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Load the skeletons from Influx\+DB by providing the sequence ID and transforms the data to allow estimations of the gait parameters. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sequence\+\_\+id} & The identifier of the sequence, use -\/1 to get last sequence (or -\/2 for previous one, etc...). \\
+\hline
+{\em time\+\_\+between\+\_\+sequences} & The number of sequence needed between two recordings to consider them as two distinct sequences. See the process in Listic\+Client\+DB.\+get\+\_\+splitted\+\_\+sequences\+\_\+boundaries(). \\
+\hline
+{\em server\+\_\+side} & Set to True to access directly to the database in the Listic server, or False to access your local instance of Influx\+DB. \\
+\hline
+{\em start\+\_\+time} & The date at which you consider the start of the sequences, as timestamp in milliseconds. \\
+\hline
+{\em ignore\+\_\+small\+\_\+sequences} & If set, any sequence with a duration lower than this value (in s) will be ignored.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A dictionary containing all the coordinates of a person during a sequence. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_ac2ed473e8fcd0f21ff24263e04886688}\label{namespacefeet__analysis_ac2ed473e8fcd0f21ff24263e04886688}} 
+\index{feet\_analysis@{feet\_analysis}!get\_walking\_direction@{get\_walking\_direction}}
+\index{get\_walking\_direction@{get\_walking\_direction}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{get\_walking\_direction()}{get\_walking\_direction()}}
+{\footnotesize\ttfamily  int feet\+\_\+analysis.\+get\+\_\+walking\+\_\+direction (\begin{DoxyParamCaption}\item[{Dict}]{data }\end{DoxyParamCaption})}
+
+
+
+Indicates if a person is walking from North to South (1) or from South to North (-\/1) in the current (june 2021) experimental setup. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}}\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\begin{DoxyItemize}
+\item -\/1 if walking from South to North,
+\item 1 if walking from North to South,
+\item 0 if the person doesn\textquotesingle{}t seem to have been through the entire corridor 
+\end{DoxyItemize}
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a4aef191b5dd9509750d03d0702f0cc61}\label{namespacefeet__analysis_a4aef191b5dd9509750d03d0702f0cc61}} 
+\index{feet\_analysis@{feet\_analysis}!get\_walking\_features@{get\_walking\_features}}
+\index{get\_walking\_features@{get\_walking\_features}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{get\_walking\_features()}{get\_walking\_features()}}
+{\footnotesize\ttfamily  Dict feet\+\_\+analysis.\+get\+\_\+walking\+\_\+features (\begin{DoxyParamCaption}\item[{Dict }]{data = {\ttfamily None},  }\item[{int }]{id\+\_\+sequence = {\ttfamily None},  }\item[{float }]{time\+\_\+between\+\_\+sequences = {\ttfamily 1.0},  }\item[{bool }]{server\+\_\+side = {\ttfamily True},  }\item[{float }]{motion\+\_\+threshold = {\ttfamily 0.01},  }\item[{int }]{start\+\_\+time = {\ttfamily 0},  }\item[{float }]{ignore\+\_\+small\+\_\+sequences = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Compute all the features the functions of this script are able to extract on a sequence in database with the ID \char`\"{}id\+\_\+sequence\char`\"{}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em id\+\_\+sequence} & The ID of the sequence you want to analyse \\
+\hline
+{\em time\+\_\+between\+\_\+sequences} & Time between two timestamps of the database to consider it as two different sequences. \\
+\hline
+{\em server\+\_\+side} & Set to True to access the database on the Listic server, set to False to access the local server \\
+\hline
+{\em motion\+\_\+threshold} & The threshold used (in m/s) to distinguish a static point from a moving one \\
+\hline
+{\em start\+\_\+time} & The date for which we consider having started the recordings of the experiments \\
+\hline
+{\em ignore\+\_\+small\+\_\+sequences} & Duration a sequence beneath which we can ignore\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A dictionary with all parameters\+:
+\begin{DoxyItemize}
+\item nb\+\_\+steps\+\_\+motion
+\item nb\+\_\+steps\+\_\+distance
+\item cycle\+\_\+time
+\item cadence
+\item stance\+\_\+ratio\+\_\+right
+\item stance\+\_\+ratio\+\_\+left
+\item double\+\_\+support\+\_\+ratio
+\item footstep\+\_\+width
+\item walking\+\_\+speed
+\item stride\+\_\+length
+\item stride\+\_\+length\+\_\+right
+\item stride\+\_\+length\+\_\+left
+\item direction
+\item corridor
+\item corridor\+\_\+position
+\end{DoxyItemize}
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+The functions called are \+:
+\begin{DoxyItemize}
+\item \mbox{\hyperlink{namespacefeet__analysis_aea867206c1fbd2f404be41c2a44cf0e1}{estimate\+\_\+footsteps()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_a52ba79b09c90acf79ac952cd155547ca}{estimate\+\_\+footsteps\+\_\+by\+\_\+distance()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_af99a719e9d508b49ea6462b755702040}{compute\+\_\+cycle\+\_\+time()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_ab77885e1f4fe1e9fb6063a75519e2b5b}{compute\+\_\+stance\+\_\+ratio()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_aa14b13f711668025e1f7efd294266cb4}{compute\+\_\+double\+\_\+support\+\_\+time()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_a58acdb4dfee41acecce3eca2357a682a}{estimate\+\_\+footsteps\+\_\+width()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_a8c97f8ed92de567b053f794644c330d5}{compute\+\_\+walking\+\_\+speed()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_aaf48d62ce965d1c723ddb1cb0e886efb}{compute\+\_\+stride\+\_\+length()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_ac2ed473e8fcd0f21ff24263e04886688}{get\+\_\+walking\+\_\+direction()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_a30414fa71781f29d890c59d0c5a8d1d8}{get\+\_\+corridor\+\_\+used()}}
+\item \mbox{\hyperlink{namespacefeet__analysis_a841983771f8a8cab51dc9f7fa79ee21e}{get\+\_\+corridor\+\_\+position()}} 
+\end{DoxyItemize}
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{namespacefeet__analysis_a9a1fa0cb659b7bbbdd268ecede027dfa}\label{namespacefeet__analysis_a9a1fa0cb659b7bbbdd268ecede027dfa}} 
+\index{feet\_analysis@{feet\_analysis}!mean\_smooth\_data@{mean\_smooth\_data}}
+\index{mean\_smooth\_data@{mean\_smooth\_data}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{mean\_smooth\_data()}{mean\_smooth\_data()}}
+{\footnotesize\ttfamily  np.\+ndarray feet\+\_\+analysis.\+mean\+\_\+smooth\+\_\+data (\begin{DoxyParamCaption}\item[{Union\mbox{[}List, np.\+ndarray\mbox{]}}]{values,  }\item[{int}]{windows\+\_\+size }\end{DoxyParamCaption})}
+
+
+
+Smooth the curve with a sliding window of size \char`\"{}windows\+\_\+size\char`\"{}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em values} & The series to smooth \\
+\hline
+{\em windows\+\_\+size} & The size of the window used to average the data.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A smoothed version of the data using the mean average at each point. 
+\end{DoxyReturn}
 \mbox{\Hypertarget{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}\label{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}} 
-def {\bfseries preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis} (original\+\_\+data)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a3d7bf1c65c9b57a8262c79f3e681307e}\label{namespacefeet__analysis_a3d7bf1c65c9b57a8262c79f3e681307e}} 
-def {\bfseries reduce\+\_\+walking\+\_\+data\+\_\+size} (original\+\_\+data, int new\+\_\+size)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a497b0eab1d1851f106cdc551ab3c6f7b}\label{namespacefeet__analysis_a497b0eab1d1851f106cdc551ab3c6f7b}} 
-def {\bfseries remove\+\_\+\+None\+\_\+by\+\_\+interpolation} (values, extreme\+\_\+values=0)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a161f30202f42100e45e138fb35f67c82}\label{namespacefeet__analysis_a161f30202f42100e45e138fb35f67c82}} 
-def {\bfseries replace\+\_\+limit\+\_\+values\+\_\+with\+\_\+previous} (values, limit, convert\+\_\+\+None\+\_\+to=None)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_abce344a5959cd54f498e1dca15ce4079}\label{namespacefeet__analysis_abce344a5959cd54f498e1dca15ce4079}} 
-def {\bfseries replace\+\_\+trailing\+\_\+and\+\_\+leading\+\_\+zeros\+\_\+in\+\_\+array} (array, remove\+\_\+leading=True, remove\+\_\+trailing=True, replace\+\_\+value=None)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a52bf4010a30d3718a8119170d0f89ccf}\label{namespacefeet__analysis_a52bf4010a30d3718a8119170d0f89ccf}} 
-def {\bfseries truncate\+\_\+values} (values, limit, convert\+\_\+\+None\+\_\+to=None)
-\item 
-\mbox{\Hypertarget{namespacefeet__analysis_a4cdad233721a4f35495de593a93b1f92}\label{namespacefeet__analysis_a4cdad233721a4f35495de593a93b1f92}} 
-def {\bfseries visualize\+\_\+data} (data, time\+\_\+in\+\_\+seconds=True, non\+\_\+blocking=False)
-\end{DoxyCompactItemize}
+\index{feet\_analysis@{feet\_analysis}!preprocess\_data\_for\_walk\_analysis@{preprocess\_data\_for\_walk\_analysis}}
+\index{preprocess\_data\_for\_walk\_analysis@{preprocess\_data\_for\_walk\_analysis}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{preprocess\_data\_for\_walk\_analysis()}{preprocess\_data\_for\_walk\_analysis()}}
+{\footnotesize\ttfamily def feet\+\_\+analysis.\+preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis (\begin{DoxyParamCaption}\item[{}]{original\+\_\+data }\end{DoxyParamCaption})}
+
+
+
+Process the data to remove None values and smooth the values to allow more precise computations for walk analysis. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em original\+\_\+data} & The skeleton data of the sequence coming from \mbox{\hyperlink{namespacefeet__analysis_a3f7959026aba02446be44b481413a205}{get\+\_\+data\+\_\+from\+\_\+db()}}\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A smoothed version of the data coming from \mbox{\hyperlink{namespacefeet__analysis_a3f7959026aba02446be44b481413a205}{get\+\_\+data\+\_\+from\+\_\+db()}} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_ac27116802cea2010ea57037202ee4b2e}\label{namespacefeet__analysis_ac27116802cea2010ea57037202ee4b2e}} 
+\index{feet\_analysis@{feet\_analysis}!reduce\_walking\_data\_size@{reduce\_walking\_data\_size}}
+\index{reduce\_walking\_data\_size@{reduce\_walking\_data\_size}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{reduce\_walking\_data\_size()}{reduce\_walking\_data\_size()}}
+{\footnotesize\ttfamily  Dict feet\+\_\+analysis.\+reduce\+\_\+walking\+\_\+data\+\_\+size (\begin{DoxyParamCaption}\item[{Dict}]{original\+\_\+data,  }\item[{int}]{new\+\_\+size }\end{DoxyParamCaption})}
+
+
+
+Reduce the size of the keypoint coords/velocities/distances dataset. 
+
+This can be used to {\itshape maybe} create data augmentation on your dataset. 
+\begin{DoxyParams}{Parameters}
+{\em original\+\_\+data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em new\+\_\+size} & The desired size of the reduced data\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A truncated version of the original walking sequence 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_ae334cb8a1063dfdd8dfea9577cb4d859}\label{namespacefeet__analysis_ae334cb8a1063dfdd8dfea9577cb4d859}} 
+\index{feet\_analysis@{feet\_analysis}!remove\_None\_by\_interpolation@{remove\_None\_by\_interpolation}}
+\index{remove\_None\_by\_interpolation@{remove\_None\_by\_interpolation}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{remove\_None\_by\_interpolation()}{remove\_None\_by\_interpolation()}}
+{\footnotesize\ttfamily  np.\+ndarray feet\+\_\+analysis.\+remove\+\_\+\+None\+\_\+by\+\_\+interpolation (\begin{DoxyParamCaption}\item[{Union\mbox{[}List, np.\+ndarray\mbox{]}}]{values,  }\item[{float }]{extreme\+\_\+values = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Replace None values by interpolating with surrounding values If there is no not-\/\+None surrounding a point, it will use the \char`\"{}extreme\+\_\+value\char`\"{} for the interpolation. 
+
+\begin{DoxyAttention}{Attention}
+This function is a very inefficient and should be replaced with a numpy/scipy function if you know a good one. 
+\end{DoxyAttention}
+
+\begin{DoxyParams}{Parameters}
+{\em values} & The series to modify \\
+\hline
+{\em extreme\+\_\+values} & The value used for the lower bound or the higher bound if all previous or next values are None.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the interpolated series 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_aaeeac9f5cea69c1b63bde1b05445669d}\label{namespacefeet__analysis_aaeeac9f5cea69c1b63bde1b05445669d}} 
+\index{feet\_analysis@{feet\_analysis}!replace\_limit\_values\_with\_previous@{replace\_limit\_values\_with\_previous}}
+\index{replace\_limit\_values\_with\_previous@{replace\_limit\_values\_with\_previous}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{replace\_limit\_values\_with\_previous()}{replace\_limit\_values\_with\_previous()}}
+{\footnotesize\ttfamily  np.\+ndarray feet\+\_\+analysis.\+replace\+\_\+limit\+\_\+values\+\_\+with\+\_\+previous (\begin{DoxyParamCaption}\item[{List}]{values,  }\item[{float}]{limit,  }\item[{Any }]{convert\+\_\+\+None\+\_\+to = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Truncate data by replacing the elements above the limit with the previous value of the series. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em values} & The series to truncate \\
+\hline
+{\em limit} & The maximal value desired in the output series \\
+\hline
+{\em convert\+\_\+\+None\+\_\+to} & The value to give to \char`\"{}\+None\char`\"{} values. By default it doesn\textquotesingle{}t modify the values.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The modified series. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a9abbecf6bb2dab01faddddba71bc7e10}\label{namespacefeet__analysis_a9abbecf6bb2dab01faddddba71bc7e10}} 
+\index{feet\_analysis@{feet\_analysis}!replace\_trailing\_and\_leading\_zeros\_in\_array@{replace\_trailing\_and\_leading\_zeros\_in\_array}}
+\index{replace\_trailing\_and\_leading\_zeros\_in\_array@{replace\_trailing\_and\_leading\_zeros\_in\_array}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{replace\_trailing\_and\_leading\_zeros\_in\_array()}{replace\_trailing\_and\_leading\_zeros\_in\_array()}}
+{\footnotesize\ttfamily  np.\+ndarray feet\+\_\+analysis.\+replace\+\_\+trailing\+\_\+and\+\_\+leading\+\_\+zeros\+\_\+in\+\_\+array (\begin{DoxyParamCaption}\item[{List}]{array,  }\item[{bool }]{remove\+\_\+leading = {\ttfamily True},  }\item[{bool }]{remove\+\_\+trailing = {\ttfamily True},  }\item[{Any }]{replace\+\_\+value = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Replace the beginning or the ending of a series by a desired value if it begins or ends with 0\textquotesingle{}s. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em array} & The series to modify \\
+\hline
+{\em remove\+\_\+leading} & Set to True to replace the 0\textquotesingle{}s at he beginning with the \char`\"{}replace\+\_\+value\char`\"{}. \\
+\hline
+{\em remove\+\_\+trailing} & Set to True to replace the 0\textquotesingle{}s at he ending with the \char`\"{}replace\+\_\+value\char`\"{}. \\
+\hline
+{\em replace\+\_\+value} & The value to use to replace the 0\textquotesingle{}s.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The modified version of the series. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_af836bad184c189706afdbfea230d3194}\label{namespacefeet__analysis_af836bad184c189706afdbfea230d3194}} 
+\index{feet\_analysis@{feet\_analysis}!truncate\_values@{truncate\_values}}
+\index{truncate\_values@{truncate\_values}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{truncate\_values()}{truncate\_values()}}
+{\footnotesize\ttfamily  np.\+ndarray feet\+\_\+analysis.\+truncate\+\_\+values (\begin{DoxyParamCaption}\item[{Union\mbox{[}List, np.\+ndarray\mbox{]}}]{values,  }\item[{float}]{limit,  }\item[{Any }]{convert\+\_\+\+None\+\_\+to = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Truncate values to a certain limit. 
+
+It\textquotesingle{}s possible to assign a value to None values 
+\begin{DoxyParams}{Parameters}
+{\em values} & The series to truncate \\
+\hline
+{\em limit} & The maximal value desired in the output series \\
+\hline
+{\em convert\+\_\+\+None\+\_\+to} & The value to give to \char`\"{}\+None\char`\"{} values. By default it doesn\textquotesingle{}t modify the values.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The truncated series. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacefeet__analysis_a9dfe4d79af42174631d8d4aea614dd23}\label{namespacefeet__analysis_a9dfe4d79af42174631d8d4aea614dd23}} 
+\index{feet\_analysis@{feet\_analysis}!visualize\_data@{visualize\_data}}
+\index{visualize\_data@{visualize\_data}!feet\_analysis@{feet\_analysis}}
+\doxysubsubsection{\texorpdfstring{visualize\_data()}{visualize\_data()}}
+{\footnotesize\ttfamily def feet\+\_\+analysis.\+visualize\+\_\+data (\begin{DoxyParamCaption}\item[{Dict}]{data,  }\item[{bool }]{time\+\_\+in\+\_\+seconds = {\ttfamily True},  }\item[{bool }]{non\+\_\+blocking = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Display a plot with the calculation of footsteps by distance and by velocity to compare the results. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & The skeleton data from the sequence after being transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em time\+\_\+in\+\_\+seconds} & Set to True to display the plots with time on the X-\/axis, otherwise it\textquotesingle{}s the frame index \\
+\hline
+{\em non\+\_\+blocking} & defines if the Pyplot window should interrupt the script at the end of the function \\
+\hline
+\end{DoxyParams}

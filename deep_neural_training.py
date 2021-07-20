@@ -1678,7 +1678,7 @@ def main():
         print("Please select a parameter to train/display your models")
         exit()
 
-    # The random seed used so the data splits stays the same and results are reproductible
+    # The random seed used so the data splits stays the same and results are reproducible
     torch.manual_seed(42)
 
     ## Change this variable to change the dataset used (for now values are "ankles" or "hips")

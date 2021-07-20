@@ -1,3 +1,5 @@
+from typing import Union
+
 import numpy as np
 import scipy.spatial.transform
 import math
@@ -35,14 +37,14 @@ class HumanSkeleton():
         self.body_parts_3D = {key.name: self.POSITION_NOT_FOUND3D for key in BodyParts}
         self.body_parts_2D = {key.name: self.POSITION_NOT_FOUND2D for key in BodyParts}
 
-    def get_keypoint2D(self, key: BodyParts):
+    def get_keypoint2D(self, key: Union[BodyParts, str]):
         if isinstance(key, str):
             if key.upper() not in BodyParts.__members__:
                 return self.POSITION_NOT_FOUND2D
             key = BodyParts[key.upper()]
         return self.body_parts_2D[key.name]
 
-    def get_keypoint3D(self, key):
+    def get_keypoint3D(self, key: Union[BodyParts, str]):
         if isinstance(key, str):
             if key.upper() not in BodyParts.__members__:
                 return self.POSITION_NOT_FOUND3D

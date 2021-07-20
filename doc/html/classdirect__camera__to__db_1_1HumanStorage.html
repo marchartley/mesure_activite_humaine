@@ -74,46 +74,239 @@ $(function() {
   <div class="headertitle"><div class="title">HumanStorage Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A buffer class that store the coordinates of the persons on screen for a moment and send all of it at once into an InfluxDB database.  
+ <a href="classdirect__camera__to__db_1_1HumanStorage.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a68b36f0b5d6a3ca3925832f75b299eba"><td class="memItemLeft" align="right" valign="top"><a id="a68b36f0b5d6a3ca3925832f75b299eba" name="a68b36f0b5d6a3ca3925832f75b299eba"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a5c966b61e8380466d9584bd03a22c16f">send_data_after</a>=-1, <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a89a7f6028a19c3dc081cc5f16eb53891">db</a>=None, <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#ae3c3ce8d6c77c7480ab8ce95ac1286ff">cooldown</a>=None)</td></tr>
-<tr class="separator:a68b36f0b5d6a3ca3925832f75b299eba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9dbe3fccf5b87c181c9edef44c10d77"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#aa9dbe3fccf5b87c181c9edef44c10d77">__init__</a> (self, int <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a5c966b61e8380466d9584bd03a22c16f">send_data_after</a>=-1, <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a89a7f6028a19c3dc081cc5f16eb53891">db</a>=None, int <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#ae3c3ce8d6c77c7480ab8ce95ac1286ff">cooldown</a>=None, str <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a69e8c7d239c0a66d1e54b392c27fbc3d">sensors_height</a>='hips')</td></tr>
+<tr class="memdesc:aa9dbe3fccf5b87c181c9edef44c10d77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="classdirect__camera__to__db_1_1HumanStorage.html#aa9dbe3fccf5b87c181c9edef44c10d77">More...</a><br /></td></tr>
+<tr class="separator:aa9dbe3fccf5b87c181c9edef44c10d77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51829b63adb24ac48d350dee60181002"><td class="memItemLeft" align="right" valign="top"><a id="a51829b63adb24ac48d350dee60181002" name="a51829b63adb24ac48d350dee60181002"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>reset</b> (self)</td></tr>
+<tr class="memdesc:a51829b63adb24ac48d350dee60181002"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove all data stored. <br /></td></tr>
 <tr class="separator:a51829b63adb24ac48d350dee60181002"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1139b4229eb39bec0788156c388a5229"><td class="memItemLeft" align="right" valign="top"><a id="a1139b4229eb39bec0788156c388a5229" name="a1139b4229eb39bec0788156c388a5229"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>setDB</b> (self, <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a89a7f6028a19c3dc081cc5f16eb53891">db</a>)</td></tr>
-<tr class="separator:a1139b4229eb39bec0788156c388a5229"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac29141a0dc75fc976da3181372a4a030"><td class="memItemLeft" align="right" valign="top"><a id="ac29141a0dc75fc976da3181372a4a030" name="ac29141a0dc75fc976da3181372a4a030"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>toDB</b> (self, <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a89a7f6028a19c3dc081cc5f16eb53891">db</a>=None)</td></tr>
-<tr class="separator:ac29141a0dc75fc976da3181372a4a030"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acbb0b86c36d79615c79fd14b839169c3"><td class="memItemLeft" align="right" valign="top"><a id="acbb0b86c36d79615c79fd14b839169c3" name="acbb0b86c36d79615c79fd14b839169c3"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (self, tracker.SkeletonTracker <a class="el" href="namespacedirect__camera__to__db.html#a3406db06e0d5f946a6816d1b3a15d4b6">skeletrack</a>, depth_map, <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a89a7f6028a19c3dc081cc5f16eb53891">db</a>=None)</td></tr>
-<tr class="separator:acbb0b86c36d79615c79fd14b839169c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a3a0439f5e6c78e7cecc9d09f17529c"><td class="memItemLeft" align="right" valign="top">None&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a9a3a0439f5e6c78e7cecc9d09f17529c">setDB</a> (self, <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a89a7f6028a19c3dc081cc5f16eb53891">db</a>)</td></tr>
+<tr class="memdesc:a9a3a0439f5e6c78e7cecc9d09f17529c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the Database Client.  <a href="classdirect__camera__to__db_1_1HumanStorage.html#a9a3a0439f5e6c78e7cecc9d09f17529c">More...</a><br /></td></tr>
+<tr class="separator:a9a3a0439f5e6c78e7cecc9d09f17529c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32f810a978e95e27011d93c3f25fa835"><td class="memItemLeft" align="right" valign="top">None&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a32f810a978e95e27011d93c3f25fa835">toDB</a> (self, <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a89a7f6028a19c3dc081cc5f16eb53891">db</a>=None)</td></tr>
+<tr class="memdesc:a32f810a978e95e27011d93c3f25fa835"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send all the data stored into the database thanks to the client.  <a href="classdirect__camera__to__db_1_1HumanStorage.html#a32f810a978e95e27011d93c3f25fa835">More...</a><br /></td></tr>
+<tr class="separator:a32f810a978e95e27011d93c3f25fa835"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33670b57ec1c70bc11da03e0a38297ab"><td class="memItemLeft" align="right" valign="top">None&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a33670b57ec1c70bc11da03e0a38297ab">update</a> (self, tracker.SkeletonTracker skeletrack, rs.depth_frame depth_map, <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html#a89a7f6028a19c3dc081cc5f16eb53891">db</a>=None)</td></tr>
+<tr class="memdesc:a33670b57ec1c70bc11da03e0a38297ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Take the skeletons found by a skeleton tracker and store them in an array.  <a href="classdirect__camera__to__db_1_1HumanStorage.html#a33670b57ec1c70bc11da03e0a38297ab">More...</a><br /></td></tr>
+<tr class="separator:a33670b57ec1c70bc11da03e0a38297ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ae3c3ce8d6c77c7480ab8ce95ac1286ff"><td class="memItemLeft" align="right" valign="top"><a id="ae3c3ce8d6c77c7480ab8ce95ac1286ff" name="ae3c3ce8d6c77c7480ab8ce95ac1286ff"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>cooldown</b></td></tr>
+<tr class="memdesc:ae3c3ce8d6c77c7480ab8ce95ac1286ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">The current number of frames left before sending to DB. <br /></td></tr>
 <tr class="separator:ae3c3ce8d6c77c7480ab8ce95ac1286ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0eeb520cecbcd9caca886d995f223567"><td class="memItemLeft" align="right" valign="top"><a id="a0eeb520cecbcd9caca886d995f223567" name="a0eeb520cecbcd9caca886d995f223567"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>cooldown_limit</b></td></tr>
+<tr class="memdesc:a0eeb520cecbcd9caca886d995f223567"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of frames required without anybody in sight before sending to DB. <br /></td></tr>
 <tr class="separator:a0eeb520cecbcd9caca886d995f223567"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89a7f6028a19c3dc081cc5f16eb53891"><td class="memItemLeft" align="right" valign="top"><a id="a89a7f6028a19c3dc081cc5f16eb53891" name="a89a7f6028a19c3dc081cc5f16eb53891"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>db</b></td></tr>
+<tr class="memdesc:a89a7f6028a19c3dc081cc5f16eb53891"><td class="mdescLeft">&#160;</td><td class="mdescRight">The client that access the database. <br /></td></tr>
 <tr class="separator:a89a7f6028a19c3dc081cc5f16eb53891"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace755d24dbdbaf6711a215041f82cf9d"><td class="memItemLeft" align="right" valign="top"><a id="ace755d24dbdbaf6711a215041f82cf9d" name="ace755d24dbdbaf6711a215041f82cf9d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>humans</b></td></tr>
+<tr class="memdesc:ace755d24dbdbaf6711a215041f82cf9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">A collection of skeletons. <br /></td></tr>
 <tr class="separator:ace755d24dbdbaf6711a215041f82cf9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af087dc222d51704800ec4b13cc32fa92"><td class="memItemLeft" align="right" valign="top"><a id="af087dc222d51704800ec4b13cc32fa92" name="af087dc222d51704800ec4b13cc32fa92"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>number_of_data_collected</b></td></tr>
+<tr class="memdesc:af087dc222d51704800ec4b13cc32fa92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keeping track of the number of data collected to compute the cooldown. <br /></td></tr>
 <tr class="separator:af087dc222d51704800ec4b13cc32fa92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c966b61e8380466d9584bd03a22c16f"><td class="memItemLeft" align="right" valign="top"><a id="a5c966b61e8380466d9584bd03a22c16f" name="a5c966b61e8380466d9584bd03a22c16f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>send_data_after</b></td></tr>
+<tr class="memdesc:a5c966b61e8380466d9584bd03a22c16f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of skeletons this object should keep in memory before sending everything into the DB. <br /></td></tr>
 <tr class="separator:a5c966b61e8380466d9584bd03a22c16f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69e8c7d239c0a66d1e54b392c27fbc3d"><td class="memItemLeft" align="right" valign="top"><a id="a69e8c7d239c0a66d1e54b392c27fbc3d" name="a69e8c7d239c0a66d1e54b392c27fbc3d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>sensors_height</b></td></tr>
+<tr class="memdesc:a69e8c7d239c0a66d1e54b392c27fbc3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position of the sensors, useful when saving the data. <br /></td></tr>
+<tr class="separator:a69e8c7d239c0a66d1e54b392c27fbc3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p >A buffer class that store the coordinates of the persons on screen for a moment and send all of it at once into an InfluxDB database. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="aa9dbe3fccf5b87c181c9edef44c10d77" name="aa9dbe3fccf5b87c181c9edef44c10d77"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9dbe3fccf5b87c181c9edef44c10d77">&#9670;&nbsp;</a></span>__init__()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def __init__ </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &#160;</td>
+          <td class="paramname"><em>send_data_after</em> = <code>-1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> &#160;</td>
+          <td class="paramname"><em>db</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &#160;</td>
+          <td class="paramname"><em>cooldown</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">str &#160;</td>
+          <td class="paramname"><em>sensors_height</em> = <code>'hips'</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">send_data_after</td><td>Defines the number of skeletons the class can contain before flushing everything into the InfluxDB database. Keep it to -1 to flush only when the cooldown is finished (much better method) </td></tr>
+    <tr><td class="paramname">db</td><td>The client used to access the database </td></tr>
+    <tr><td class="paramname">cooldown</td><td>The number of frames without anybody on screen after which the data is sent to the database </td></tr>
+    <tr><td class="paramname">sensors_height</td><td>Position of the sensors when filming the scene</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>An instance of the <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html" title="A buffer class that store the coordinates of the persons on screen for a moment and send all of it at...">HumanStorage</a> </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a9a3a0439f5e6c78e7cecc9d09f17529c" name="a9a3a0439f5e6c78e7cecc9d09f17529c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a3a0439f5e6c78e7cecc9d09f17529c">&#9670;&nbsp;</a></span>setDB()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> None setDB </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a>&#160;</td>
+          <td class="paramname"><em>db</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update the Database Client. </p>
+<p >Nothing more </p>
+
+</div>
+</div>
+<a id="a32f810a978e95e27011d93c3f25fa835" name="a32f810a978e95e27011d93c3f25fa835"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32f810a978e95e27011d93c3f25fa835">&#9670;&nbsp;</a></span>toDB()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> None toDB </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> &#160;</td>
+          <td class="paramname"><em>db</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Send all the data stored into the database thanks to the client. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">db</td><td>If you haven't provided a client yet, you can pass one now </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a33670b57ec1c70bc11da03e0a38297ab" name="a33670b57ec1c70bc11da03e0a38297ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33670b57ec1c70bc11da03e0a38297ab">&#9670;&nbsp;</a></span>update()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> None update </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">tracker.SkeletonTracker&#160;</td>
+          <td class="paramname"><em>skeletrack</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">rs.depth_frame&#160;</td>
+          <td class="paramname"><em>depth_map</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> &#160;</td>
+          <td class="paramname"><em>db</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Take the skeletons found by a skeleton tracker and store them in an array. </p>
+<p >Send data to DB if needed. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">skeletrack</td><td>A skeletrack object that analysed a frame </td></tr>
+    <tr><td class="paramname">depth_map</td><td>The depth map captured by the camera </td></tr>
+    <tr><td class="paramname">db</td><td>If no database client have been given until now, you can pass the client. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="direct__camera__to__db_8py.html">direct_camera_to_db.py</a></li>
 </ul>

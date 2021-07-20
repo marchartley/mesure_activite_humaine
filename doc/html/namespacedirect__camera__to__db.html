@@ -70,200 +70,74 @@ $(function() {
   <div class="headertitle"><div class="title">direct_camera_to_db Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>This script can be used to capture and save the skeletons of person walking in front of a camera.  
+<a href="namespacedirect__camera__to__db.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html">HumanStorage</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A buffer class that store the coordinates of the persons on screen for a moment and send all of it at once into an InfluxDB database.  <a href="classdirect__camera__to__db_1_1HumanStorage.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:afa05005cd6cebfaf9301964aaa1f02b8"><td class="memItemLeft" align="right" valign="top"><a id="afa05005cd6cebfaf9301964aaa1f02b8" name="afa05005cd6cebfaf9301964aaa1f02b8"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>update_datasets</b> (use_cache=True)</td></tr>
-<tr class="separator:afa05005cd6cebfaf9301964aaa1f02b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a948597a4a5a7e9891caefa5f9e979123"><td class="memItemLeft" align="right" valign="top"><a id="a948597a4a5a7e9891caefa5f9e979123" name="a948597a4a5a7e9891caefa5f9e979123"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>main</b> ()</td></tr>
+<tr class="separator:a948597a4a5a7e9891caefa5f9e979123"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a881a824c1652b637c73d3ea972aacb94"><td class="memItemLeft" align="right" valign="top">None&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedirect__camera__to__db.html#a881a824c1652b637c73d3ea972aacb94">update_datasets</a> (<a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a> db_client, bool use_cache=False)</td></tr>
+<tr class="memdesc:a881a824c1652b637c73d3ea972aacb94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the datasets used for the deep learning training.  <a href="namespacedirect__camera__to__db.html#a881a824c1652b637c73d3ea972aacb94">More...</a><br /></td></tr>
+<tr class="separator:a881a824c1652b637c73d3ea972aacb94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a2f4ab7bf743142dae2e459aa18f9f1d4"><td class="memItemLeft" align="right" valign="top"><a id="a2f4ab7bf743142dae2e459aa18f9f1d4" name="a2f4ab7bf743142dae2e459aa18f9f1d4"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>action</b></td></tr>
-<tr class="separator:a2f4ab7bf743142dae2e459aa18f9f1d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a78cdfcc19dfd37a8fc90b6b4d666c38a"><td class="memItemLeft" align="right" valign="top"><a id="a78cdfcc19dfd37a8fc90b6b4d666c38a" name="a78cdfcc19dfd37a8fc90b6b4d666c38a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = args.address</td></tr>
-<tr class="separator:a78cdfcc19dfd37a8fc90b6b4d666c38a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8187411843a6284ffb964ef3fb9fcab3"><td class="memItemLeft" align="right" valign="top"><a id="a8187411843a6284ffb964ef3fb9fcab3" name="a8187411843a6284ffb964ef3fb9fcab3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>args</b> = parser.parse_args()</td></tr>
-<tr class="separator:a8187411843a6284ffb964ef3fb9fcab3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23c589c2cf872414a118fe03d8aee50b"><td class="memItemLeft" align="right" valign="top"><a id="a23c589c2cf872414a118fe03d8aee50b" name="a23c589c2cf872414a118fe03d8aee50b"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>body_present</b> = False</td></tr>
-<tr class="separator:a23c589c2cf872414a118fe03d8aee50b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a684b5230b4fa970646114fa2c40c26a0"><td class="memItemLeft" align="right" valign="top"><a id="a684b5230b4fa970646114fa2c40c26a0" name="a684b5230b4fa970646114fa2c40c26a0"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>calibration_finished</b> = False</td></tr>
-<tr class="separator:a684b5230b4fa970646114fa2c40c26a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d20711326e34ec3bdf9a03856ada24e"><td class="memItemLeft" align="right" valign="top"><a id="a5d20711326e34ec3bdf9a03856ada24e" name="a5d20711326e34ec3bdf9a03856ada24e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>calibration_time</b> = args.calibration_time</td></tr>
-<tr class="separator:a5d20711326e34ec3bdf9a03856ada24e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe4af000bf573a366552e6f64b5e9b41"><td class="memItemLeft" align="right" valign="top"><a id="abe4af000bf573a366552e6f64b5e9b41" name="abe4af000bf573a366552e6f64b5e9b41"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>calibrations_remaining</b> = <a class="el" href="namespacedirect__camera__to__db.html#a42122aa8408e3fd0bb242f6bc651ab33">number_of_aruco_calibration_needed</a> - <a class="el" href="namespaceconvert__realsense__to__real__world.html#a57a171534499abd2261a624067f36d0a">convert_realsense_to_real_world.get_number_of_calibration_of_aruco_box</a>()</td></tr>
-<tr class="separator:abe4af000bf573a366552e6f64b5e9b41"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3cf365ee8b53915a597f9077bc613933"><td class="memItemLeft" align="right" valign="top"><a id="a3cf365ee8b53915a597f9077bc613933" name="a3cf365ee8b53915a597f9077bc613933"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>color_frame</b> = np.asanyarray(frames.get_color_frame().get_data()).copy()</td></tr>
-<tr class="separator:a3cf365ee8b53915a597f9077bc613933"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2256458892609d0533df5d72a7257ad"><td class="memItemLeft" align="right" valign="top"><a id="ad2256458892609d0533df5d72a7257ad" name="ad2256458892609d0533df5d72a7257ad"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>config</b> = rs.config()</td></tr>
-<tr class="separator:ad2256458892609d0533df5d72a7257ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64dbaa3229ec575b68ec333442e10cee"><td class="memItemLeft" align="right" valign="top"><a id="a64dbaa3229ec575b68ec333442e10cee" name="a64dbaa3229ec575b68ec333442e10cee"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>database</b> = args.database</td></tr>
-<tr class="separator:a64dbaa3229ec575b68ec333442e10cee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b5fa406883a028a587976f8c5289d20"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedirect__camera__to__db.html#a1b5fa406883a028a587976f8c5289d20">db_client</a></td></tr>
-<tr class="memdesc:a1b5fa406883a028a587976f8c5289d20"><td class="mdescLeft">&#160;</td><td class="mdescRight"> <a href="namespacedirect__camera__to__db.html#a1b5fa406883a028a587976f8c5289d20">More...</a><br /></td></tr>
-<tr class="separator:a1b5fa406883a028a587976f8c5289d20"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:affb1327b18bf08a379d19eef89cf1ed1"><td class="memItemLeft" align="right" valign="top"><a id="affb1327b18bf08a379d19eef89cf1ed1" name="affb1327b18bf08a379d19eef89cf1ed1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>default</b></td></tr>
-<tr class="separator:affb1327b18bf08a379d19eef89cf1ed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a963cec8555428bd6970240adca640a11"><td class="memItemLeft" align="right" valign="top"><a id="a963cec8555428bd6970240adca640a11" name="a963cec8555428bd6970240adca640a11"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>depth_frame</b> = frames.get_depth_frame()</td></tr>
-<tr class="separator:a963cec8555428bd6970240adca640a11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0bede79c5f4cbed9c2cd932a0ace201"><td class="memItemLeft" align="right" valign="top"><a id="ab0bede79c5f4cbed9c2cd932a0ace201" name="ab0bede79c5f4cbed9c2cd932a0ace201"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>dest</b></td></tr>
-<tr class="separator:ab0bede79c5f4cbed9c2cd932a0ace201"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45b67662d620a977a2cfe519f7ab6273"><td class="memItemLeft" align="right" valign="top"><a id="a45b67662d620a977a2cfe519f7ab6273" name="a45b67662d620a977a2cfe519f7ab6273"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>fps</b> = 0</td></tr>
-<tr class="separator:a45b67662d620a977a2cfe519f7ab6273"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76a412a38642b618caf4a30f4cd2703c"><td class="memItemLeft" align="right" valign="top"><a id="a76a412a38642b618caf4a30f4cd2703c" name="a76a412a38642b618caf4a30f4cd2703c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>frames</b> = pipeline.wait_for_frames()</td></tr>
-<tr class="separator:a76a412a38642b618caf4a30f4cd2703c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81ae9faedaa69e3e28e2960a0548df8d"><td class="memItemLeft" align="right" valign="top"><a id="a81ae9faedaa69e3e28e2960a0548df8d" name="a81ae9faedaa69e3e28e2960a0548df8d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>help</b></td></tr>
-<tr class="separator:a81ae9faedaa69e3e28e2960a0548df8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a301832e3979f36a4fa24fb235d465750"><td class="memItemLeft" align="right" valign="top"><a id="a301832e3979f36a4fa24fb235d465750" name="a301832e3979f36a4fa24fb235d465750"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>host_group</b> = parser.add_mutually_exclusive_group(required=True)</td></tr>
-<tr class="separator:a301832e3979f36a4fa24fb235d465750"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a837c6e3c9f653e8f2ce467a2e8ba1d42"><td class="memItemLeft" align="right" valign="top"><a id="a837c6e3c9f653e8f2ce467a2e8ba1d42" name="a837c6e3c9f653e8f2ce467a2e8ba1d42"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>human</b> = <a class="el" href="classhuman__skeleton_1_1HumanSkeleton.html">human_skeleton.HumanSkeleton</a>()</td></tr>
-<tr class="separator:a837c6e3c9f653e8f2ce467a2e8ba1d42"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf937c57696c0f933bbabc8e7237b7a5"><td class="memItemLeft" align="right" valign="top"><a id="aaf937c57696c0f933bbabc8e7237b7a5" name="aaf937c57696c0f933bbabc8e7237b7a5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>human_storage</b> = <a class="el" href="classdirect__camera__to__db_1_1HumanStorage.html">HumanStorage</a>(cooldown=100, db=<a class="el" href="namespacedirect__camera__to__db.html#a1b5fa406883a028a587976f8c5289d20">db_client</a>)</td></tr>
-<tr class="separator:aaf937c57696c0f933bbabc8e7237b7a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35af0be900467fedbb610bd6ea65ed78"><td class="memItemLeft" align="right" valign="top"><a id="a35af0be900467fedbb610bd6ea65ed78" name="a35af0be900467fedbb610bd6ea65ed78"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>key</b> = cv2.waitKey(1) &amp; 0xFF</td></tr>
-<tr class="separator:a35af0be900467fedbb610bd6ea65ed78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11d9c923d092bdfa3544dd99ffcb3882"><td class="memItemLeft" align="right" valign="top"><a id="a11d9c923d092bdfa3544dd99ffcb3882" name="a11d9c923d092bdfa3544dd99ffcb3882"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>last_date_speed_registered</b> = None</td></tr>
+<tr class="memdesc:a11d9c923d092bdfa3544dd99ffcb3882"><td class="mdescLeft">&#160;</td><td class="mdescRight">The last time we've computed the person's speed to display it on screen. <br /></td></tr>
 <tr class="separator:a11d9c923d092bdfa3544dd99ffcb3882"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c59d4c83ddd1aaed06589d14f1ee553"><td class="memItemLeft" align="right" valign="top"><a id="a6c59d4c83ddd1aaed06589d14f1ee553" name="a6c59d4c83ddd1aaed06589d14f1ee553"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>last_speed_registered</b> = 0</td></tr>
+<tr class="memdesc:a6c59d4c83ddd1aaed06589d14f1ee553"><td class="mdescLeft">&#160;</td><td class="mdescRight">The last value estimated for the person's speed to display it on screen. <br /></td></tr>
 <tr class="separator:a6c59d4c83ddd1aaed06589d14f1ee553"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a96db3da3652c2ce91fd6b07f397ab3f5"><td class="memItemLeft" align="right" valign="top"><a id="a96db3da3652c2ce91fd6b07f397ab3f5" name="a96db3da3652c2ce91fd6b07f397ab3f5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>local</b> = args.local</td></tr>
-<tr class="separator:a96db3da3652c2ce91fd6b07f397ab3f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73f744fe95eaca16b7ca24558ee61983"><td class="memItemLeft" align="right" valign="top"><a id="a73f744fe95eaca16b7ca24558ee61983" name="a73f744fe95eaca16b7ca24558ee61983"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>login</b> = args.login</td></tr>
-<tr class="separator:a73f744fe95eaca16b7ca24558ee61983"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ab50df8a111bf4ced546f3b6df340a7"><td class="memItemLeft" align="right" valign="top"><a id="a0ab50df8a111bf4ced546f3b6df340a7" name="a0ab50df8a111bf4ced546f3b6df340a7"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>model_folder</b> = args.model_folder</td></tr>
-<tr class="separator:a0ab50df8a111bf4ced546f3b6df340a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42122aa8408e3fd0bb242f6bc651ab33"><td class="memItemLeft" align="right" valign="top"><a id="a42122aa8408e3fd0bb242f6bc651ab33" name="a42122aa8408e3fd0bb242f6bc651ab33"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>number_of_aruco_calibration_needed</b> = <a class="el" href="namespacedirect__camera__to__db.html#a5d20711326e34ec3bdf9a03856ada24e">calibration_time</a> * 20</td></tr>
-<tr class="separator:a42122aa8408e3fd0bb242f6bc651ab33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa7751ad4d7a7a1770a569efbf9033ddd"><td class="memItemLeft" align="right" valign="top"><a id="aa7751ad4d7a7a1770a569efbf9033ddd" name="aa7751ad4d7a7a1770a569efbf9033ddd"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>number_of_frames</b> = 0</td></tr>
-<tr class="separator:aa7751ad4d7a7a1770a569efbf9033ddd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90eee7a4677ca8b1ed116364a24367f9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedirect__camera__to__db.html#a90eee7a4677ca8b1ed116364a24367f9">parser</a></td></tr>
-<tr class="memdesc:a90eee7a4677ca8b1ed116364a24367f9"><td class="mdescLeft">&#160;</td><td class="mdescRight"> <a href="namespacedirect__camera__to__db.html#a90eee7a4677ca8b1ed116364a24367f9">More...</a><br /></td></tr>
-<tr class="separator:a90eee7a4677ca8b1ed116364a24367f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9dbb300e28bc21c8dab41b01883918eb"><td class="memItemLeft" align="right" valign="top"><a id="a9dbb300e28bc21c8dab41b01883918eb" name="a9dbb300e28bc21c8dab41b01883918eb"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>password</b> = args.password</td></tr>
-<tr class="separator:a9dbb300e28bc21c8dab41b01883918eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2320134bb04bbea3b4d6ff0569d3a746"><td class="memItemLeft" align="right" valign="top"><a id="a2320134bb04bbea3b4d6ff0569d3a746" name="a2320134bb04bbea3b4d6ff0569d3a746"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>pipeline</b> = rs.pipeline()</td></tr>
-<tr class="separator:a2320134bb04bbea3b4d6ff0569d3a746"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af8fb0f45ee0195c7422a49e6a8d72369"><td class="memItemLeft" align="right" valign="top"><a id="af8fb0f45ee0195c7422a49e6a8d72369" name="af8fb0f45ee0195c7422a49e6a8d72369"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>port</b> = args.port</td></tr>
-<tr class="separator:af8fb0f45ee0195c7422a49e6a8d72369"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9efe0b9a30d46f7613978ab954918f3d"><td class="memItemLeft" align="right" valign="top"><a id="a9efe0b9a30d46f7613978ab954918f3d" name="a9efe0b9a30d46f7613978ab954918f3d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>remote</b> = args.remote</td></tr>
-<tr class="separator:a9efe0b9a30d46f7613978ab954918f3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9b106c90d808bcdcc3f8d1ca3764252"><td class="memItemLeft" align="right" valign="top"><a id="ae9b106c90d808bcdcc3f8d1ca3764252" name="ae9b106c90d808bcdcc3f8d1ca3764252"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>skeletons</b> = skeletrack.track_skeletons(<a class="el" href="namespacedirect__camera__to__db.html#a3cf365ee8b53915a597f9077bc613933">color_frame</a>)</td></tr>
-<tr class="separator:ae9b106c90d808bcdcc3f8d1ca3764252"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3406db06e0d5f946a6816d1b3a15d4b6"><td class="memItemLeft" align="right" valign="top"><a id="a3406db06e0d5f946a6816d1b3a15d4b6" name="a3406db06e0d5f946a6816d1b3a15d4b6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>skeletrack</b> = tracker.SkeletonTracker(choose_best_module=True, <a class="el" href="namespacedirect__camera__to__db.html#a2320134bb04bbea3b4d6ff0569d3a746">pipeline</a>=<a class="el" href="namespacedirect__camera__to__db.html#a2320134bb04bbea3b4d6ff0569d3a746">pipeline</a>)</td></tr>
-<tr class="separator:a3406db06e0d5f946a6816d1b3a15d4b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9084e00a62f3d5163b467352fda58348"><td class="memItemLeft" align="right" valign="top"><a id="a9084e00a62f3d5163b467352fda58348" name="a9084e00a62f3d5163b467352fda58348"></a>
-string&#160;</td><td class="memItemRight" valign="bottom"><b>speed_text</b> = f&quot;Last speed: {round(<a class="el" href="namespacedirect__camera__to__db.html#a6c59d4c83ddd1aaed06589d14f1ee553">last_speed_registered</a>, 2)}m/s ({<a class="el" href="namespacedirect__camera__to__db.html#a57f1ad507850753a52ef9eaa39ab554f">str_time</a>} ago)&quot;</td></tr>
-<tr class="separator:a9084e00a62f3d5163b467352fda58348"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2530c3908f0179486a4c2255f792e27a"><td class="memItemLeft" align="right" valign="top"><a id="a2530c3908f0179486a4c2255f792e27a" name="a2530c3908f0179486a4c2255f792e27a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>start_time</b> = time.time()</td></tr>
-<tr class="separator:a2530c3908f0179486a4c2255f792e27a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4d38e7365d935f2a5f1403eec29127e"><td class="memItemLeft" align="right" valign="top"><a id="ab4d38e7365d935f2a5f1403eec29127e" name="ab4d38e7365d935f2a5f1403eec29127e"></a>
-string&#160;</td><td class="memItemRight" valign="bottom"><b>status</b> = &quot;&quot;</td></tr>
-<tr class="separator:ab4d38e7365d935f2a5f1403eec29127e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a082796a211b36aba808ecc6e67869e"><td class="memItemLeft" align="right" valign="top"><a id="a0a082796a211b36aba808ecc6e67869e" name="a0a082796a211b36aba808ecc6e67869e"></a>
-tuple&#160;</td><td class="memItemRight" valign="bottom"><b>status_color</b> = (0, 0, 0)</td></tr>
-<tr class="separator:a0a082796a211b36aba808ecc6e67869e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ff4222daa815d11fe51751d68e9fdda"><td class="memItemLeft" align="right" valign="top"><a id="a3ff4222daa815d11fe51751d68e9fdda" name="a3ff4222daa815d11fe51751d68e9fdda"></a>
-string&#160;</td><td class="memItemRight" valign="bottom"><b>status_text</b> = &quot;&quot;</td></tr>
-<tr class="separator:a3ff4222daa815d11fe51751d68e9fdda"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57f1ad507850753a52ef9eaa39ab554f"><td class="memItemLeft" align="right" valign="top"><a id="a57f1ad507850753a52ef9eaa39ab554f" name="a57f1ad507850753a52ef9eaa39ab554f"></a>
-string&#160;</td><td class="memItemRight" valign="bottom"><b>str_time</b> = f&quot;{time_h}h{<a class="el" href="namespacedirect__camera__to__db.html#acc978c5edb9195b23961f39dfd3affad">time_m</a>}m{<a class="el" href="namespacedirect__camera__to__db.html#a0f1e27b90fb4f8b3c88f0afba7aaa4f5">time_s</a>}s&quot; if <a class="el" href="namespacedirect__camera__to__db.html#a56f2932a2608e3ef6ea42e4760b08927">time_h</a> &gt; 0 else f&quot;{time_m}m{<a class="el" href="namespacedirect__camera__to__db.html#a0f1e27b90fb4f8b3c88f0afba7aaa4f5">time_s</a>}s&quot; if <a class="el" href="namespacedirect__camera__to__db.html#acc978c5edb9195b23961f39dfd3affad">time_m</a> &gt; 0 else f&quot;{time_s}s&quot;</td></tr>
-<tr class="separator:a57f1ad507850753a52ef9eaa39ab554f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d2c023108742a1ce78ba9823c06ea35"><td class="memItemLeft" align="right" valign="top"><a id="a5d2c023108742a1ce78ba9823c06ea35" name="a5d2c023108742a1ce78ba9823c06ea35"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>target</b></td></tr>
-<tr class="separator:a5d2c023108742a1ce78ba9823c06ea35"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae068f5dfe61a29f1e5ced2613e238447"><td class="memItemLeft" align="right" valign="top"><a id="ae068f5dfe61a29f1e5ced2613e238447" name="ae068f5dfe61a29f1e5ced2613e238447"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>test_model</b> = args.test_model</td></tr>
-<tr class="separator:ae068f5dfe61a29f1e5ced2613e238447"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6fc3ff2573ab0de9b126b13b0657b98d"><td class="memItemLeft" align="right" valign="top"><a id="a6fc3ff2573ab0de9b126b13b0657b98d" name="a6fc3ff2573ab0de9b126b13b0657b98d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>time_diff</b> = time.time() - <a class="el" href="namespacedirect__camera__to__db.html#a11d9c923d092bdfa3544dd99ffcb3882">last_date_speed_registered</a></td></tr>
-<tr class="separator:a6fc3ff2573ab0de9b126b13b0657b98d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a56f2932a2608e3ef6ea42e4760b08927"><td class="memItemLeft" align="right" valign="top"><a id="a56f2932a2608e3ef6ea42e4760b08927" name="a56f2932a2608e3ef6ea42e4760b08927"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>time_h</b> = int((<a class="el" href="namespacedirect__camera__to__db.html#a6fc3ff2573ab0de9b126b13b0657b98d">time_diff</a> // 60) // 60)</td></tr>
-<tr class="separator:a56f2932a2608e3ef6ea42e4760b08927"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc978c5edb9195b23961f39dfd3affad"><td class="memItemLeft" align="right" valign="top"><a id="acc978c5edb9195b23961f39dfd3affad" name="acc978c5edb9195b23961f39dfd3affad"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>time_m</b> = int(<a class="el" href="namespacedirect__camera__to__db.html#a6fc3ff2573ab0de9b126b13b0657b98d">time_diff</a> // 60)</td></tr>
-<tr class="separator:acc978c5edb9195b23961f39dfd3affad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f1e27b90fb4f8b3c88f0afba7aaa4f5"><td class="memItemLeft" align="right" valign="top"><a id="a0f1e27b90fb4f8b3c88f0afba7aaa4f5" name="a0f1e27b90fb4f8b3c88f0afba7aaa4f5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>time_s</b> = int(<a class="el" href="namespacedirect__camera__to__db.html#a6fc3ff2573ab0de9b126b13b0657b98d">time_diff</a> % 60)</td></tr>
-<tr class="separator:a0f1e27b90fb4f8b3c88f0afba7aaa4f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7aead736a07eaf25623ad7bfa1f0ee2d"><td class="memItemLeft" align="right" valign="top"><a id="a7aead736a07eaf25623ad7bfa1f0ee2d" name="a7aead736a07eaf25623ad7bfa1f0ee2d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="separator:a7aead736a07eaf25623ad7bfa1f0ee2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15459d17587f89937011feff63a8ca18"><td class="memItemLeft" align="right" valign="top"><a id="a15459d17587f89937011feff63a8ca18" name="a15459d17587f89937011feff63a8ca18"></a>
-list&#160;</td><td class="memItemRight" valign="bottom"><b>unavailable_indices</b> = []</td></tr>
-<tr class="separator:a15459d17587f89937011feff63a8ca18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Variable Documentation</h2>
-<a id="a1b5fa406883a028a587976f8c5289d20" name="a1b5fa406883a028a587976f8c5289d20"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b5fa406883a028a587976f8c5289d20">&#9670;&nbsp;</a></span>db_client</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p >This script can be used to capture and save the skeletons of person walking in front of a camera. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a881a824c1652b637c73d3ea972aacb94" name="a881a824c1652b637c73d3ea972aacb94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a881a824c1652b637c73d3ea972aacb94">&#9670;&nbsp;</a></span>update_datasets()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">db_client</td>
+          <td class="memname"> None direct_camera_to_db.update_datasets </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a>&#160;</td>
+          <td class="paramname"><em>db_client</em>, </td>
         </tr>
-      </table>
-</div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span>=  <a class="code" href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a>(server_side=remote, host=address, port=port, login=login,</div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span>                                                   pwd=password, database=database)</div>
-<div class="ttc" id="aclassInfluxDB__connection_1_1ListicClientDB_html"><div class="ttname"><a href="classInfluxDB__connection_1_1ListicClientDB.html">InfluxDB_connection.ListicClientDB</a></div><div class="ttdoc">The InfluxDB client that can be used in our programs.</div><div class="ttdef"><b>Definition:</b> InfluxDB_connection.py:20</div></div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="a90eee7a4677ca8b1ed116364a24367f9" name="a90eee7a4677ca8b1ed116364a24367f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a90eee7a4677ca8b1ed116364a24367f9">&#9670;&nbsp;</a></span>parser</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
         <tr>
-          <td class="memname">parser</td>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool &#160;</td>
+          <td class="paramname"><em>use_cache</em> = <code>False</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span>=  argparse.ArgumentParser(description=<span class="stringliteral">&#39;Save the skeletons detected on the camera without saving the rosbag &#39;</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span>                                                 <span class="stringliteral">&#39;file&#39;</span>)</div>
-</div><!-- fragment -->
+
+<p>Update the datasets used for the deep learning training. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">db_client</td><td>The client that can access the database </td></tr>
+    <tr><td class="paramname">use_cache</td><td>Defines if the client can use the cache. It's not a good idea in this case I think... </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 </div><!-- contents -->

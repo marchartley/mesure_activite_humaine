@@ -64,17 +64,57 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">display_skeleton Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>This small script enables us to display the skeleton in 3D of the last walking stored in the database.  
+<a href="namespacedisplay__skeleton.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a24d9a23442d99d6094df5ac72a6f6c8d"><td class="memItemLeft" align="right" valign="top"><a id="a24d9a23442d99d6094df5ac72a6f6c8d" name="a24d9a23442d99d6094df5ac72a6f6c8d"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>visual_skeleton</b> ()</td></tr>
-<tr class="separator:a24d9a23442d99d6094df5ac72a6f6c8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e476b2dbf3efbb32e9f42f3fe7e839a"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedisplay__skeleton.html#a6e476b2dbf3efbb32e9f42f3fe7e839a">visual_skeleton</a> (<a class="el" href="namespacedisplay__skeleton.html#a9b637e512bff3ac1b8f769f0ad136d3f">sequence_id</a>=-1)</td></tr>
+<tr class="memdesc:a6e476b2dbf3efbb32e9f42f3fe7e839a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the sequence of a skeleton in a 3D plot.  <a href="namespacedisplay__skeleton.html#a6e476b2dbf3efbb32e9f42f3fe7e839a">More...</a><br /></td></tr>
+<tr class="separator:a6e476b2dbf3efbb32e9f42f3fe7e839a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a9b637e512bff3ac1b8f769f0ad136d3f"><td class="memItemLeft" align="right" valign="top"><a id="a9b637e512bff3ac1b8f769f0ad136d3f" name="a9b637e512bff3ac1b8f769f0ad136d3f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>sequence_id</b></td></tr>
+<tr class="separator:a9b637e512bff3ac1b8f769f0ad136d3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p >This small script enables us to display the skeleton in 3D of the last walking stored in the database. </p>
+<p >With this script you will discover that the Aruco box doesn't align things very well... A straight walk in the corridor will result in a small deviation on the X-axis. Remember that if you want to distinguish walks on the "West", "Center" and "East", that you cannot separate only with the X-axis position of the person, but you might have to think about a small equation or, if motivated, using a SVM. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a6e476b2dbf3efbb32e9f42f3fe7e839a" name="a6e476b2dbf3efbb32e9f42f3fe7e839a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e476b2dbf3efbb32e9f42f3fe7e839a">&#9670;&nbsp;</a></span>visual_skeleton()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def display_skeleton.visual_skeleton </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>sequence_id</em> = <code>-1</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Displays the sequence of a skeleton in a 3D plot. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sequence_id</td><td>The ID of the sequence you want to display </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

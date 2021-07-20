@@ -133,9 +133,9 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>timestamp_to_date_form
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:adb411260a3d54e3207e096f9680cc001"><td class="memItemLeft" align="right" valign="top"><a id="adb411260a3d54e3207e096f9680cc001" name="adb411260a3d54e3207e096f9680cc001"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>check_if_body_will_reappear</b> (dict skeleton_data, float current_timestamp)</td></tr>
-<tr class="separator:adb411260a3d54e3207e096f9680cc001"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94cf1ceb8ae2653a1c11ff4594b26d1a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html#a94cf1ceb8ae2653a1c11ff4594b26d1a">check_if_body_will_reappear</a> (dict skeleton_data, float current_timestamp)</td></tr>
+<tr class="memdesc:a94cf1ceb8ae2653a1c11ff4594b26d1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function that tells us if there are still somebody detected in a sequence after a given time.  <a href="classInfluxDB__connection_1_1ListicClientDB.html#a94cf1ceb8ae2653a1c11ff4594b26d1a">More...</a><br /></td></tr>
+<tr class="separator:a94cf1ceb8ae2653a1c11ff4594b26d1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -227,6 +227,52 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a94cf1ceb8ae2653a1c11ff4594b26d1a" name="a94cf1ceb8ae2653a1c11ff4594b26d1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94cf1ceb8ae2653a1c11ff4594b26d1a">&#9670;&nbsp;</a></span>check_if_body_will_reappear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"> bool check_if_body_will_reappear </td>
+          <td>(</td>
+          <td class="paramtype">dict&#160;</td>
+          <td class="paramname"><em>skeleton_data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>current_timestamp</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Function that tells us if there are still somebody detected in a sequence after a given time. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">skeleton_data</td><td>The data given by <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html#a0d03067fe1ec7e0a08cbafabd6d93aec" title="Function to get the skeletons of persons walking in front of the camera.">retrieve_skeleton_keypoints()</a> that defines the skeleton in a sequence </td></tr>
+    <tr><td class="paramname">current_timestamp</td><td>The time for which we want to check if the person will be back in screen</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A boolean telling if the person will be back on screen after the given timestamp. </dd></dl>
+
+</div>
+</div>
 <a id="a6508025197b9eeda9a0af817d0f8ca26" name="a6508025197b9eeda9a0af817d0f8ca26"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6508025197b9eeda9a0af817d0f8ca26">&#9670;&nbsp;</a></span>get_all_pir_timestamps()</h2>
 
@@ -244,7 +290,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Function to extract all the timestamps at which the sensors were in use. </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>This function was in use quite a while ago, I don't see any use of this anymore. (used in <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html#acf92629aab66720f827cb0a293abea00" title="Function that insert the computed walking parameters into the database.">insert_walking_metrics()</a>, which is a useless function...)</dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated:</a></b></dt><dd>This function was in use quite a while ago, I don't see any use of this anymore. (used in <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html#acf92629aab66720f827cb0a293abea00" title="Function that insert the computed walking parameters into the database.">insert_walking_metrics()</a>, which is a useless function...)</dd></dl>
 
 </div>
 </div>
@@ -322,7 +368,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Function to retrieve skeletons stored since 26/04/2021. </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000001">Deprecated:</a></b></dt><dd>This function is never really used because it is time consuming. Use other functions like <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html#a4c219c59431e28134b37d8739a90f7b3" title="Function to get the skeletons of persons walking in front of the camera divided in sequences.">get_skeletons_in_splitted_sequences()</a> to work with skeletons. </dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>This function is never really used because it is time consuming. Use other functions like <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html#a4c219c59431e28134b37d8739a90f7b3" title="Function to get the skeletons of persons walking in front of the camera divided in sequences.">get_skeletons_in_splitted_sequences()</a> to work with skeletons. </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>A tuple containing the coordinates as a Dict with data in 2D and another Dict for coordinates 3D. </dd></dl>
 
 </div>
@@ -354,7 +400,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Function to find the closest data from the sensors relative to the timestamp given as input. </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated:</a></b></dt><dd>This function was in use quite a while ago, I don't see any use of this anymore. (used in <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html#acf92629aab66720f827cb0a293abea00" title="Function that insert the computed walking parameters into the database.">insert_walking_metrics()</a>, which is a useless function...) </dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>This function was in use quite a while ago, I don't see any use of this anymore. (used in <a class="el" href="classInfluxDB__connection_1_1ListicClientDB.html#acf92629aab66720f827cb0a293abea00" title="Function that insert the computed walking parameters into the database.">insert_walking_metrics()</a>, which is a useless function...) </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">timestamp</td><td>the timestamp you want to compare with. </td></tr>

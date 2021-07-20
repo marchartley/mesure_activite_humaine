@@ -1,44 +1,125 @@
 \hypertarget{classdirect__camera__to__db_1_1HumanStorage}{}\doxysection{Human\+Storage Class Reference}
 \label{classdirect__camera__to__db_1_1HumanStorage}\index{HumanStorage@{HumanStorage}}
+
+
+A buffer class that store the coordinates of the persons on screen for a moment and send all of it at once into an Influx\+DB database.  
+
+
 \doxysubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a68b36f0b5d6a3ca3925832f75b299eba}\label{classdirect__camera__to__db_1_1HumanStorage_a68b36f0b5d6a3ca3925832f75b299eba}} 
-def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self, \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a5c966b61e8380466d9584bd03a22c16f}{send\+\_\+data\+\_\+after}}=-\/1, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}{db}}=None, \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_ae3c3ce8d6c77c7480ab8ce95ac1286ff}{cooldown}}=None)
-\item 
+def \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_aa9dbe3fccf5b87c181c9edef44c10d77}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, int \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a5c966b61e8380466d9584bd03a22c16f}{send\+\_\+data\+\_\+after}}=-\/1, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}{db}}=None, int \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_ae3c3ce8d6c77c7480ab8ce95ac1286ff}{cooldown}}=None, str \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a69e8c7d239c0a66d1e54b392c27fbc3d}{sensors\+\_\+height}}=\textquotesingle{}hips\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a51829b63adb24ac48d350dee60181002}\label{classdirect__camera__to__db_1_1HumanStorage_a51829b63adb24ac48d350dee60181002}} 
 def {\bfseries reset} (self)
-\item 
-\mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a1139b4229eb39bec0788156c388a5229}\label{classdirect__camera__to__db_1_1HumanStorage_a1139b4229eb39bec0788156c388a5229}} 
-def {\bfseries set\+DB} (self, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}{db}})
-\item 
-\mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_ac29141a0dc75fc976da3181372a4a030}\label{classdirect__camera__to__db_1_1HumanStorage_ac29141a0dc75fc976da3181372a4a030}} 
-def {\bfseries to\+DB} (self, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}{db}}=None)
-\item 
-\mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_acbb0b86c36d79615c79fd14b839169c3}\label{classdirect__camera__to__db_1_1HumanStorage_acbb0b86c36d79615c79fd14b839169c3}} 
-def {\bfseries update} (self, tracker.\+Skeleton\+Tracker \mbox{\hyperlink{namespacedirect__camera__to__db_a3406db06e0d5f946a6816d1b3a15d4b6}{skeletrack}}, depth\+\_\+map, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}{db}}=None)
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Remove all data stored. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a9a3a0439f5e6c78e7cecc9d09f17529c}{set\+DB}} (self, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}{db}})
+\begin{DoxyCompactList}\small\item\em Update the Database Client. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a32f810a978e95e27011d93c3f25fa835}{to\+DB}} (self, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}{db}}=None)
+\begin{DoxyCompactList}\small\item\em Send all the data stored into the database thanks to the client. \end{DoxyCompactList}\item 
+None \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a33670b57ec1c70bc11da03e0a38297ab}{update}} (self, tracker.\+Skeleton\+Tracker skeletrack, rs.\+depth\+\_\+frame depth\+\_\+map, \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}{db}}=None)
+\begin{DoxyCompactList}\small\item\em Take the skeletons found by a skeleton tracker and store them in an array. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
 \mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_ae3c3ce8d6c77c7480ab8ce95ac1286ff}\label{classdirect__camera__to__db_1_1HumanStorage_ae3c3ce8d6c77c7480ab8ce95ac1286ff}} 
 {\bfseries cooldown}
-\item 
+\begin{DoxyCompactList}\small\item\em The current number of frames left before sending to DB. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a0eeb520cecbcd9caca886d995f223567}\label{classdirect__camera__to__db_1_1HumanStorage_a0eeb520cecbcd9caca886d995f223567}} 
 {\bfseries cooldown\+\_\+limit}
-\item 
+\begin{DoxyCompactList}\small\item\em The number of frames required without anybody in sight before sending to DB. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}\label{classdirect__camera__to__db_1_1HumanStorage_a89a7f6028a19c3dc081cc5f16eb53891}} 
 {\bfseries db}
-\item 
+\begin{DoxyCompactList}\small\item\em The client that access the database. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_ace755d24dbdbaf6711a215041f82cf9d}\label{classdirect__camera__to__db_1_1HumanStorage_ace755d24dbdbaf6711a215041f82cf9d}} 
 {\bfseries humans}
-\item 
+\begin{DoxyCompactList}\small\item\em A collection of skeletons. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_af087dc222d51704800ec4b13cc32fa92}\label{classdirect__camera__to__db_1_1HumanStorage_af087dc222d51704800ec4b13cc32fa92}} 
 {\bfseries number\+\_\+of\+\_\+data\+\_\+collected}
-\item 
+\begin{DoxyCompactList}\small\item\em Keeping track of the number of data collected to compute the cooldown. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a5c966b61e8380466d9584bd03a22c16f}\label{classdirect__camera__to__db_1_1HumanStorage_a5c966b61e8380466d9584bd03a22c16f}} 
 {\bfseries send\+\_\+data\+\_\+after}
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em The number of skeletons this object should keep in memory before sending everything into the DB. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a69e8c7d239c0a66d1e54b392c27fbc3d}\label{classdirect__camera__to__db_1_1HumanStorage_a69e8c7d239c0a66d1e54b392c27fbc3d}} 
+{\bfseries sensors\+\_\+height}
+\begin{DoxyCompactList}\small\item\em Position of the sensors, useful when saving the data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A buffer class that store the coordinates of the persons on screen for a moment and send all of it at once into an Influx\+DB database. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_aa9dbe3fccf5b87c181c9edef44c10d77}\label{classdirect__camera__to__db_1_1HumanStorage_aa9dbe3fccf5b87c181c9edef44c10d77}} 
+\index{HumanStorage@{HumanStorage}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!HumanStorage@{HumanStorage}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def \+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{int }]{send\+\_\+data\+\_\+after = {\ttfamily -\/1},  }\item[{\mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} }]{db = {\ttfamily None},  }\item[{int }]{cooldown = {\ttfamily None},  }\item[{str }]{sensors\+\_\+height = {\ttfamily \textquotesingle{}hips\textquotesingle{}} }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em send\+\_\+data\+\_\+after} & Defines the number of skeletons the class can contain before flushing everything into the Influx\+DB database. Keep it to -\/1 to flush only when the cooldown is finished (much better method) \\
+\hline
+{\em db} & The client used to access the database \\
+\hline
+{\em cooldown} & The number of frames without anybody on screen after which the data is sent to the database \\
+\hline
+{\em sensors\+\_\+height} & Position of the sensors when filming the scene\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An instance of the \mbox{\hyperlink{classdirect__camera__to__db_1_1HumanStorage}{Human\+Storage}} 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a9a3a0439f5e6c78e7cecc9d09f17529c}\label{classdirect__camera__to__db_1_1HumanStorage_a9a3a0439f5e6c78e7cecc9d09f17529c}} 
+\index{HumanStorage@{HumanStorage}!setDB@{setDB}}
+\index{setDB@{setDB}!HumanStorage@{HumanStorage}}
+\doxysubsubsection{\texorpdfstring{setDB()}{setDB()}}
+{\footnotesize\ttfamily  None set\+DB (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{\mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}}}]{db }\end{DoxyParamCaption})}
+
+
+
+Update the Database Client. 
+
+Nothing more \mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a32f810a978e95e27011d93c3f25fa835}\label{classdirect__camera__to__db_1_1HumanStorage_a32f810a978e95e27011d93c3f25fa835}} 
+\index{HumanStorage@{HumanStorage}!toDB@{toDB}}
+\index{toDB@{toDB}!HumanStorage@{HumanStorage}}
+\doxysubsubsection{\texorpdfstring{toDB()}{toDB()}}
+{\footnotesize\ttfamily  None to\+DB (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{\mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} }]{db = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Send all the data stored into the database thanks to the client. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em db} & If you haven\textquotesingle{}t provided a client yet, you can pass one now \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classdirect__camera__to__db_1_1HumanStorage_a33670b57ec1c70bc11da03e0a38297ab}\label{classdirect__camera__to__db_1_1HumanStorage_a33670b57ec1c70bc11da03e0a38297ab}} 
+\index{HumanStorage@{HumanStorage}!update@{update}}
+\index{update@{update}!HumanStorage@{HumanStorage}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily  None update (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{tracker.\+Skeleton\+Tracker}]{skeletrack,  }\item[{rs.\+depth\+\_\+frame}]{depth\+\_\+map,  }\item[{\mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB}{Influx\+DB\+\_\+connection.\+Listic\+Client\+DB}} }]{db = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Take the skeletons found by a skeleton tracker and store them in an array. 
+
+Send data to DB if needed. 
+\begin{DoxyParams}{Parameters}
+{\em skeletrack} & A skeletrack object that analysed a frame \\
+\hline
+{\em depth\+\_\+map} & The depth map captured by the camera \\
+\hline
+{\em db} & If no database client have been given until now, you can pass the client. \\
+\hline
+\end{DoxyParams}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
