@@ -1,4 +1,7 @@
+"""! This script enables to estimate multiple characteristics of a person's walk through the depth camera """
+
 import copy
+from typing import Any
 
 import cv2
 import pandas as pd
@@ -17,10 +20,14 @@ from convert_realsense_to_real_world import *
 import human_skeleton
 
 
-# From the skeleton, compute walking gait parameters
+def estimate_footsteps(data: Dict, motion_threshold: float = 0.01) -> Tuple[int, Dict]:
+    """! Estimate the number of footsteps on the sequence by computing the velocity of each foot
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param motion_threshold The needed motion speed of a keypoint to be considered in motion (in m/s)
 
-# Estimate the number of footsteps on the sequence by computing the velocity of each foot
-def estimate_footsteps(data, motion_threshold=0.01):
+    @return A tuple containing the number of steps counted and a dictionary with the list of frames index
+    (and timestamps) at which the step is detected
+    """
     # Get the difference of velocity of each foot
     diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
     diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
@@ -55,8 +62,16 @@ def estimate_footsteps(data, motion_threshold=0.01):
                              'frames': np.array(estimated_frames)}
 
 
-# Compute the number of footsteps of a sequence based on the distance between the two feet
-def estimate_footsteps_by_distance(data, distance_range=2):
+def estimate_footsteps_by_distance(data: Dict, window_size: int = 3) -> Tuple[int, Dict]:
+    """! Compute the number of footsteps of a sequence based on the distance between the two feet
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param window_size The size of the window used to check if a frame has the maximal distance between the feet.
+    With the precision of the camera we find "noise" making small peaks, so this parameter can reduce them.
+    But the preprocessing of data should smooth the values and avoid using this parameter, but anyway...
+
+    @return A tuple containing the number of steps counted and a dictionary with the list of frames index
+    (and timestamps) at which the step is detected
+    """
     # Get the distance between the two feet for each frame
     distance = data['distances']['RIGHT_ANKLE-LEFT_ANKLE']
     timestamps = data['timestamps']
@@ -69,7 +84,7 @@ def estimate_footsteps_by_distance(data, distance_range=2):
     for i in range(1, len(distance) - 1):
         # If dist[i] is a peak, count as a step
         if 0 < distance[i] != distance[i - 1] and not np.any(
-                distance[max(0, i - distance_range): min(len(distance), i + distance_range + 1)] > distance[
+                distance[max(0, i - window_size): min(len(distance), i + window_size + 1)] > distance[
                     i]):
             number_of_steps += 1
             estimated_timestamps.append(timestamps[i])
@@ -79,8 +94,12 @@ def estimate_footsteps_by_distance(data, distance_range=2):
                              'frames': np.array(estimated_frames)}
 
 
-# Estimate the width of the gait
-def estimate_footsteps_width(data):
+def estimate_footsteps_width(data: Dict) -> float:
+    """! Estimate the stride width, which is the distance between the feet when walking
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+
+    @return The mean width computed during the entire sequence.
+    """
     # It is hard to decide if we want to use the footstep estimation by velocity or by distance,
     #   so we are using the two of them here
     frames = []
@@ -141,26 +160,40 @@ def estimate_footsteps_width(data):
                 previous_positions['left'] = current_left_pos
 
     # Take the average of the widths computed
-    return np.median(widths)
+    return float(np.median(widths))
 
 
-# Simply load the json file
-def get_data(json_filename):
+def get_data(json_filename: str):
+    """! Simply load a json file containing the skeleton coordinates during a sequence.
+    @deprecated This was used when the InfluxDB database wasn't set up yet. This is now useless I guess.
+    """
     with open(json_filename, 'r') as file:
         return json.load(file)
 
 
-# Load the skeletons from InfluxDB
-def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side = True, start_time = 0, ignore_small_sequences = None):
+def get_data_from_db(sequence_id: int = None, time_between_sequences: float = 20.0, server_side: bool = True,
+                     start_time: int = 0, ignore_small_sequences: float = None) -> Dict:
+    """! Load the skeletons from InfluxDB by providing the sequence ID and transforms the data to allow
+    estimations of the gait parameters
+    @param sequence_id The identifier of the sequence, use -1 to get last sequence (or -2 for previous one, etc...).
+    @param time_between_sequences The number of sequence needed between two recordings to consider them as two
+    distinct sequences. See the process in ListicClientDB.get_splitted_sequences_boundaries().
+    @param server_side Set to True to access directly to the database in the Listic server, or False to access your
+    local instance of InfluxDB.
+    @param start_time The date at which you consider the start of the sequences, as timestamp in milliseconds.
+    @param ignore_small_sequences If set, any sequence with a duration lower than this value (in s) will be ignored.
+
+    @return A dictionary containing all the coordinates of a person during a sequence.
+    """
     # limit = 200
     # Connect to InfluxDB and get all the skeleton's coordinates
-    client = InfluxDB_connection.ListicClientDB(server_side = server_side)
+    client = InfluxDB_connection.ListicClientDB(server_side=server_side)
     if sequence_id is None:
         _, skeletons3D = client.get_all_skeletons()
     else:
         _, skeletons3D = client.get_skeletons_in_splitted_sequences(sequence_index=sequence_id,
                                                                     time_between_sequences=time_between_sequences,
-                                                                    start_time = start_time,
+                                                                    start_time=start_time,
                                                                     ignore_small_sequences=ignore_small_sequences)
         # _, skeletons3D = sequences[sequence_id]
 
@@ -235,15 +268,20 @@ def get_data_from_db(sequence_id=None, time_between_sequences=20.0, server_side 
     return json_data
 
 
-# From a collection of skeletons created for example by the HumanStorage,
-# Create the json data that is used in the feet analysis functions
-# The "human_collection" must be in the shape:
-# {
-#   'timestamp1': HumanSkeleton(),
-#   'timestamp2': HumanSkeleton(),
-#   ...
-# }
-def create_feet_analysis_data_from_humans(human_collection):
+def create_feet_analysis_data_from_humans(human_collection: Dict) -> Dict:
+    """! From a collection of skeletons created for example by the HumanStorage,
+    Create the json data that is used in the feet analysis functions
+    The "human_collection" must be in the shape:
+    {
+      'timestamp1': human_skeleton.HumanSkeleton(),
+      'timestamp2': human_skeleton.HumanSkeleton(),
+      ...
+    }
+    @param human_collection A dictionary with HumanSkeleton objects with the timestamp as the keys.
+
+    @note Note
+    I think this function is never used, but could be used with direct_camera_to_db.HumanStorage, I guess.
+    """
     timestamps = list(human_collection.keys())
     keys = []
     full_keys = []
@@ -310,44 +348,78 @@ def create_feet_analysis_data_from_humans(human_collection):
     return json_data
 
 
-# Truncate values to a certain limit. It's possible to assign a value to None values
-def truncate_values(values, limit, convert_None_to=None):
+def truncate_values(values: Union[List, np.ndarray], limit: float, convert_None_to: Any = None) -> np.ndarray:
+    """! Truncate values to a certain limit. It's possible to assign a value to None values
+    @param values The series to truncate
+    @param limit The maximal value desired in the output series
+    @param convert_None_to The value to give to "None" values. By default it doesn't modify the values.
+
+    @return The truncated series.
+    """
     return np.array([convert_None_to if np.isnan(val) else val if val < limit else limit for val in values])
 
 
-# Truncate data by replacing the elements above the limit with the previous value of the series
-def replace_limit_values_with_previous(values, limit, convert_None_to=None):
+def replace_limit_values_with_previous(values: List, limit: float, convert_None_to: Any = None) -> np.ndarray:
+    """! Truncate data by replacing the elements above the limit with the previous value of the series
+    @param values The series to truncate
+    @param limit The maximal value desired in the output series
+    @param convert_None_to The value to give to "None" values. By default it doesn't modify the values.
+
+    @return The modified series.
+    """
     new_values = []
+    # Truncate values
     values = truncate_values(values, limit)
     for i in range(len(values)):
+        # If it's the first element, we cannot give the previous element, so we just add the current one
         if i == 0:
             new_values.append(values[i])
         else:
+            # If the value is the limit, that means it has been truncated, so we replace it with the previous of
+            # the series
             new_values.append(
                 convert_None_to if values[i] is None else values[i] if values[i] < limit else new_values[-1])
     return np.array(new_values)
 
 
-# Smooth the curve with a sliding window of size "delta"
-def mean_smooth_data(values, delta):
+def mean_smooth_data(values: Union[List, np.ndarray], windows_size: int) -> np.ndarray:
+    """! Smooth the curve with a sliding window of size "windows_size"
+    @param values The series to smooth
+    @param windows_size The size of the window used to average the data.
+
+    @return A smoothed version of the data using the mean average at each point.
+    """
     smoothed = []
     for i in range(len(values)):
-        low_bound = max(0, i - delta)
-        high_bound = min(len(values) - 1, i + delta + 1)
+        # Compute the low and high bounds to stay in scope of the array
+        low_bound = max(0, i - windows_size)
+        high_bound = min(len(values) - 1, i + windows_size + 1)
         try:
+            # Extract the values in the window sight
             bounded_values = values[low_bound:high_bound].astype(np.float)
+            # Remove any undesired values (infinite and NaN values)
             bounded_values = bounded_values[np.logical_and(~np.isnan(bounded_values), np.isfinite(bounded_values))]
+            # Add the mean average of the window
             smoothed.append(np.mean(bounded_values))
         except Exception as e:
+            # If all values of the window are invalid (infinite or NaN), replace by 0.
+            # Not the best, but not the worst way to do
             print(e)
             smoothed.append(0)
     return np.array(smoothed)
 
 
-# Replace None values by interpolating with surrounding values
-# If there is no not-None surrounding a point, it will use the "extreme_value" for the interpolation
-# This function is a very inefficient and should be replaced with a numpy/scipy function if you know a good one
-def remove_None_by_interpolation(values, extreme_values=0):
+def remove_None_by_interpolation(values: Union[List, np.ndarray], extreme_values: float = 0) -> np.ndarray:
+    """! Replace None values by interpolating with surrounding values
+    If there is no not-None surrounding a point, it will use the "extreme_value" for the interpolation
+    @attention This function is a very inefficient and should be replaced with a numpy/scipy function
+    if you know a good one.
+    @param values The series to modify
+    @param extreme_values The value used for the lower bound or the higher bound if all previous or next values are
+    None.
+
+    @return the interpolated series
+    """
     for i in range(len(values)):
         if values[i] is None:
             distance_before = 0
@@ -367,12 +439,21 @@ def remove_None_by_interpolation(values, extreme_values=0):
                 else:
                     distance_after += 1
 
-            values[i] = value_before * (distance_before / (distance_before + distance_after)) + value_after * (
+            values[i] = value_after * (distance_before / (distance_before + distance_after)) + value_before * (
                     distance_after / (distance_before + distance_after))
     return values
 
-def replace_trailing_and_leading_zeros_in_array(array, remove_leading = True, remove_trailing = True,
-                                                replace_value = None):
+
+def replace_trailing_and_leading_zeros_in_array(array: List, remove_leading: bool = True, remove_trailing: bool = True,
+                                                replace_value: Any = None) -> np.ndarray:
+    """! Replace the beginning or the ending of a series by a desired value if it begins or ends with 0's
+    @param array The series to modify
+    @param remove_leading Set to True to replace the 0's at he beginning with the "replace_value".
+    @param remove_trailing Set to True to replace the 0's at he ending with the "replace_value".
+    @param replace_value The value to use to replace the 0's.
+
+    @return The modified version of the series.
+    """
     array = np.array(array)
     zeros_index = np.where(array == 0)
     if len(zeros_index[0]) == 0:
@@ -392,8 +473,13 @@ def replace_trailing_and_leading_zeros_in_array(array, remove_leading = True, re
             array[zeros_index[-1]] = replace_value
     return array
 
-# Display a plot with the calculation of footsteps by distance and by velocity
-def visualize_data(data, time_in_seconds=True, non_blocking = False):
+
+def visualize_data(data: Dict, time_in_seconds: bool = True, non_blocking: bool = False):
+    """! Display a plot with the calculation of footsteps by distance and by velocity to compare the results
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param time_in_seconds Set to True to display the plots with time on the X-axis, otherwise it's the frame index
+    @param non_blocking defines if the Pyplot window should interrupt the script at the end of the function
+    """
     footsteps_motion = estimate_footsteps(data, motion_threshold=0.01)[1]
     footsteps_distance = estimate_footsteps_by_distance(data, 3)[1]
 
@@ -412,8 +498,10 @@ def visualize_data(data, time_in_seconds=True, non_blocking = False):
     diff_right = replace_trailing_and_leading_zeros_in_array(diff_right)
     feet_distance = replace_trailing_and_leading_zeros_in_array(feet_distance)
 
-    x_start = min(np.where(diff_left != None)[0][0], np.where(diff_right != None)[0][0], np.where(feet_distance != None)[0][0])
-    x_end = max(np.where(diff_left != None)[0][-1], np.where(diff_right != None)[0][-1], np.where(feet_distance != None)[0][-1])
+    x_start = min(np.where(diff_left != None)[0][0], np.where(diff_right != None)[0][0],
+                  np.where(feet_distance != None)[0][0])
+    x_end = max(np.where(diff_left != None)[0][-1], np.where(diff_right != None)[0][-1],
+                np.where(feet_distance != None)[0][-1])
 
     # Change the X-axis depending on the unit we want (frame number of time)
     if time_in_seconds:
@@ -453,12 +541,18 @@ def visualize_data(data, time_in_seconds=True, non_blocking = False):
     plt.xlabel(x_label)
     plt.legend()
 
-    plt.show(block = not non_blocking)
+    plt.show(block=not non_blocking)
 
 
-# Process the data to remove None values and smooth the values
 def preprocess_data_for_walk_analysis(original_data):
+    """! Process the data to remove None values and smooth the values to allow more
+    precise computations for walk analysis
+    @param original_data The skeleton data of the sequence coming from get_data_from_db()
+
+    @return A smoothed version of the data coming from get_data_from_db()
+    """
     data = copy.deepcopy(original_data)
+    # Apply a smoothing process on the velocities
     for keypoint in data['velocities']:
         vel = np.array(data['velocities'][keypoint])
         vel = remove_None_by_interpolation(vel)
@@ -466,6 +560,7 @@ def preprocess_data_for_walk_analysis(original_data):
         vel = mean_smooth_data(vel, 2)
         data['velocities'][keypoint] = vel
 
+    # Apply a smoothing process on the computed distances
     for key_couple in data['distances']:
         distance = np.array(data['distances'][key_couple])
         distance = mean_smooth_data(distance, 2)
@@ -476,9 +571,16 @@ def preprocess_data_for_walk_analysis(original_data):
     return data
 
 
-# Reduce the size of the keypoint coords/velocities/distances dataset
-def reduce_walking_data_size(original_data, new_size: int):
+def reduce_walking_data_size(original_data: Dict, new_size: int) -> Dict:
+    """! Reduce the size of the keypoint coords/velocities/distances dataset. This can be used to *maybe* create
+    data augmentation on your dataset.
+    @param original_data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param new_size The desired size of the reduced data
+
+    @return A truncated version of the original walking sequence
+    """
     data = copy.deepcopy(original_data)
+    # Truncate the size of the arrays on each parameters of a keypoint
     for keypoint in data['velocities']:
         data['velocities'][keypoint] = data['velocities'][keypoint][:new_size]
         data['coordinates'][keypoint] = data['coordinates'][keypoint][:new_size]
@@ -490,12 +592,17 @@ def reduce_walking_data_size(original_data, new_size: int):
     return data
 
 
-# Get the Cycle time in seconds = duration of the sequence / number of footsteps
-def compute_cycle_time(data, motion_threshold=0.01):
+def compute_cycle_time(data: Dict, motion_threshold: float = 0.01) -> float:
+    """! Get the Cycle time in seconds = duration of the sequence / number of footsteps
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param motion_threshold The threshold used (in m/s) to distinguish a static point from a moving one
+
+    @return The cycle time extracted from the walking sequence
+    """
     number_of_steps, times_of_steps = estimate_footsteps(preprocess_data_for_walk_analysis(data),
                                                          motion_threshold=motion_threshold)
     # Solution 1: Get the moment of the first and last step, and divide by the number of steps
-    # Remove 1 step because the last timestamp is the beggining of a step, not a complete step
+    # Remove 1 step because the last timestamp is the beginning of a step, not a complete step
     sequence_duration = times_of_steps['timestamps'][-1] - times_of_steps['timestamps'][0]
     return sequence_duration / (number_of_steps - 1)
     # Solution 2: Take the first and last frame where the feet are moving
@@ -508,9 +615,16 @@ def compute_cycle_time(data, motion_threshold=0.01):
     # return sequence_duration / number_of_steps
 
 
-# Compute the Stance/Swing ratio = time with two feet down / time with one foot moving
 # TODO: Improve it by trimming before the first step / after last footstep
-def compute_stance_ratio(data, motion_threshold=0.01, concerned_foot=None):
+def compute_stance_ratio(data: Dict, motion_threshold: float = 0.01, concerned_foot: str = None) -> float:
+    """! Compute the Stance ratio = time with two feet down / time with one foot moving
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param motion_threshold The threshold used (in m/s) to distinguish a static point from a moving one
+    @param concerned_foot The foot for which you want to compute the stance ratio. Set to None if you want the
+    mean value from the two feet (otherwise: 'LEFT' or 'RIGHT')
+
+    @return The stance ratio extracted from a walking sequence
+    """
     diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
     diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
     diff_right[diff_right < 0] = 0
@@ -525,8 +639,9 @@ def compute_stance_ratio(data, motion_threshold=0.01, concerned_foot=None):
     available_left = data['velocities']['LEFT_ANKLE'] > 0
 
     if concerned_foot is None:
-        return np.mean([compute_stance_ratio(data=data, motion_threshold=motion_threshold, concerned_foot='right'),
-                        compute_stance_ratio(data=data, motion_threshold=motion_threshold, concerned_foot='left')])
+        return float(
+            np.mean([compute_stance_ratio(data=data, motion_threshold=motion_threshold, concerned_foot='right'),
+                     compute_stance_ratio(data=data, motion_threshold=motion_threshold, concerned_foot='left')]))
     elif "left" in concerned_foot.lower():
         return np.sum(static_left) / np.sum(available_left)
     elif "right" in concerned_foot.lower():
@@ -535,9 +650,16 @@ def compute_stance_ratio(data, motion_threshold=0.01, concerned_foot=None):
         raise Exception("Invalid foot selected to compute stance ratio, use 'LEFT_ANKLE', 'RIGHT_ANKLE' or None")
 
 
-# Compute the Stance/Swing ratio = time with two feet down / time with one foot moving
 # TODO: Improve it by trimming before the first step / after last footstep
-def compute_stance_swing_ratio(data, motion_threshold=0.01, concerned_foot=None):
+def compute_stance_swing_ratio(data: Dict, motion_threshold: float = 0.01, concerned_foot: str = None) -> float:
+    """! Compute the Stance/Swing ratio = time with two feet down / time with one foot moving
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param motion_threshold The threshold used (in m/s) to distinguish a static point from a moving one
+    @param concerned_foot The foot for which you want to compute the stance/swing ratio. Set to None if you want the
+    mean value from the two feet (otherwise: 'LEFT' or 'RIGHT')
+
+    @return The stance/swing ratio extracted from a walking sequence
+    """
     diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
     diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
     diff_right[diff_right < 0] = 0
@@ -571,10 +693,14 @@ def compute_stance_swing_ratio(data, motion_threshold=0.01, concerned_foot=None)
     else:
         raise Exception("Invalid foot selected to compute swing/stance ratio, use 'LEFT_ANKLE', 'RIGHT_ANKLE' or None")
 
-
-# Compute Double Support Time = time with the two feet on the ground
 # TODO: Improve it by trimming before the first step / after last footstep
-def compute_double_support_time(data, motion_threshold=0.01):
+def compute_double_support_time(data: Dict, motion_threshold: float = 0.01) -> float:
+    """! Compute Double Support Time = time with the two feet on the ground
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param motion_threshold The threshold used (in m/s) to distinguish a static point from a moving one
+
+    @return The estimated double support time (DST) extracted from a walking sequence
+    """
     diff_right = data['velocities']['RIGHT_ANKLE'] - data['velocities']['LEFT_ANKLE']
     diff_left = data['velocities']['LEFT_ANKLE'] - data['velocities']['RIGHT_ANKLE']
     diff_right[diff_right < 0] = 0
@@ -593,31 +719,30 @@ def compute_double_support_time(data, motion_threshold=0.01):
     return np.sum(static_both) / np.sum(available_both)
     # return len(diff_right[diff_right[abs(diff_right - diff_left) < motion_threshold] < motion_threshold]) / len(diff_right[diff_right > 0])
 
+def compute_walking_speed(data: Dict) -> float:
+    """! Get the walking speed with the average of the movement of the hips
+    @attention This function uses the average of the velocities recorded on the hips.
+    Another way to estimate this with a higher accuracy when knowing that the person is walking in a linear path
+    would be to compute the difference of coordinate at the beginning of the sequence and at the end of the sequence.
+    This is a more generic but less accurate way to compute it.
+    It is, still, a pretty good estimation.
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
 
-# Get the walking speed with the average of the movement of the shoulders/hips
-# This function should maybe not be used...
-def compute_walking_speed(data):
-    velocities_rh = np.array(data['velocities']['RIGHT_HIP'])
-    velocities_rh = velocities_rh[np.logical_and(np.isfinite(velocities_rh), velocities_rh > 0)]
-    velocities_lh = np.array(data['velocities']['LEFT_HIP'])
-    velocities_lh = velocities_lh[np.logical_and(np.isfinite(velocities_lh), velocities_lh > 0)]
-    return np.median([np.median(velocities_lh), np.median(velocities_rh)])
-
+    @return The estimated walking speed
     """
-    velocities_rs = np.array(data['velocities']['RIGHT_SHOULDER'])
-    velocities_rs = velocities_rs[np.logical_and(np.isfinite(velocities_rs), velocities_rs > 0)]
-    velocities_ls = np.array(data['velocities']['LEFT_SHOULDER'])
-    velocities_ls = velocities_ls[np.logical_and(np.isfinite(velocities_ls), velocities_ls > 0)]
     velocities_rh = np.array(data['velocities']['RIGHT_HIP'])
     velocities_rh = velocities_rh[np.logical_and(np.isfinite(velocities_rh), velocities_rh > 0)]
     velocities_lh = np.array(data['velocities']['LEFT_HIP'])
     velocities_lh = velocities_lh[np.logical_and(np.isfinite(velocities_lh), velocities_lh > 0)]
-    return np.median([np.median(velocities_lh), np.median(velocities_rh),
-                      np.median(velocities_rs), np.median(velocities_ls)])"""
+    return float(np.median([np.median(velocities_lh), np.median(velocities_rh)]))
 
+def compute_stride_length(data: Dict) -> Tuple[float, float, float]:
+    """! Estimate the length of strides from the skeleton of a walking sequence
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
 
-# Estimate the width of the gait
-def compute_stride_length(data):
+    @return A tuple containing the estimation of the stride's length, the estimation specific on the right foot
+    and the one specific on the left foot.
+    """
     # It is hard to decide if we want to use the footstep estimation by velocity or by distance,
     #   so we are using the two of them here
     frames = []
@@ -673,9 +798,9 @@ def compute_stride_length(data):
             if current_left_pos is not None:
                 previous_positions['left'] = current_left_pos
 
-    right_length = np.median(stride_lengths['right'])
-    left_length = np.median(stride_lengths['left'])
-    stride_length = np.mean([right_length, left_length])
+    right_length = float(np.median(stride_lengths['right']))
+    left_length = float(np.median(stride_lengths['left']))
+    stride_length = float(np.mean([right_length, left_length]))
     return stride_length, right_length, left_length
 
 
@@ -685,12 +810,21 @@ def compute_stride_length(data):
 #     number_of_steps, times_of_steps = estimate_footsteps(preprocess_data_for_walk_analysis(data),
 #                                                          motion_threshold=motion_threshold)
 #     # Solution 1: Get the moment of the first and last step, and divide by the number of steps
-#     # Remove 1 step because the last timestamp is the beggining of a step, not a complete step
+#     # Remove 1 step because the last timestamp is the beginning of a step, not a complete step
 #     sequence_duration = times_of_steps['timestamps'][-1] - times_of_steps['timestamps'][0]
 #     total_distance_walked = sequence_duration * walking_speed
 #     return total_distance_walked / (number_of_steps - 1)
 
-def get_walking_direction(data):
+def get_walking_direction(data: Dict) -> int:
+    """! Indicates if a person is walking from North to South (1) or from South to North (-1) in the current (june 2021)
+    experimental setup.
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+
+    @return
+    - -1 if walking from South to North,
+    - 1 if walking from North to South,
+    - 0 if the person doesn't seem to have been through the entire corridor
+    """
     starting_point = None
     ending_point = None
     for i in range(len(data['frames'])):
@@ -717,7 +851,14 @@ def get_walking_direction(data):
     else:
         return 0
 
-def get_corridor_position(data):
+
+def get_corridor_position(data: Dict) -> float:
+    """! Estimate the distance of the person from the Eastern wall of the corridor
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+
+    @return The distance in meters of the person from the eastern wall of the corridor in the current (june 2021)
+    experimental setup
+    """
     mean_pos = []
     percent_stripped = 0.0
     for i in range(len(data['frames'])):
@@ -726,12 +867,23 @@ def get_corridor_position(data):
             mean_pos.append(human.get_center_of_gravity())
 
     stripped_part = round(len(mean_pos) * percent_stripped)
-    position = np.median(mean_pos[stripped_part: -max(1, stripped_part)], axis = 0)
+    position = np.median(mean_pos[stripped_part: -max(1, stripped_part)], axis=0)
 
     # Estimate the corridor used by the X position
-    return position[0]
+    return float(position[0])
 
-def get_corridor_used(data):
+
+def get_corridor_used(data: Dict) -> int:
+    """! Estimate the part of the corridor used by the person when walking through the experimental setup
+    @attention The limits used in the code were just estimated quickly and seems to misclassify a lot of
+    sequences walking in the Western part (classified as Center). Maybe someone can modify the values of the limits.
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+
+    @return
+    - -1 if using the Eastern part,
+    - 0 if using the Center part,
+    - 1 if using the Western part
+    """
     x_pos = get_corridor_position(data)
     # If it's on the West side, code it as 1
     if -2.5 <= x_pos <= -1.6:
@@ -744,11 +896,53 @@ def get_corridor_used(data):
         return -1
 
 
-def get_walking_features(data = None, id_sequence = None, time_between_sequences = 1.0, server_side = True, motion_threshold = 0.8,
-                         start_time = 0, ignore_small_sequences = None):
+def get_walking_features(data: Dict = None, id_sequence: int = None, time_between_sequences: float = 1.0,
+                         server_side: bool = True, motion_threshold: float = 0.01, start_time: int = 0,
+                         ignore_small_sequences: float = None) -> Dict:
+    """! Compute all the features the functions of this script are able to extract on a sequence in database with
+    the ID "id_sequence".
+    @param data The skeleton data from the sequence after being transformed by preprocess_data_for_walk_analysis()
+    @param id_sequence The ID of the sequence you want to analyse
+    @param time_between_sequences Time between two timestamps of the database to consider it as two different sequences.
+    @param server_side Set to True to access the database on the Listic server, set to False to access the local server
+    @param motion_threshold The threshold used (in m/s) to distinguish a static point from a moving one
+    @param start_time The date for which we consider having started the recordings of the experiments
+    @param ignore_small_sequences Duration a sequence beneath which we can ignore
+
+    @return A dictionary with all parameters:
+    - nb_steps_motion
+    - nb_steps_distance
+    - cycle_time
+    - cadence
+    - stance_ratio_right
+    - stance_ratio_left
+    - double_support_ratio
+    - footstep_width
+    - walking_speed
+    - stride_length
+    - stride_length_right
+    - stride_length_left
+    - direction
+    - corridor
+    - corridor_position
+
+    @see The functions called are :
+    - estimate_footsteps()
+    - estimate_footsteps_by_distance()
+    - compute_cycle_time()
+    - compute_stance_ratio()
+    - compute_double_support_time()
+    - estimate_footsteps_width()
+    - compute_walking_speed()
+    - compute_stride_length()
+    - get_walking_direction()
+    - get_corridor_used()
+    - get_corridor_position()
+
+    """
     if data is None:
-        data = get_data_from_db(id_sequence, time_between_sequences = time_between_sequences, server_side = server_side,
-                                start_time = start_time, ignore_small_sequences = ignore_small_sequences)
+        data = get_data_from_db(id_sequence, time_between_sequences=time_between_sequences, server_side=server_side,
+                                start_time=start_time, ignore_small_sequences=ignore_small_sequences)
     original_data = preprocess_data_for_walk_analysis(data)
 
     footsteps_motion = estimate_footsteps(original_data, motion_threshold=motion_threshold)[0]
@@ -783,10 +977,15 @@ def get_walking_features(data = None, id_sequence = None, time_between_sequences
               }
     return params
 
-def display_walking_features(walking_features: dict):
+
+def display_walking_features(walking_features: Dict):
+    """! Pretty display of a dictionary
+    @param walking_features The dictionary you want to display
+    """
     text_length = max([len(key) for key in walking_features])
     for key in walking_features:
         print(f"{str(key)}{' ' * (text_length - len(key))}: {walking_features[key]}")
+
 
 def main():
     # motion_threshold = 0.01  # 0.01 m/s ~= 0.5m/min
@@ -824,7 +1023,7 @@ def main():
     # plt.plot(x_axis, widths)
     # plt.show()
 
-    display_walking_features(get_walking_features(data = data))
+    display_walking_features(get_walking_features(data=data))
     # print(get_walking_direction(data))
     exit()
 
