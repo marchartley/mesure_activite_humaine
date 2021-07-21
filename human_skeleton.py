@@ -1,4 +1,7 @@
-from typing import Union
+"""! Defines the HumanSkeleton class"""
+
+
+from typing import Union, Dict, Tuple, List
 
 import numpy as np
 import scipy.spatial.transform
@@ -6,10 +9,13 @@ import math
 from enum import Enum, auto
 import cv2
 import convert_realsense_to_real_world as coord_conversion
+import skeleton_tracker
 
 
-# /!\ Names of parts must match skeleton_tracker.cubemos_keypoints names
 class BodyParts(Enum):  # From the 18 keypoints of the coco dataset
+    """! An enumeration that resume all possible keypoints detected on a person with any skeleton estimation algorithm.
+
+    @attention Names of parts must match skeleton_tracker.cubemos_keypoints names"""
     NOSE = auto()
     NECK = auto()
     RIGHT_SHOULDER = auto()
@@ -29,30 +35,42 @@ class BodyParts(Enum):  # From the 18 keypoints of the coco dataset
     RIGHT_EAR = auto()
     LEFT_EAR = auto()
 
-# This class is used to store the keypoints found by the skeleton tracker, a JSON file or data from feet_analysis
-class HumanSkeleton():
+class HumanSkeleton:
+    """! Store the keypoints found by the skeleton tracker, a JSON file or data from feet_analysis.py"""
     def __init__(self):
+        """! Constructor"""
         self.POSITION_NOT_FOUND2D = None  # np.array([0, 0])
         self.POSITION_NOT_FOUND3D = None  # np.array([0, 0, 0])
         self.body_parts_3D = {key.name: self.POSITION_NOT_FOUND3D for key in BodyParts}
         self.body_parts_2D = {key.name: self.POSITION_NOT_FOUND2D for key in BodyParts}
 
-    def get_keypoint2D(self, key: Union[BodyParts, str]):
+    def get_keypoint2D(self, key: Union[BodyParts, str]) -> np.ndarray:
+        """! Get the position of a specific keypoint on the screen
+        @param key The body joint you want to know the coordinates of
+
+        @return An array containing the X and Y coordinates of the desired keypoint
+        """
         if isinstance(key, str):
             if key.upper() not in BodyParts.__members__:
                 return self.POSITION_NOT_FOUND2D
             key = BodyParts[key.upper()]
         return self.body_parts_2D[key.name]
 
-    def get_keypoint3D(self, key: Union[BodyParts, str]):
+    def get_keypoint3D(self, key: Union[BodyParts, str]) -> np.ndarray:
+        """! Get the position of a specific keypoint in the 3D environment
+        @param key The body joint you want to know the coordinates of
+
+        @return An array containing the X, Y and Z coordinates of the desired keypoint
+        """
         if isinstance(key, str):
             if key.upper() not in BodyParts.__members__:
                 return self.POSITION_NOT_FOUND3D
             key = BodyParts[key.upper()]
         return self.body_parts_3D[key.name]
 
-    # Check if the legs are overlapping on the frame
     def legs_overlapping(self):
+        """! Check if the legs of the person are overlapping on the frame
+        """
         overlap = False
         # Check RIGHT_HIP-RIGHT_KNEE and LEFT_HIP-LEFT_KNEE
         overlap |= self.body_part_intersection(self.get_keypoint2D(BodyParts.RIGHT_HIP),
@@ -76,33 +94,56 @@ class HumanSkeleton():
                                                self.get_keypoint2D(BodyParts.LEFT_ANKLE), 20, 20)
         return overlap
 
-    # Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button)
     def body_position2D(self):
+        """! Function to get the center of gravity of the person on the screen
+        @remark
+        Takes the mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button)
+        """
         return ((self.body_parts_2D['LEFT_SHOULDER'] + self.body_parts_2D['RIGHT_SHOULDER']) * 1 + (
                     self.body_parts_2D['LEFT_HIP'] + self.body_parts_2D['RIGHT_HIP']) * 3) / 8
 
-    # Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button)
     def body_position3D(self):
+        """! Function to get the center of gravity of the person in the 3D environment
+        @remark
+        Takes the mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button)
+        """
         return ((self.body_parts_3D['LEFT_SHOULDER'] + self.body_parts_3D['RIGHT_SHOULDER']) * 1 + (
                     self.body_parts_3D['LEFT_HIP'] + self.body_parts_3D['RIGHT_HIP']) * 3) / 8
 
-    # Get the keypoints from the feet_analytics data
-    def from_feet_analytics(self, coordinates, index):
+    def from_feet_analytics(self, coordinates: Dict, index: int):
+        """! Get the keypoints from the feet_analysis.py data transformed by
+        feet_analysis.preprocess_data_for_walk_analysis()
+        @param coordinates All the skeleton data from a sequence
+        given by feet_analysis.preprocess_data_for_walk_analysis()
+        @param index The index of the frame you want to access in the sequence
+
+        @see
+        - HumanSkeleton.from_tracker()
+        - HumanSkeleton.from_json()
+        """
         for key in coordinates:
             self.body_parts_2D[key] = self.POSITION_NOT_FOUND2D
-            if np.any(coordinates[key][index] == -1) or np.all(coordinates[key][index] == 0) or None in coordinates[key][index]:
+            if np.any(coordinates[key][index] == -1) or np.all(coordinates[key][index] == 0) \
+                    or None in coordinates[key][index]:
                 self.body_parts_3D[key] = self.POSITION_NOT_FOUND3D
             else:
                 self.body_parts_3D[key] = coordinates[key][index]
         return self
 
-    # Get the keypoints from the skeleton_tracker
-    def from_tracker(self, tracker, id, depth_map=None):
+    def from_tracker(self, tracker: skeleton_tracker.SkeletonTracker, id: int, depth_map = None):
+        """! Get the keypoints from the skeleton_tracker
+        @param tracker The skeleton tracker that analysed the current frame.
+        @param id The person's ID in the frame
+        @param depth_map The depth map coming from the depth camera
+
+        @see
+        - HumanSkeleton.from_feet_analytics()
+        - HumanSkeleton.from_json()
+        """
         for key in self.body_parts_2D:
             if np.any(tracker.get_keypoint(key, person_id=id) == -1) or np.all(
                     tracker.get_keypoint(key, person_id=id) == 0) or \
                     np.all(tracker.get_keypoint3D(key, depth_map, person_id=id) == 0):
-                # print(f"[{id}]{key} : {tracker.get_keypoint3D(key, depth_map, person_id = id)}")
                 self.body_parts_2D[key] = self.POSITION_NOT_FOUND2D
                 if tracker.is_3D_available and depth_map is not None:
                     self.body_parts_3D[key] = self.POSITION_NOT_FOUND3D
@@ -115,9 +156,19 @@ class HumanSkeleton():
                         self.body_parts_2D[key] = self.POSITION_NOT_FOUND2D
         return self
 
-    # Get the keypoints from a JSON file (mostly used when using InfluxDB data)
     def from_json(self, data2D=None, data3D=None, specific_timestamp=None, id=None,
                   depth_map=None):  # id and depth_map unused, only for consistency with "from_tracker()"
+        """! Get the keypoints from a JSON file (mostly used when using InfluxDB data)
+        @param data2D The 2D coordinates of the sequence
+        @param data3D The 3D coordinates of the sequence
+        @param specific_timestamp The timestamp at which you want to extract the skeleton
+        @param id Unused
+        @param depth_map Unused
+
+        @see
+        - HumanSkeleton.from_tracker()
+        - HumanSkeleton.from_feet_analytics()
+        """
         time_epsilon = 1.0
         if data2D is not None:
             for key in data2D:
@@ -154,7 +205,17 @@ class HumanSkeleton():
                 self.body_parts_3D[BodyParts[key].name] = position
         return self
 
-    def to_json(self, ref_center=None, ref_x=None, ref_y=None, ref_z=None, scale = 1.0):
+    def to_json(self, ref_center=None, ref_x=None, ref_y=None, ref_z=None, scale = 1.0) -> Tuple[Dict, Dict]:
+        """! Convert the coordinates of the skeleton into a JSON format that can be easily used to
+        import it in the database.
+        @param ref_center The coordinates (from the camera) of the center of the referential.
+        By default it's (0, 0, 0) => camera referential, but it can be changed to use the Aruco box's referential
+        @param ref_x The coordinates (from the camera) of the point (1, 0, 0) of the referential
+        @param ref_y The coordinates (from the camera) of the point (0, 1, 0) of the referential
+        @param ref_z The coordinates (from the camera) of the point (0, 0, 1) of the referential
+        @param scale The scale used on the 3 axis (ref_x, ref_y, ref_z). For instance, if the X-axis is computed from
+        the borders of the Aruco box (which is 21cm long), you need to provide a scale of 0.21.
+        """
         if ref_center is None:
             ref_center = [0, 0, 0]
         if ref_x is None:
@@ -169,7 +230,16 @@ class HumanSkeleton():
                    for key in BodyParts if self.get_keypoint3D(key) is not self.POSITION_NOT_FOUND3D}
         return coord2D, coord3D
 
-    def _get_line_intersection(self, start1, end1, start2, end2):  # Coords in 2D
+    def _get_line_intersection(self, start1, end1, start2, end2) -> bool:
+        """! Small utility function to check if two lines in a plane are intersecting.
+        This can be useful when checking if the two legs of the person are crossing.
+        @param start1 (x, y) coordinates of the beginning of the first line
+        @param end1 (x, y) coordinates of the ending of the first line
+        @param start2 (x, y) coordinates of the beginning of the second line
+        @param end2 (x, y) coordinates of the ending of the second line
+
+        @return A boolean set to True if the two lines are colliding/intersecting, False otherwise.
+        """
         # Get back to 2D if the coords are in higher dimension
         start1 = start1[:2]
         end1 = end1[:2]
@@ -200,7 +270,20 @@ class HumanSkeleton():
         else:
             return False
 
-    def body_part_intersection(self, start1, end1, start2, end2, thickness1, thickness2):
+    def body_part_intersection(self, start1, end1, start2, end2, thickness1, thickness2) -> bool:
+        """! Check if two body parts are intersecting, by allowing to provide a "thickness" to the lines drawn
+        between body parts.
+        @param start1 (x, y) coordinates of the beginning of the first line
+        @param end1 (x, y) coordinates of the ending of the first line
+        @param thickness1 The width given to the first line
+        @param start2 (x, y) coordinates of the beginning of the second line
+        @param end2 (x, y) coordinates of the ending of the second line
+        @param thickness2 The width given to the second line
+
+        @return A boolean set to True if the two lines are colliding/intersecting, False otherwise.
+
+        @remark This function check the collision of the lines given an offset of +/- the thickness.
+        """
         if start1 is None or start2 is None or end1 is None or end2 is None:
             return False
         # Get back to 2D if the coords are in higher dimension
@@ -234,7 +317,14 @@ class HumanSkeleton():
         overlap |= self._get_line_intersection(right_part1[0], right_part1[1], left_part2[0], left_part2[1])
         return overlap
 
-    def get_body_orientation(self):
+    def get_body_orientation(self) -> np.ndarray:
+        """! Get a vector representing the orientation of the person in the 3D environment as a Euler rotation vector
+        @remark This algorithm uses the cross product between the lines drawn between the shoulders and the hips
+        and do a mean of the 4 results.
+        At least 3 of the joints are needed to compute the orientation
+
+        @return An Euler rotation vector
+        """
         # Get the 4 vectors of the body (shoulders and hips) and normalize
         shoulder_to_shoulder_vector = None
         hip_to_hip_vector = None
@@ -279,7 +369,10 @@ class HumanSkeleton():
             mean = mean / np.linalg.norm(mean)
             return mean
 
-    def get_center_of_gravity(self):
+    def get_center_of_gravity(self) -> np.ndarray:
+        """! The center of gravity of the person in the 3D space
+        @return The 3D coordinates of the center of gravity
+        """
         body = []
         if self.get_keypoint3D("RIGHT_SHOULDER") is not self.POSITION_NOT_FOUND3D:
             body.append(self.get_keypoint3D("RIGHT_SHOULDER"))
@@ -296,7 +389,10 @@ class HumanSkeleton():
         else:
             return np.median(np.array(body), axis=0)
 
-    def get_center_of_gravity_2d(self):
+    def get_center_of_gravity_2d(self) -> np.ndarray:
+        """! The center of gravity of the person in the 2D space
+        @return The 2D coordinates of the center of gravity
+        """
         body = []
         if self.get_keypoint2D("RIGHT_SHOULDER") is not self.POSITION_NOT_FOUND2D:
             body.append(self.get_keypoint2D("RIGHT_SHOULDER"))
@@ -313,7 +409,11 @@ class HumanSkeleton():
         else:
             return np.mean(np.array(body), axis=0)
 
-    def get_face_location(self):
+    def get_face_location(self) -> Tuple[int, int, int, int]:
+        """! Estimate the position of the face of the person on the screen
+        @return A tuple containing the (top value, the right value, the bottom value, the left value) of the position
+        of the face
+        """
         face_location = None
         if self.check_keypoints(["NECK", "NOSE", "LEFT_EAR", "RIGHT_EAR"]):
             bottom = self.get_keypoint2D("NECK")[1]
@@ -344,7 +444,12 @@ class HumanSkeleton():
                 face_location = (top, right, bottom, left)
         return face_location
 
-    def get_bounding_box_2d(self, expand=1.0):
+    def get_bounding_box_2d(self, expand: float = 1.0) -> List[np.ndarray]:
+        """! Get the bounding box surrounding all the joints of the person
+        @param expand Change this value if you want to add or remove an offset around the joints.
+
+        @return A list containing the coordinates of the [lower left, upper left, lower right, upper right]
+        """
         try:
             min_x = min([self.get_keypoint2D(key)[0] for key in BodyParts if
                          self.get_keypoint2D(key) is not self.POSITION_NOT_FOUND2D])
@@ -371,6 +476,11 @@ class HumanSkeleton():
             return None
 
     def get_bounding_box_3d(self):
+        """! Get the bounding box surrounding all the joints of the person in the 3D environment
+
+        @return A list containing the coordinates of the [lower left front, lower left back,
+        upper left front, upper left back, lower right front, lower right back, upper right front, upper right back]
+        """
         try:
             min_x = min([self.get_keypoint3D(key)[0] for key in BodyParts if
                          self.get_keypoint3D(key) is not self.POSITION_NOT_FOUND3D])
@@ -398,7 +508,17 @@ class HumanSkeleton():
         except ValueError as e:
             return None
 
-    def rotate_bounding_box_with_body_orientation(self, increase_body_height=False):
+    def rotate_bounding_box_with_body_orientation(self, increase_body_height: Union[bool, float] = False):
+        """! Compute the bounding box around the person and let it rotate according to the body orientation
+        @param increase_body_height Add some offset on the Y-axis to try to capture the feet and the head
+        (The extreme keypoints of the skeleton are the ankles and the neck)
+
+        @return A list containing the coordinates of the [lower left front, lower left back,
+        upper left front, upper left back, lower right front, lower right back, upper right front, upper right back],
+        oriented according to the person's orientation
+
+        @see get_bounding_box_3d() and get_body_orientation()
+        """
         if self.get_bounding_box_3d() is None:
             return None
         body_orientation = self.get_body_orientation()
@@ -423,7 +543,8 @@ class HumanSkeleton():
 
         return new_coords
 
-    def display_BBox(self, frame, pipeline, color=(0, 0, 0), display_front=True, display_back=True):
+    def display_BBox(self, frame: np.ndarray, pipeline, color: Tuple[int, int, int] = (0, 0, 0),
+                     display_front: bool = True, display_back: bool = True):
         body_BBox = self.rotate_bounding_box_with_body_orientation(increase_body_height=True)
         # body_pos = self.get_center_of_gravity()
         min_z = np.min(body_BBox, axis=0)

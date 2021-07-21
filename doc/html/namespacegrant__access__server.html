@@ -69,12 +69,15 @@ $(function() {
   <div class="headertitle"><div class="title">grant_access_server Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>This script allows a Windows computer to access the server.  
+<a href="namespacegrant__access__server.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae43b858c7081dcd7416fbdcf05934eb4"><td class="memItemLeft" align="right" valign="top"><a id="ae43b858c7081dcd7416fbdcf05934eb4" name="ae43b858c7081dcd7416fbdcf05934eb4"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>grant_access_server</b> (hostname=None, share_folder_name=None, user=None, password=None, verbose=False)</td></tr>
-<tr class="separator:ae43b858c7081dcd7416fbdcf05934eb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f625f7ed71b344f1c015eec9ffa8b54"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacegrant__access__server.html#a5f625f7ed71b344f1c015eec9ffa8b54">grant_access_server</a> (str hostname=None, str share_folder_name=None, str user=None, str password=None, bool verbose=False)</td></tr>
+<tr class="memdesc:a5f625f7ed71b344f1c015eec9ffa8b54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an access between this computer and a remote server to be able to exchange files across the network.  <a href="namespacegrant__access__server.html#a5f625f7ed71b344f1c015eec9ffa8b54">More...</a><br /></td></tr>
+<tr class="separator:a5f625f7ed71b344f1c015eec9ffa8b54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -82,6 +85,69 @@ Variables</h2></td></tr>
 dictionary&#160;</td><td class="memItemRight" valign="bottom"><b>accessed_servers</b> = {}</td></tr>
 <tr class="separator:a35e15990246b1accc569abf12ebe999a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p >This script allows a Windows computer to access the server. </p>
+<p >But it doesn't work for Linux @TODO: adapt this code for Linux, if needed </p>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a5f625f7ed71b344f1c015eec9ffa8b54" name="a5f625f7ed71b344f1c015eec9ffa8b54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f625f7ed71b344f1c015eec9ffa8b54">&#9670;&nbsp;</a></span>grant_access_server()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> bool grant_access_server.grant_access_server </td>
+          <td>(</td>
+          <td class="paramtype">str &#160;</td>
+          <td class="paramname"><em>hostname</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">str &#160;</td>
+          <td class="paramname"><em>share_folder_name</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">str &#160;</td>
+          <td class="paramname"><em>user</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">str &#160;</td>
+          <td class="paramname"><em>password</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool &#160;</td>
+          <td class="paramname"><em>verbose</em> = <code>False</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get an access between this computer and a remote server to be able to exchange files across the network. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">hostname</td><td>The IP address/URL of the server to grant access. By default in this project = lst-data2.local.univ-savoie.fr </td></tr>
+    <tr><td class="paramname">share_folder_name</td><td>The shared folder you want to access. By default in this project = iot </td></tr>
+    <tr><td class="paramname">user</td><td>Your username or at least the username of somebody that has access to the shared folder. </td></tr>
+    <tr><td class="paramname">password</td><td>Your password </td></tr>
+    <tr><td class="paramname">verbose</td><td>Display the results of this operation</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the operation is a success, meaning you now have an access corresponding on your official credential access. False otherwise. </dd></dl>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

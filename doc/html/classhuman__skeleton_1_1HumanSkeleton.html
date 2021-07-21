@@ -75,11 +75,15 @@ $(function() {
   <div class="headertitle"><div class="title">HumanSkeleton Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Store the keypoints found by the skeleton tracker, a JSON file or data from <a class="el" href="feet__analysis_8py.html">feet_analysis.py</a>.  
+ <a href="classhuman__skeleton_1_1HumanSkeleton.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ae64f0875afe3067b97ba370b354b9213"><td class="memItemLeft" align="right" valign="top"><a id="ae64f0875afe3067b97ba370b354b9213" name="ae64f0875afe3067b97ba370b354b9213"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self)</td></tr>
+<tr class="memdesc:ae64f0875afe3067b97ba370b354b9213"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. <br /></td></tr>
 <tr class="separator:ae64f0875afe3067b97ba370b354b9213"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a244a363c8bfa7a528a8ee0d08181d5b0"><td class="memItemLeft" align="right" valign="top"><a id="a244a363c8bfa7a528a8ee0d08181d5b0" name="a244a363c8bfa7a528a8ee0d08181d5b0"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_new_reference</b> (self, aruco_reference, aruco_size)</td></tr>
@@ -87,8 +91,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_new_reference</b
 <tr class="memitem:a5e4001be9d745dfe8cbff94894450297"><td class="memItemLeft" align="right" valign="top"><a id="a5e4001be9d745dfe8cbff94894450297" name="a5e4001be9d745dfe8cbff94894450297"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>body_part_intersection</b> (self, start1, end1, start2, end2, thickness1, thickness2)</td></tr>
 <tr class="separator:a5e4001be9d745dfe8cbff94894450297"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0820b85f7bd9bc0e9597a97c7f32d9ca"><td class="memItemLeft" align="right" valign="top"><a id="a0820b85f7bd9bc0e9597a97c7f32d9ca" name="a0820b85f7bd9bc0e9597a97c7f32d9ca"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>body_position2D</b> (self)</td></tr>
+<tr class="memitem:a0820b85f7bd9bc0e9597a97c7f32d9ca"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhuman__skeleton_1_1HumanSkeleton.html#a0820b85f7bd9bc0e9597a97c7f32d9ca">body_position2D</a> (self)</td></tr>
+<tr class="memdesc:a0820b85f7bd9bc0e9597a97c7f32d9ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to get the center of gravity of the person.  <a href="classhuman__skeleton_1_1HumanSkeleton.html#a0820b85f7bd9bc0e9597a97c7f32d9ca">More...</a><br /></td></tr>
 <tr class="separator:a0820b85f7bd9bc0e9597a97c7f32d9ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32f5d8afe92facbe946850448acb4bba"><td class="memItemLeft" align="right" valign="top"><a id="a32f5d8afe92facbe946850448acb4bba" name="a32f5d8afe92facbe946850448acb4bba"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>body_position3D</b> (self)</td></tr>
@@ -129,12 +133,12 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>get_center_of_gravity_
 <tr class="memitem:afd595815d571f6a94735e2d14d593c77"><td class="memItemLeft" align="right" valign="top"><a id="afd595815d571f6a94735e2d14d593c77" name="afd595815d571f6a94735e2d14d593c77"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_face_location</b> (self)</td></tr>
 <tr class="separator:afd595815d571f6a94735e2d14d593c77"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d367ca812bb1fa15856813807b73221"><td class="memItemLeft" align="right" valign="top"><a id="a1d367ca812bb1fa15856813807b73221" name="a1d367ca812bb1fa15856813807b73221"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>get_keypoint2D</b> (self, Union[<a class="el" href="classhuman__skeleton_1_1BodyParts.html">BodyParts</a>, str] key)</td></tr>
-<tr class="separator:a1d367ca812bb1fa15856813807b73221"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0fd81039a9ff1061c0b01fddf7d2720"><td class="memItemLeft" align="right" valign="top"><a id="ab0fd81039a9ff1061c0b01fddf7d2720" name="ab0fd81039a9ff1061c0b01fddf7d2720"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>get_keypoint3D</b> (self, Union[<a class="el" href="classhuman__skeleton_1_1BodyParts.html">BodyParts</a>, str] key)</td></tr>
-<tr class="separator:ab0fd81039a9ff1061c0b01fddf7d2720"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af42dcad728de1112207d49af3661d384"><td class="memItemLeft" align="right" valign="top">np.ndarray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhuman__skeleton_1_1HumanSkeleton.html#af42dcad728de1112207d49af3661d384">get_keypoint2D</a> (self, Union[<a class="el" href="classhuman__skeleton_1_1BodyParts.html">BodyParts</a>, str] key)</td></tr>
+<tr class="memdesc:af42dcad728de1112207d49af3661d384"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the position of a specific keypoint on the screen.  <a href="classhuman__skeleton_1_1HumanSkeleton.html#af42dcad728de1112207d49af3661d384">More...</a><br /></td></tr>
+<tr class="separator:af42dcad728de1112207d49af3661d384"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae693271dd84781256995d4c46c748f36"><td class="memItemLeft" align="right" valign="top">np.ndarray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhuman__skeleton_1_1HumanSkeleton.html#ae693271dd84781256995d4c46c748f36">get_keypoint3D</a> (self, Union[<a class="el" href="classhuman__skeleton_1_1BodyParts.html">BodyParts</a>, str] key)</td></tr>
+<tr class="memdesc:ae693271dd84781256995d4c46c748f36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the position of a specific keypoint in the 3D environment.  <a href="classhuman__skeleton_1_1HumanSkeleton.html#ae693271dd84781256995d4c46c748f36">More...</a><br /></td></tr>
+<tr class="separator:ae693271dd84781256995d4c46c748f36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f79e783494cc06d3d09765706074ea1"><td class="memItemLeft" align="right" valign="top"><a id="a3f79e783494cc06d3d09765706074ea1" name="a3f79e783494cc06d3d09765706074ea1"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_mean_position_of_points</b> (self)</td></tr>
 <tr class="separator:a3f79e783494cc06d3d09765706074ea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,6 +147,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>get_number_of_visible_
 <tr class="separator:a4fbe9a6c720c2ffcc8485ecc07f46d54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16a85849bdf9f6891417c9c08dee71b0"><td class="memItemLeft" align="right" valign="top"><a id="a16a85849bdf9f6891417c9c08dee71b0" name="a16a85849bdf9f6891417c9c08dee71b0"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>legs_overlapping</b> (self)</td></tr>
+<tr class="memdesc:a16a85849bdf9f6891417c9c08dee71b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the legs of the person are overlapping on the frame. <br /></td></tr>
 <tr class="separator:a16a85849bdf9f6891417c9c08dee71b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13d516f91d87e93abde6d3f9b4202634"><td class="memItemLeft" align="right" valign="top"><a id="a13d516f91d87e93abde6d3f9b4202634" name="a13d516f91d87e93abde6d3f9b4202634"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>rotate_bounding_box_with_body_orientation</b> (self, increase_body_height=False)</td></tr>
@@ -172,6 +177,104 @@ Private Member Functions</h2></td></tr>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>_get_line_intersection</b> (self, start1, end1, start2, end2)</td></tr>
 <tr class="separator:a3e98247d57c4cfcd0d220fdef58ffc13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p >Store the keypoints found by the skeleton tracker, a JSON file or data from <a class="el" href="feet__analysis_8py.html">feet_analysis.py</a>. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a0820b85f7bd9bc0e9597a97c7f32d9ca" name="a0820b85f7bd9bc0e9597a97c7f32d9ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0820b85f7bd9bc0e9597a97c7f32d9ca">&#9670;&nbsp;</a></span>body_position2D()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def body_position2D </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to get the center of gravity of the person. </p>
+<dl class="section remark"><dt>Remarks</dt><dd>Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button) </dd></dl>
+
+</div>
+</div>
+<a id="af42dcad728de1112207d49af3661d384" name="af42dcad728de1112207d49af3661d384"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af42dcad728de1112207d49af3661d384">&#9670;&nbsp;</a></span>get_keypoint2D()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> np.ndarray get_keypoint2D </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Union[<a class="el" href="classhuman__skeleton_1_1BodyParts.html">BodyParts</a>, str]&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the position of a specific keypoint on the screen. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">key</td><td>The body joint you want to know the coordinates of</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>An array containing the X and Y coordinates of the desired keypoint </dd></dl>
+
+</div>
+</div>
+<a id="ae693271dd84781256995d4c46c748f36" name="ae693271dd84781256995d4c46c748f36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae693271dd84781256995d4c46c748f36">&#9670;&nbsp;</a></span>get_keypoint3D()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> np.ndarray get_keypoint3D </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Union[<a class="el" href="classhuman__skeleton_1_1BodyParts.html">BodyParts</a>, str]&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the position of a specific keypoint in the 3D environment. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">key</td><td>The body joint you want to know the coordinates of</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>An array containing the X, Y and Z coordinates of the desired keypoint </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="human__skeleton_8py.html">human_skeleton.py</a></li>
 </ul>

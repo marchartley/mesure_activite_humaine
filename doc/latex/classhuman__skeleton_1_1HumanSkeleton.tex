@@ -1,20 +1,24 @@
 \hypertarget{classhuman__skeleton_1_1HumanSkeleton}{}\doxysection{Human\+Skeleton Class Reference}
 \label{classhuman__skeleton_1_1HumanSkeleton}\index{HumanSkeleton@{HumanSkeleton}}
+
+
+Store the keypoints found by the skeleton tracker, a JSON file or data from \mbox{\hyperlink{feet__analysis_8py}{feet\+\_\+analysis.\+py}}.  
+
+
 \doxysubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_ae64f0875afe3067b97ba370b354b9213}\label{classhuman__skeleton_1_1HumanSkeleton_ae64f0875afe3067b97ba370b354b9213}} 
 def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self)
-\item 
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a244a363c8bfa7a528a8ee0d08181d5b0}\label{classhuman__skeleton_1_1HumanSkeleton_a244a363c8bfa7a528a8ee0d08181d5b0}} 
 def {\bfseries apply\+\_\+new\+\_\+reference} (self, aruco\+\_\+reference, aruco\+\_\+size)
 \item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a5e4001be9d745dfe8cbff94894450297}\label{classhuman__skeleton_1_1HumanSkeleton_a5e4001be9d745dfe8cbff94894450297}} 
 def {\bfseries body\+\_\+part\+\_\+intersection} (self, start1, end1, start2, end2, thickness1, thickness2)
 \item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a0820b85f7bd9bc0e9597a97c7f32d9ca}\label{classhuman__skeleton_1_1HumanSkeleton_a0820b85f7bd9bc0e9597a97c7f32d9ca}} 
-def {\bfseries body\+\_\+position2D} (self)
-\item 
+def \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a0820b85f7bd9bc0e9597a97c7f32d9ca}{body\+\_\+position2D}} (self)
+\begin{DoxyCompactList}\small\item\em Function to get the center of gravity of the person. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a32f5d8afe92facbe946850448acb4bba}\label{classhuman__skeleton_1_1HumanSkeleton_a32f5d8afe92facbe946850448acb4bba}} 
 def {\bfseries body\+\_\+position3D} (self)
 \item 
@@ -54,12 +58,10 @@ def {\bfseries get\+\_\+center\+\_\+of\+\_\+gravity\+\_\+2d} (self)
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_afd595815d571f6a94735e2d14d593c77}\label{classhuman__skeleton_1_1HumanSkeleton_afd595815d571f6a94735e2d14d593c77}} 
 def {\bfseries get\+\_\+face\+\_\+location} (self)
 \item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a1d367ca812bb1fa15856813807b73221}\label{classhuman__skeleton_1_1HumanSkeleton_a1d367ca812bb1fa15856813807b73221}} 
-def {\bfseries get\+\_\+keypoint2D} (self, Union\mbox{[}\mbox{\hyperlink{classhuman__skeleton_1_1BodyParts}{Body\+Parts}}, str\mbox{]} key)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_ab0fd81039a9ff1061c0b01fddf7d2720}\label{classhuman__skeleton_1_1HumanSkeleton_ab0fd81039a9ff1061c0b01fddf7d2720}} 
-def {\bfseries get\+\_\+keypoint3D} (self, Union\mbox{[}\mbox{\hyperlink{classhuman__skeleton_1_1BodyParts}{Body\+Parts}}, str\mbox{]} key)
-\item 
+np.\+ndarray \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_af42dcad728de1112207d49af3661d384}{get\+\_\+keypoint2D}} (self, Union\mbox{[}\mbox{\hyperlink{classhuman__skeleton_1_1BodyParts}{Body\+Parts}}, str\mbox{]} key)
+\begin{DoxyCompactList}\small\item\em Get the position of a specific keypoint on the screen. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_ae693271dd84781256995d4c46c748f36}{get\+\_\+keypoint3D}} (self, Union\mbox{[}\mbox{\hyperlink{classhuman__skeleton_1_1BodyParts}{Body\+Parts}}, str\mbox{]} key)
+\begin{DoxyCompactList}\small\item\em Get the position of a specific keypoint in the 3D environment. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a3f79e783494cc06d3d09765706074ea1}\label{classhuman__skeleton_1_1HumanSkeleton_a3f79e783494cc06d3d09765706074ea1}} 
 def {\bfseries get\+\_\+mean\+\_\+position\+\_\+of\+\_\+points} (self)
 \item 
@@ -68,7 +70,7 @@ def {\bfseries get\+\_\+number\+\_\+of\+\_\+visible\+\_\+keypoints} (self)
 \item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a16a85849bdf9f6891417c9c08dee71b0}\label{classhuman__skeleton_1_1HumanSkeleton_a16a85849bdf9f6891417c9c08dee71b0}} 
 def {\bfseries legs\+\_\+overlapping} (self)
-\item 
+\begin{DoxyCompactList}\small\item\em Check if the legs of the person are overlapping on the frame. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a13d516f91d87e93abde6d3f9b4202634}\label{classhuman__skeleton_1_1HumanSkeleton_a13d516f91d87e93abde6d3f9b4202634}} 
 def {\bfseries rotate\+\_\+bounding\+\_\+box\+\_\+with\+\_\+body\+\_\+orientation} (self, increase\+\_\+body\+\_\+height=False)
 \item 
@@ -96,6 +98,61 @@ def {\bfseries to\+\_\+json} (self, ref\+\_\+center=None, ref\+\_\+x=None, ref\+
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a3e98247d57c4cfcd0d220fdef58ffc13}\label{classhuman__skeleton_1_1HumanSkeleton_a3e98247d57c4cfcd0d220fdef58ffc13}} 
 def {\bfseries \+\_\+get\+\_\+line\+\_\+intersection} (self, start1, end1, start2, end2)
 \end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Store the keypoints found by the skeleton tracker, a JSON file or data from \mbox{\hyperlink{feet__analysis_8py}{feet\+\_\+analysis.\+py}}. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a0820b85f7bd9bc0e9597a97c7f32d9ca}\label{classhuman__skeleton_1_1HumanSkeleton_a0820b85f7bd9bc0e9597a97c7f32d9ca}} 
+\index{HumanSkeleton@{HumanSkeleton}!body\_position2D@{body\_position2D}}
+\index{body\_position2D@{body\_position2D}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{body\_position2D()}{body\_position2D()}}
+{\footnotesize\ttfamily def body\+\_\+position2D (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Function to get the center of gravity of the person. 
+
+\begin{DoxyRemark}{Remarks}
+Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button) 
+\end{DoxyRemark}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_af42dcad728de1112207d49af3661d384}\label{classhuman__skeleton_1_1HumanSkeleton_af42dcad728de1112207d49af3661d384}} 
+\index{HumanSkeleton@{HumanSkeleton}!get\_keypoint2D@{get\_keypoint2D}}
+\index{get\_keypoint2D@{get\_keypoint2D}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{get\_keypoint2D()}{get\_keypoint2D()}}
+{\footnotesize\ttfamily  np.\+ndarray get\+\_\+keypoint2D (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{Union\mbox{[}\mbox{\hyperlink{classhuman__skeleton_1_1BodyParts}{Body\+Parts}}, str\mbox{]}}]{key }\end{DoxyParamCaption})}
+
+
+
+Get the position of a specific keypoint on the screen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & The body joint you want to know the coordinates of\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An array containing the X and Y coordinates of the desired keypoint 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_ae693271dd84781256995d4c46c748f36}\label{classhuman__skeleton_1_1HumanSkeleton_ae693271dd84781256995d4c46c748f36}} 
+\index{HumanSkeleton@{HumanSkeleton}!get\_keypoint3D@{get\_keypoint3D}}
+\index{get\_keypoint3D@{get\_keypoint3D}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{get\_keypoint3D()}{get\_keypoint3D()}}
+{\footnotesize\ttfamily  np.\+ndarray get\+\_\+keypoint3D (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{Union\mbox{[}\mbox{\hyperlink{classhuman__skeleton_1_1BodyParts}{Body\+Parts}}, str\mbox{]}}]{key }\end{DoxyParamCaption})}
+
+
+
+Get the position of a specific keypoint in the 3D environment. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & The body joint you want to know the coordinates of\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An array containing the X, Y and Z coordinates of the desired keypoint 
+\end{DoxyReturn}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

@@ -1,14 +1,52 @@
 \hypertarget{namespacegrant__access__server}{}\doxysection{grant\+\_\+access\+\_\+server Namespace Reference}
 \label{namespacegrant__access__server}\index{grant\_access\_server@{grant\_access\_server}}
+
+
+This script allows a Windows computer to access the server.  
+
+
 \doxysubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{namespacegrant__access__server_ae43b858c7081dcd7416fbdcf05934eb4}\label{namespacegrant__access__server_ae43b858c7081dcd7416fbdcf05934eb4}} 
-def {\bfseries grant\+\_\+access\+\_\+server} (hostname=None, share\+\_\+folder\+\_\+name=None, user=None, password=None, verbose=False)
-\end{DoxyCompactItemize}
+bool \mbox{\hyperlink{namespacegrant__access__server_a5f625f7ed71b344f1c015eec9ffa8b54}{grant\+\_\+access\+\_\+server}} (str hostname=None, str share\+\_\+folder\+\_\+name=None, str user=None, str password=None, bool verbose=False)
+\begin{DoxyCompactList}\small\item\em Get an access between this computer and a remote server to be able to exchange files across the network. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
 \mbox{\Hypertarget{namespacegrant__access__server_a35e15990246b1accc569abf12ebe999a}\label{namespacegrant__access__server_a35e15990246b1accc569abf12ebe999a}} 
 dictionary {\bfseries accessed\+\_\+servers} = \{\}
 \end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This script allows a Windows computer to access the server. 
+
+But it doesn\textquotesingle{}t work for Linux @\+TODO\+: adapt this code for Linux, if needed 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacegrant__access__server_a5f625f7ed71b344f1c015eec9ffa8b54}\label{namespacegrant__access__server_a5f625f7ed71b344f1c015eec9ffa8b54}} 
+\index{grant\_access\_server@{grant\_access\_server}!grant\_access\_server@{grant\_access\_server}}
+\index{grant\_access\_server@{grant\_access\_server}!grant\_access\_server@{grant\_access\_server}}
+\doxysubsubsection{\texorpdfstring{grant\_access\_server()}{grant\_access\_server()}}
+{\footnotesize\ttfamily  bool grant\+\_\+access\+\_\+server.\+grant\+\_\+access\+\_\+server (\begin{DoxyParamCaption}\item[{str }]{hostname = {\ttfamily None},  }\item[{str }]{share\+\_\+folder\+\_\+name = {\ttfamily None},  }\item[{str }]{user = {\ttfamily None},  }\item[{str }]{password = {\ttfamily None},  }\item[{bool }]{verbose = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Get an access between this computer and a remote server to be able to exchange files across the network. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hostname} & The IP address/\+URL of the server to grant access. By default in this project = lst-\/data2.\+local.\+univ-\/savoie.\+fr \\
+\hline
+{\em share\+\_\+folder\+\_\+name} & The shared folder you want to access. By default in this project = iot \\
+\hline
+{\em user} & Your username or at least the username of somebody that has access to the shared folder. \\
+\hline
+{\em password} & Your password \\
+\hline
+{\em verbose} & Display the results of this operation\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if the operation is a success, meaning you now have an access corresponding on your official credential access. False otherwise. 
+\end{DoxyReturn}

@@ -325,7 +325,7 @@ class ListicClientDB:
     @lru_cache(maxsize=1)
     def get_splitted_sequences_boundaries(self, sequence_filename: str = None, start_time: int = None,
                                           end_time: int = None, time_between_sequences: float = 20.0,
-                                          ignore_small_sequences: float = None) -> List[Tuple[float, float]]:
+                                          ignore_small_sequences: float = None) -> List[Tuple[int, int]]:
         """! Function to get the temporal boundaries of sequences during which a person is walking in front of sensors.
         This function can be useless as so, but is used to improve execution speed
         of get_skeletons_in_splitted_sequences().

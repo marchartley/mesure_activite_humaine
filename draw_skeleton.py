@@ -58,12 +58,26 @@ def main():
     We use a background substation technic to draw the box behind and in front of a person to give an illusion of 3D.
     """
 
-    # Configure the RealSense pipeline from the camera to the computer
-    pipeline = rs.pipeline()
-    config = rs.config()
-    recording.configure_streams(config)
-    # Start recording
-    pipeline.start(config)
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Display the skeleton of a person on the screen and tries to'
+                                                 'identify him/her using facial recognition. Press \'Q\' to exit.')
+    parser.add_argument('--live', dest='live', help='Do it in real-time, using a depth camera plugged in the computer',
+                        action='store_true', default=True)
+    parser.add_argument('--file', dest='file', help='Play a sequence from a rosbag file', type=str)
+
+    args = parser.parse_args()
+    file = args.file
+    # If no file is provided, do it live
+    live = file is None
+
+    if live:
+        # Configure the RealSense pipeline from the camera to the computer
+        pipeline = rs.pipeline()
+        config = rs.config()
+        recording.configure_streams(config)
+        # Start recording
+        pipeline.start(config)
 
     # Background subtract is used to have the background/foreground (display use only)
     backSub = cv2.createBackgroundSubtractorMOG2(detectShadows=False, history=500)
@@ -97,12 +111,17 @@ def main():
     faces_distances = np.array([])
     number_of_faces_detection = {}
 
-    skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline=pipeline)
-
-    # This is used if you want to use a Rosbag instead of the "live" mode
-    # filename = "recordings/20210416_140741.bag"
-    # pipeline = recording.start_playback(filename, pipeline = pipeline, repeat_playback = True, realtime = False)
-    # skeleton_db2D, skeleton_db3D = InfluxDB_connection.ListicClientDB(server_side = False).retrieve_skeleton_keypoints(filename)
+    skeleton_db2D = None
+    skeleton_db3D = None
+    skeletrack = None
+    if live:
+        skeletrack = st.SkeletonTracker(choose_best_module=True, pipeline=pipeline)
+    else:
+        # This is used if you want to use a Rosbag instead of the "live" mode
+        filename = file
+        pipeline = recording.start_playback(filename, repeat_playback = True, realtime = False)
+        skeleton_db2D, skeleton_db3D = InfluxDB_connection.ListicClientDB(server_side = True).\
+            retrieve_skeleton_keypoints(filename)
 
     start_time = time.time()
     num_frames = 0
@@ -138,13 +157,18 @@ def main():
                 # frames.get_depth_frame()).get_data())
                 filters.l515_filter(frames.get_depth_frame())).get_data())
             try:
+                if live:
+                    skeletons = skeletrack.track_skeletons(original)
+                    number_of_persons = skeletrack.get_number_of_skeletons(original)
+                else:
+                    number_of_persons = len(skeleton_db2D)
 
-                skeletons = skeletrack.track_skeletons(original)
-                number_of_persons = skeletrack.get_number_of_skeletons(original)
-                # number_of_persons = len(skeleton_db2D)
                 for skeleton_id in range(number_of_persons):
                     human = human_skeleton.HumanSkeleton()
-                    human.from_tracker(skeletrack, skeleton_id, depth_frame)
+                    if live:
+                        human.from_tracker(skeletrack, skeleton_id, depth_frame)
+                    else:
+                        human.from_json(skeleton_db2D, skeleton_db3D, current_timestamp, skeleton_id, depth_frame)
                     positions = []
                     for keypoint in human_skeleton.BodyParts:
                         if human.get_keypoint3D(keypoint) is not None:

@@ -19,12 +19,12 @@ Tuple\mbox{[}Dict\mbox{[}int, dict\mbox{]}, Dict\mbox{[}int, dict\mbox{]}\mbox{]
 def \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a96c184416db1289d47a378a640b8eb68}{get\+\_\+closest\+\_\+timestamp}} (self, float timestamp)
 \begin{DoxyCompactList}\small\item\em Function to find the closest data from the sensors relative to the timestamp given as input. \end{DoxyCompactList}\item 
 Dict\mbox{[}str, List\mbox{[}int\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a8ad382830dfb8e5c605158317f044544}{get\+\_\+pir\+\_\+values\+\_\+from\+\_\+walking\+\_\+sequence}} (self, Dict skeleton\+\_\+data=None, int start\+\_\+time=None, int end\+\_\+time=None, int id\+\_\+sequence=None, float time\+\_\+offset=5.\+0, float time\+\_\+between\+\_\+sequences=20.\+0, str sensor\+\_\+height=None)
-\begin{DoxyCompactList}\small\item\em From the skeleton data extracted during a sequence (by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} ) or by defining temporal boundaries, extract the data from sensors during this sequence. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em From the skeleton data extracted during a sequence (by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_afeaa7b20d5b790b7205ca772f7fb97a7}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} ) or by defining temporal boundaries, extract the data from sensors during this sequence. \end{DoxyCompactList}\item 
 Union\mbox{[}List\mbox{[}Tuple\mbox{]}, Tuple\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences}} (self, str sequence\+\_\+filename=None, int start\+\_\+time=None, int end\+\_\+time=None, bool merge\+\_\+skeleton\+\_\+ids=True, float time\+\_\+between\+\_\+sequences=20.\+0, int sequence\+\_\+index=None, float ignore\+\_\+small\+\_\+sequences=None)
 \begin{DoxyCompactList}\small\item\em Function to get the skeletons of persons walking in front of the camera divided in sequences. \end{DoxyCompactList}\item 
 Dict\mbox{[}str, List\mbox{[}Tuple\mbox{[}int, int\mbox{]}\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_ac79fb541f7939ecd110dac4f4ecaaa62}{get\+\_\+splitted\+\_\+presence\+\_\+or\+\_\+not\+\_\+boundaries}} (self, int start\+\_\+time=None, int end\+\_\+time=None, float time\+\_\+between\+\_\+sequences=2.\+0, float ignore\+\_\+small\+\_\+sequences=None)
 \begin{DoxyCompactList}\small\item\em Function to get the temporal boundaries of sequences during which a person is walking and sequences where nobody is walking. \end{DoxyCompactList}\item 
-List\mbox{[}Tuple\mbox{[}float, float\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries}} (self, str sequence\+\_\+filename=None, int start\+\_\+time=None, int end\+\_\+time=None, float time\+\_\+between\+\_\+sequences=20.\+0, float ignore\+\_\+small\+\_\+sequences=None)
+List\mbox{[}Tuple\mbox{[}int, int\mbox{]}\mbox{]} \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_afeaa7b20d5b790b7205ca772f7fb97a7}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries}} (self, str sequence\+\_\+filename=None, int start\+\_\+time=None, int end\+\_\+time=None, float time\+\_\+between\+\_\+sequences=20.\+0, float ignore\+\_\+small\+\_\+sequences=None)
 \begin{DoxyCompactList}\small\item\em Function to get the temporal boundaries of sequences during which a person is walking in front of sensors. \end{DoxyCompactList}\item 
 None \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a67fcc0d8affc8a83dcdb8d2bdb6b5295}{insert\+\_\+skeleton\+\_\+keypoints}} (self, Dict coord2D=None, Dict coord3D=None, float timestamp=None, int skeleton\+\_\+id=0, str device=None, bool ignore\+\_\+\+None\+\_\+values=True, bool send\+\_\+immediately=True, float walking\+\_\+speed=None, float footsteps\+\_\+width=None, float number\+\_\+of\+\_\+footsteps=None, float stride\+\_\+length=None, float step\+\_\+length=None, str timestamp\+\_\+unit=\textquotesingle{}ms\textquotesingle{}, Dict raw\+\_\+coord\+\_\+2D=None, Dict raw\+\_\+coord\+\_\+3D=None)
 \begin{DoxyCompactList}\small\item\em Insert coordinates of a skeleton by passing the array like the one that is created by the Human\+Skeleton class. \end{DoxyCompactList}\item 
@@ -185,11 +185,11 @@ Function to find the closest data from the sensors relative to the timestamp giv
 
 
 
-From the skeleton data extracted during a sequence (by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} ) or by defining temporal boundaries, extract the data from sensors during this sequence. 
+From the skeleton data extracted during a sequence (by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_afeaa7b20d5b790b7205ca772f7fb97a7}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}} ) or by defining temporal boundaries, extract the data from sensors during this sequence. 
 
 
 \begin{DoxyParams}{Parameters}
-{\em skeleton\+\_\+data} & The skeleton data extracted from a sequence with the functions \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}}. \\
+{\em skeleton\+\_\+data} & The skeleton data extracted from a sequence with the functions \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_afeaa7b20d5b790b7205ca772f7fb97a7}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}} or \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_a4c219c59431e28134b37d8739a90f7b3}{get\+\_\+skeletons\+\_\+in\+\_\+splitted\+\_\+sequences()}}. \\
 \hline
 {\em start\+\_\+time} & If the skeleton data is not provided, give the starting time (in ms) of a sequence to extract the sensors data. \\
 \hline
@@ -232,7 +232,7 @@ Function to get the skeletons of persons walking in front of the camera divided 
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-If \char`\"{}sequence\+\_\+index\char`\"{} is defined, return a tuple containing a dictionary that defines all coordinates of a sequence with coordinates in 2D and coordinates in 3D as defined by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}}. ~\newline
+If \char`\"{}sequence\+\_\+index\char`\"{} is defined, return a tuple containing a dictionary that defines all coordinates of a sequence with coordinates in 2D and coordinates in 3D as defined by \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_afeaa7b20d5b790b7205ca772f7fb97a7}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}}. ~\newline
  Otherwise, return an array of these tuple for each sequence found. 
 \end{DoxyReturn}
 \mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_ac79fb541f7939ecd110dac4f4ecaaa62}\label{classInfluxDB__connection_1_1ListicClientDB_ac79fb541f7939ecd110dac4f4ecaaa62}} 
@@ -266,13 +266,13 @@ A dictionary with keys\+:
 \end{DoxyItemize}
 \end{DoxyReturn}
 \begin{DoxySeeAlso}{See also}
-If you don\textquotesingle{}t care for absence sequences, see \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}}. 
+If you don\textquotesingle{}t care for absence sequences, see \mbox{\hyperlink{classInfluxDB__connection_1_1ListicClientDB_afeaa7b20d5b790b7205ca772f7fb97a7}{get\+\_\+splitted\+\_\+sequences\+\_\+boundaries()}}. 
 \end{DoxySeeAlso}
-\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}\label{classInfluxDB__connection_1_1ListicClientDB_abe29e7f9fc7acf0378e18a4ce9663b8a}} 
+\mbox{\Hypertarget{classInfluxDB__connection_1_1ListicClientDB_afeaa7b20d5b790b7205ca772f7fb97a7}\label{classInfluxDB__connection_1_1ListicClientDB_afeaa7b20d5b790b7205ca772f7fb97a7}} 
 \index{ListicClientDB@{ListicClientDB}!get\_splitted\_sequences\_boundaries@{get\_splitted\_sequences\_boundaries}}
 \index{get\_splitted\_sequences\_boundaries@{get\_splitted\_sequences\_boundaries}!ListicClientDB@{ListicClientDB}}
 \doxysubsubsection{\texorpdfstring{get\_splitted\_sequences\_boundaries()}{get\_splitted\_sequences\_boundaries()}}
-{\footnotesize\ttfamily  List\mbox{[}Tuple\mbox{[}float, float\mbox{]}\mbox{]} get\+\_\+splitted\+\_\+sequences\+\_\+boundaries (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{str }]{sequence\+\_\+filename = {\ttfamily None},  }\item[{int }]{start\+\_\+time = {\ttfamily None},  }\item[{int }]{end\+\_\+time = {\ttfamily None},  }\item[{float }]{time\+\_\+between\+\_\+sequences = {\ttfamily 20.0},  }\item[{float }]{ignore\+\_\+small\+\_\+sequences = {\ttfamily None} }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily  List\mbox{[}Tuple\mbox{[}int, int\mbox{]}\mbox{]} get\+\_\+splitted\+\_\+sequences\+\_\+boundaries (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{str }]{sequence\+\_\+filename = {\ttfamily None},  }\item[{int }]{start\+\_\+time = {\ttfamily None},  }\item[{int }]{end\+\_\+time = {\ttfamily None},  }\item[{float }]{time\+\_\+between\+\_\+sequences = {\ttfamily 20.0},  }\item[{float }]{ignore\+\_\+small\+\_\+sequences = {\ttfamily None} }\end{DoxyParamCaption})}
 
 
 
