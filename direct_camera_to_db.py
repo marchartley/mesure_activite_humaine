@@ -128,51 +128,50 @@ class HumanStorage:
             try:
                 # If you wish you can display all the walking features of the person.
                 # But it wasn't really visible on screen, so I kinda stopped that
-                pass
-                # speed = feet_analysis.compute_walking_speed(self.humans[human_id])
-                # print(f"Speed of human #{human_id+1} = {speed} m/s")
-                # data = feet_analysis.create_feet_analysis_data_from_humans(self.humans[human_id])
-                # motion_threshold = 0.01  # 0.01 m/s ~= 0.04km/h
-                #
-                # original_data = feet_analysis.preprocess_data_for_walk_analysis(data)
-                #
-                # footsteps_motion = feet_analysis.estimate_footsteps(original_data, motion_threshold=motion_threshold)[0]
-                # footsteps_distance = feet_analysis.estimate_footsteps_by_distance(original_data, 3)[0]
-                # cycle_time = feet_analysis.compute_cycle_time(data)
-                # stance_ratio_right = feet_analysis.compute_stance_ratio(data, motion_threshold=motion_threshold,
-                #                                                         concerned_foot="RIGHT_ANKLE")
-                # stance_ratio_left = feet_analysis.compute_stance_ratio(data, motion_threshold=motion_threshold,
-                #                                                        concerned_foot="LEFT_ANKLE")
-                # double_support_ratio = feet_analysis.compute_double_support_time(data,
-                #                                                                  motion_threshold=motion_threshold)
-                # footstep_width = feet_analysis.estimate_footsteps_width(data)
-                # walking_speed = feet_analysis.compute_walking_speed(data)
-                #
-                # stride_length, right_length, left_length = feet_analysis.compute_stride_length(data)
-                #
-                # walking_direction = feet_analysis.get_walking_direction(data)
-                #
-                # print(footsteps_motion, "footsteps estimated with motion")
-                # print(footsteps_distance, "footsteps estimated with distance")
-                #
-                # print(f"Walking speed              = {round(walking_speed * 3.6, 2)} km/h")
-                # print(f"Cycle Time                 = {round(cycle_time, 3)} sec/step")
-                # print(f"Cadence                    = {round(60 / cycle_time, 1)} steps/min")
-                # print(f"Stance ratio (Right)       = {round(stance_ratio_right * 100, 2)}%")
-                # print(f"Stance ratio (Left)        = {round(stance_ratio_left * 100, 2)}%")
-                # print(f"Double support time        = {round(double_support_ratio * 100, 2)}%")
-                # print(f"Width of footsteps         = {round(footstep_width * 100)}cm")
-                # print(f"Stride length              = {round(stride_length * 100)}cm")
-                # print(f"Stride length (R)          = {round(right_length * 100)}cm")
-                # print(f"Stride length (L)          = {round(left_length * 100)}cm")
-                # if walking_direction == 1:
-                #     print(f"Walking from North to South")
-                # elif walking_direction == -1:
-                #     print(f"Walking from South to North")
-                # else:
-                #     print(f"Not walking through the corridor")
-                #
-                # feet_analysis.visualize_data(original_data, time_in_seconds=True, non_blocking = True)
+                speed = feet_analysis.compute_walking_speed(self.humans[human_id])
+                print(f"Speed of human #{human_id+1} = {speed} m/s")
+                data = feet_analysis.create_feet_analysis_data_from_humans(self.humans[human_id])
+                motion_threshold = 0.01  # 0.01 m/s ~= 0.04km/h
+
+                original_data = feet_analysis.preprocess_data_for_walk_analysis(data)
+
+                footsteps_motion = feet_analysis.estimate_footsteps(original_data, motion_threshold=motion_threshold)[0]
+                footsteps_distance = feet_analysis.estimate_footsteps_by_distance(original_data, 3)[0]
+                cycle_time = feet_analysis.compute_cycle_time(data)
+                stance_ratio_right = feet_analysis.compute_stance_ratio(data, motion_threshold=motion_threshold,
+                                                                        concerned_foot="RIGHT_ANKLE")
+                stance_ratio_left = feet_analysis.compute_stance_ratio(data, motion_threshold=motion_threshold,
+                                                                       concerned_foot="LEFT_ANKLE")
+                double_support_ratio = feet_analysis.compute_double_support_time(data,
+                                                                                 motion_threshold=motion_threshold)
+                footstep_width = feet_analysis.estimate_footsteps_width(data)
+                walking_speed = feet_analysis.compute_walking_speed(data)
+
+                stride_length, right_length, left_length = feet_analysis.compute_stride_length(data)
+
+                walking_direction = feet_analysis.get_walking_direction(data)
+
+                print(footsteps_motion, "footsteps estimated with motion")
+                print(footsteps_distance, "footsteps estimated with distance")
+
+                print(f"Walking speed              = {round(walking_speed * 3.6, 2)} km/h")
+                print(f"Cycle Time                 = {round(cycle_time, 3)} sec/step")
+                print(f"Cadence                    = {round(60 / cycle_time, 1)} steps/min")
+                print(f"Stance ratio (Right)       = {round(stance_ratio_right * 100, 2)}%")
+                print(f"Stance ratio (Left)        = {round(stance_ratio_left * 100, 2)}%")
+                print(f"Double support time        = {round(double_support_ratio * 100, 2)}%")
+                print(f"Width of footsteps         = {round(footstep_width * 100)}cm")
+                print(f"Stride length              = {round(stride_length * 100)}cm")
+                print(f"Stride length (R)          = {round(right_length * 100)}cm")
+                print(f"Stride length (L)          = {round(left_length * 100)}cm")
+                if walking_direction == 1:
+                    print(f"Walking from North to South")
+                elif walking_direction == -1:
+                    print(f"Walking from South to North")
+                else:
+                    print(f"Not walking through the corridor")
+
+                feet_analysis.visualize_data(original_data, time_in_seconds=True, non_blocking = True)
             except Exception as e:
                 print(e)
                 pass
@@ -250,7 +249,7 @@ def main():
     password = args.password
     database = args.database
     calibration_time = args.calibration_time
-    sensor = args.sensor
+    sensor = args.sensors_height
 
     number_of_aruco_calibration_needed = calibration_time * 20  # 20 is an arbitrary value, estimating that
     #                                                               we catch the aruco cube 20 times per second

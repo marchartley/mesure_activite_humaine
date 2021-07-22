@@ -195,7 +195,7 @@ def main():
     @note Modify directly the code of this file if you want to change the sensor's height criteria
     """
     sensors_height = 'ankles'
-    pir_data = fill_csv(create_CSV_from_scratch=True,
+    pir_data = fill_csv(create_CSV_from_scratch=False,
                         output_filename=f"gait_values_{sensors_height}.csv",
                         verbose=True,
                         start_time=datetime.datetime(year=2021, month=6, day=4).timestamp() * 1000,

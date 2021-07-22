@@ -53,5 +53,5 @@ var searchData=
   ['right_5fwrist_624',['RIGHT_WRIST',['../classskeleton__tracker_1_1trt__keypoints.html#af9a51831ebd4fe97d86551cb4cdb252c',1,'skeleton_tracker.trt_keypoints.RIGHT_WRIST()'],['../classskeleton__tracker_1_1openpose__keypoints.html#af9a51831ebd4fe97d86551cb4cdb252c',1,'skeleton_tracker.openpose_keypoints.RIGHT_WRIST()'],['../classskeleton__tracker_1_1cubemos__keypoints.html#af9a51831ebd4fe97d86551cb4cdb252c',1,'skeleton_tracker.cubemos_keypoints.RIGHT_WRIST()'],['../classhuman__skeleton_1_1BodyParts.html#ad29880deba57e5a068a58c7e3bb9cbc1',1,'human_skeleton.BodyParts.RIGHT_WRIST()']]],
   ['rosbag_5fto_5fvideos_625',['rosbag_to_videos',['../namespacerosbag__to__videos.html',1,'']]],
   ['rosbag_5fto_5fvideos_2epy_626',['rosbag_to_videos.py',['../rosbag__to__videos_8py.html',1,'']]],
-  ['rotate_5fbounding_5fbox_5fwith_5fbody_5forientation_627',['rotate_bounding_box_with_body_orientation',['../classhuman__skeleton_1_1HumanSkeleton.html#a13d516f91d87e93abde6d3f9b4202634',1,'human_skeleton::HumanSkeleton']]]
+  ['rotate_5fbounding_5fbox_5fwith_5fbody_5forientation_627',['rotate_bounding_box_with_body_orientation',['../classhuman__skeleton_1_1HumanSkeleton.html#a238a7382d7f8d774aaef8da1149b6b1d',1,'human_skeleton::HumanSkeleton']]]
 ];

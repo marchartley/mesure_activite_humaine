@@ -114,6 +114,7 @@ def NeuralNetwork(url, testsize, independent_variables, dependent_variable, para
             regressor = MLPRegressor(
                 max_iter=500000,
                 hidden_layer_sizes=(60, 60, 60, 60, 60),
+                # Best values for the hidden_layer_sizes:
                 # hips
                 # speed, direction = (200, 200, 200),
                 # corridor_position = (10, 10, 10, 10, 10, 10, 10),

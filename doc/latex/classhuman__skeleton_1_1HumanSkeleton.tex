@@ -14,50 +14,39 @@ def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self)
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a244a363c8bfa7a528a8ee0d08181d5b0}\label{classhuman__skeleton_1_1HumanSkeleton_a244a363c8bfa7a528a8ee0d08181d5b0}} 
 def {\bfseries apply\+\_\+new\+\_\+reference} (self, aruco\+\_\+reference, aruco\+\_\+size)
 \item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a5e4001be9d745dfe8cbff94894450297}\label{classhuman__skeleton_1_1HumanSkeleton_a5e4001be9d745dfe8cbff94894450297}} 
-def {\bfseries body\+\_\+part\+\_\+intersection} (self, start1, end1, start2, end2, thickness1, thickness2)
-\item 
+bool \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_aa9db9c0f86d8541496add2f9ca2d0aa8}{body\+\_\+part\+\_\+intersection}} (self, start1, end1, start2, end2, thickness1, thickness2)
+\begin{DoxyCompactList}\small\item\em Check if two body parts are intersecting, by allowing to provide a \char`\"{}thickness\char`\"{} to the lines drawn between body parts. \end{DoxyCompactList}\item 
 def \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a0820b85f7bd9bc0e9597a97c7f32d9ca}{body\+\_\+position2D}} (self)
-\begin{DoxyCompactList}\small\item\em Function to get the center of gravity of the person. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a32f5d8afe92facbe946850448acb4bba}\label{classhuman__skeleton_1_1HumanSkeleton_a32f5d8afe92facbe946850448acb4bba}} 
-def {\bfseries body\+\_\+position3D} (self)
-\item 
+\begin{DoxyCompactList}\small\item\em Function to get the center of gravity of the person on the screen. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a32f5d8afe92facbe946850448acb4bba}{body\+\_\+position3D}} (self)
+\begin{DoxyCompactList}\small\item\em Function to get the center of gravity of the person in the 3D environment. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a479a8ecc982f3b700edc3d7d3f2ee8c2}\label{classhuman__skeleton_1_1HumanSkeleton_a479a8ecc982f3b700edc3d7d3f2ee8c2}} 
 def {\bfseries check\+\_\+keypoints} (self, names)
 \item 
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a2ccc9625a886203e7a081db795e05b37}\label{classhuman__skeleton_1_1HumanSkeleton_a2ccc9625a886203e7a081db795e05b37}} 
 def {\bfseries check\+\_\+keypoints3D} (self, names)
 \item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_acc5ee5aae0e962d8f893a08a215b6bb0}\label{classhuman__skeleton_1_1HumanSkeleton_acc5ee5aae0e962d8f893a08a215b6bb0}} 
-def {\bfseries display\+\_\+\+BBox} (self, frame, pipeline, color=(0, 0, 0), display\+\_\+front=True, display\+\_\+back=True)
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a75e75f843cb3160969a1a6a99ad60ee6}\label{classhuman__skeleton_1_1HumanSkeleton_a75e75f843cb3160969a1a6a99ad60ee6}} 
+def {\bfseries display\+\_\+\+BBox} (self, np.\+ndarray frame, pipeline, Tuple\mbox{[}int, int, int\mbox{]} color=(0, 0, 0), bool display\+\_\+front=True, bool display\+\_\+back=True)
 \item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a29bfb56c5db634c4ceb795ede103f20d}\label{classhuman__skeleton_1_1HumanSkeleton_a29bfb56c5db634c4ceb795ede103f20d}} 
-def {\bfseries from\+\_\+feet\+\_\+analytics} (self, coordinates, index)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a158ddee1f2100b957cb51da0d444e0b9}\label{classhuman__skeleton_1_1HumanSkeleton_a158ddee1f2100b957cb51da0d444e0b9}} 
-def {\bfseries from\+\_\+json} (self, data2D=None, data3D=None, specific\+\_\+timestamp=None, id=None, depth\+\_\+map=None)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_aecc15a3cd4866c04f31d5ca9da2736c5}\label{classhuman__skeleton_1_1HumanSkeleton_aecc15a3cd4866c04f31d5ca9da2736c5}} 
-def {\bfseries from\+\_\+tracker} (self, tracker, id, depth\+\_\+map=None)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a025d3f3dbe1b51c7fada0f82bdb91ad3}\label{classhuman__skeleton_1_1HumanSkeleton_a025d3f3dbe1b51c7fada0f82bdb91ad3}} 
-def {\bfseries get\+\_\+body\+\_\+orientation} (self)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a149428e5bfd4d2df806806704d9e89be}\label{classhuman__skeleton_1_1HumanSkeleton_a149428e5bfd4d2df806806704d9e89be}} 
-def {\bfseries get\+\_\+bounding\+\_\+box\+\_\+2d} (self, expand=1.\+0)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_aa1e5075ac552e722f02e711c8d2bde1b}\label{classhuman__skeleton_1_1HumanSkeleton_aa1e5075ac552e722f02e711c8d2bde1b}} 
-def {\bfseries get\+\_\+bounding\+\_\+box\+\_\+3d} (self)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a8b262feb942a30261ad05ca865bf370d}\label{classhuman__skeleton_1_1HumanSkeleton_a8b262feb942a30261ad05ca865bf370d}} 
-def {\bfseries get\+\_\+center\+\_\+of\+\_\+gravity} (self)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a460967b95e7f4cd10a2d7d03fac6ba1d}\label{classhuman__skeleton_1_1HumanSkeleton_a460967b95e7f4cd10a2d7d03fac6ba1d}} 
-def {\bfseries get\+\_\+center\+\_\+of\+\_\+gravity\+\_\+2d} (self)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_afd595815d571f6a94735e2d14d593c77}\label{classhuman__skeleton_1_1HumanSkeleton_afd595815d571f6a94735e2d14d593c77}} 
-def {\bfseries get\+\_\+face\+\_\+location} (self)
-\item 
+def \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_aa4119ec9813b1e97cc89356ec4a7b90b}{from\+\_\+feet\+\_\+analytics}} (self, Dict coordinates, int index)
+\begin{DoxyCompactList}\small\item\em Get the keypoints from the \mbox{\hyperlink{feet__analysis_8py}{feet\+\_\+analysis.\+py}} data transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{feet\+\_\+analysis.\+preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a158ddee1f2100b957cb51da0d444e0b9}{from\+\_\+json}} (self, data2D=None, data3D=None, specific\+\_\+timestamp=None, id=None, depth\+\_\+map=None)
+\begin{DoxyCompactList}\small\item\em Get the keypoints from a JSON file (mostly used when using Influx\+DB data) \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a9e2139dd8eb53578f7631ac474219387}{from\+\_\+tracker}} (self, \mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker}{skeleton\+\_\+tracker.\+Skeleton\+Tracker}} tracker, int id, depth\+\_\+map=None)
+\begin{DoxyCompactList}\small\item\em Get the keypoints from the \mbox{\hyperlink{namespaceskeleton__tracker}{skeleton\+\_\+tracker}}. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a0504dd65a95ff200a2321c1e3d514e3d}{get\+\_\+body\+\_\+orientation}} (self)
+\begin{DoxyCompactList}\small\item\em Get a vector representing the orientation of the person in the 3D environment as a Euler rotation vector. \end{DoxyCompactList}\item 
+List\mbox{[}np.\+ndarray\mbox{]} \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a7ce97e578c559efcd89d6bf82f69812c}{get\+\_\+bounding\+\_\+box\+\_\+2d}} (self, float expand=1.\+0)
+\begin{DoxyCompactList}\small\item\em Get the bounding box surrounding all the joints of the person. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_aa1e5075ac552e722f02e711c8d2bde1b}{get\+\_\+bounding\+\_\+box\+\_\+3d}} (self)
+\begin{DoxyCompactList}\small\item\em Get the bounding box surrounding all the joints of the person in the 3D environment. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a88c6e629cb6c964a18ab70f61ef1a72c}{get\+\_\+center\+\_\+of\+\_\+gravity}} (self)
+\begin{DoxyCompactList}\small\item\em The center of gravity of the person in the 3D space. \end{DoxyCompactList}\item 
+np.\+ndarray \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a29570c2aebbc58fb93cb1b21c9ff11c6}{get\+\_\+center\+\_\+of\+\_\+gravity\+\_\+2d}} (self)
+\begin{DoxyCompactList}\small\item\em The center of gravity of the person in the 2D space. \end{DoxyCompactList}\item 
+Tuple\mbox{[}int, int, int, int\mbox{]} \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a96a4f85a126a44d4cd993217b7687fc0}{get\+\_\+face\+\_\+location}} (self)
+\begin{DoxyCompactList}\small\item\em Estimate the position of the face of the person on the screen. \end{DoxyCompactList}\item 
 np.\+ndarray \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_af42dcad728de1112207d49af3661d384}{get\+\_\+keypoint2D}} (self, Union\mbox{[}\mbox{\hyperlink{classhuman__skeleton_1_1BodyParts}{Body\+Parts}}, str\mbox{]} key)
 \begin{DoxyCompactList}\small\item\em Get the position of a specific keypoint on the screen. \end{DoxyCompactList}\item 
 np.\+ndarray \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_ae693271dd84781256995d4c46c748f36}{get\+\_\+keypoint3D}} (self, Union\mbox{[}\mbox{\hyperlink{classhuman__skeleton_1_1BodyParts}{Body\+Parts}}, str\mbox{]} key)
@@ -71,12 +60,10 @@ def {\bfseries get\+\_\+number\+\_\+of\+\_\+visible\+\_\+keypoints} (self)
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a16a85849bdf9f6891417c9c08dee71b0}\label{classhuman__skeleton_1_1HumanSkeleton_a16a85849bdf9f6891417c9c08dee71b0}} 
 def {\bfseries legs\+\_\+overlapping} (self)
 \begin{DoxyCompactList}\small\item\em Check if the legs of the person are overlapping on the frame. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a13d516f91d87e93abde6d3f9b4202634}\label{classhuman__skeleton_1_1HumanSkeleton_a13d516f91d87e93abde6d3f9b4202634}} 
-def {\bfseries rotate\+\_\+bounding\+\_\+box\+\_\+with\+\_\+body\+\_\+orientation} (self, increase\+\_\+body\+\_\+height=False)
-\item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a7611f369d3ca5858b8f3a0517dd69f8b}\label{classhuman__skeleton_1_1HumanSkeleton_a7611f369d3ca5858b8f3a0517dd69f8b}} 
-def {\bfseries to\+\_\+json} (self, ref\+\_\+center=None, ref\+\_\+x=None, ref\+\_\+y=None, ref\+\_\+z=None, scale=1.\+0)
-\end{DoxyCompactItemize}
+def \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a238a7382d7f8d774aaef8da1149b6b1d}{rotate\+\_\+bounding\+\_\+box\+\_\+with\+\_\+body\+\_\+orientation}} (self, Union\mbox{[}bool, float\mbox{]} increase\+\_\+body\+\_\+height=False)
+\begin{DoxyCompactList}\small\item\em Compute the bounding box around the person and let it rotate according to the body orientation. \end{DoxyCompactList}\item 
+Tuple\mbox{[}Dict, Dict\mbox{]} \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a704eb70211c9ad8cd204b36710098780}{to\+\_\+json}} (self, ref\+\_\+center=None, ref\+\_\+x=None, ref\+\_\+y=None, ref\+\_\+z=None, scale=1.\+0)
+\begin{DoxyCompactList}\small\item\em Convert the coordinates of the skeleton into a JSON format that can be easily used to import it in the database. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
@@ -95,15 +82,69 @@ def {\bfseries to\+\_\+json} (self, ref\+\_\+center=None, ref\+\_\+x=None, ref\+
 \doxysubsection*{Private Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a3e98247d57c4cfcd0d220fdef58ffc13}\label{classhuman__skeleton_1_1HumanSkeleton_a3e98247d57c4cfcd0d220fdef58ffc13}} 
-def {\bfseries \+\_\+get\+\_\+line\+\_\+intersection} (self, start1, end1, start2, end2)
-\end{DoxyCompactItemize}
+bool \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_ae21e68d425cadd136a01b8c57c09b0e0}{\+\_\+get\+\_\+line\+\_\+intersection}} (self, start1, end1, start2, end2)
+\begin{DoxyCompactList}\small\item\em Small utility function to check if two lines in a plane are intersecting. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
 Store the keypoints found by the skeleton tracker, a JSON file or data from \mbox{\hyperlink{feet__analysis_8py}{feet\+\_\+analysis.\+py}}. 
 
 \doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_ae21e68d425cadd136a01b8c57c09b0e0}\label{classhuman__skeleton_1_1HumanSkeleton_ae21e68d425cadd136a01b8c57c09b0e0}} 
+\index{HumanSkeleton@{HumanSkeleton}!\_get\_line\_intersection@{\_get\_line\_intersection}}
+\index{\_get\_line\_intersection@{\_get\_line\_intersection}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{\_get\_line\_intersection()}{\_get\_line\_intersection()}}
+{\footnotesize\ttfamily  bool \+\_\+get\+\_\+line\+\_\+intersection (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{start1,  }\item[{}]{end1,  }\item[{}]{start2,  }\item[{}]{end2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Small utility function to check if two lines in a plane are intersecting. 
+
+This can be useful when checking if the two legs of the person are crossing. 
+\begin{DoxyParams}{Parameters}
+{\em start1} & (x, y) coordinates of the beginning of the first line \\
+\hline
+{\em end1} & (x, y) coordinates of the ending of the first line \\
+\hline
+{\em start2} & (x, y) coordinates of the beginning of the second line \\
+\hline
+{\em end2} & (x, y) coordinates of the ending of the second line\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A boolean set to True if the two lines are colliding/intersecting, False otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_aa9db9c0f86d8541496add2f9ca2d0aa8}\label{classhuman__skeleton_1_1HumanSkeleton_aa9db9c0f86d8541496add2f9ca2d0aa8}} 
+\index{HumanSkeleton@{HumanSkeleton}!body\_part\_intersection@{body\_part\_intersection}}
+\index{body\_part\_intersection@{body\_part\_intersection}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{body\_part\_intersection()}{body\_part\_intersection()}}
+{\footnotesize\ttfamily  bool body\+\_\+part\+\_\+intersection (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{start1,  }\item[{}]{end1,  }\item[{}]{start2,  }\item[{}]{end2,  }\item[{}]{thickness1,  }\item[{}]{thickness2 }\end{DoxyParamCaption})}
+
+
+
+Check if two body parts are intersecting, by allowing to provide a \char`\"{}thickness\char`\"{} to the lines drawn between body parts. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em start1} & (x, y) coordinates of the beginning of the first line \\
+\hline
+{\em end1} & (x, y) coordinates of the ending of the first line \\
+\hline
+{\em thickness1} & The width given to the first line \\
+\hline
+{\em start2} & (x, y) coordinates of the beginning of the second line \\
+\hline
+{\em end2} & (x, y) coordinates of the ending of the second line \\
+\hline
+{\em thickness2} & The width given to the second line\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A boolean set to True if the two lines are colliding/intersecting, False otherwise.
+\end{DoxyReturn}
+\begin{DoxyRemark}{Remarks}
+This function check the collision of the lines given an offset of +/-\/ the thickness. 
+\end{DoxyRemark}
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a0820b85f7bd9bc0e9597a97c7f32d9ca}\label{classhuman__skeleton_1_1HumanSkeleton_a0820b85f7bd9bc0e9597a97c7f32d9ca}} 
 \index{HumanSkeleton@{HumanSkeleton}!body\_position2D@{body\_position2D}}
 \index{body\_position2D@{body\_position2D}!HumanSkeleton@{HumanSkeleton}}
@@ -112,11 +153,190 @@ Store the keypoints found by the skeleton tracker, a JSON file or data from \mbo
 
 
 
-Function to get the center of gravity of the person. 
+Function to get the center of gravity of the person on the screen. 
 
 \begin{DoxyRemark}{Remarks}
-Take mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button) 
+Takes the mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button) 
 \end{DoxyRemark}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a32f5d8afe92facbe946850448acb4bba}\label{classhuman__skeleton_1_1HumanSkeleton_a32f5d8afe92facbe946850448acb4bba}} 
+\index{HumanSkeleton@{HumanSkeleton}!body\_position3D@{body\_position3D}}
+\index{body\_position3D@{body\_position3D}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{body\_position3D()}{body\_position3D()}}
+{\footnotesize\ttfamily def body\+\_\+position3D (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Function to get the center of gravity of the person in the 3D environment. 
+
+\begin{DoxyRemark}{Remarks}
+Takes the mean value between hips and shoulders with a weight of 3 for the hips (should fall on belly button) 
+\end{DoxyRemark}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_aa4119ec9813b1e97cc89356ec4a7b90b}\label{classhuman__skeleton_1_1HumanSkeleton_aa4119ec9813b1e97cc89356ec4a7b90b}} 
+\index{HumanSkeleton@{HumanSkeleton}!from\_feet\_analytics@{from\_feet\_analytics}}
+\index{from\_feet\_analytics@{from\_feet\_analytics}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{from\_feet\_analytics()}{from\_feet\_analytics()}}
+{\footnotesize\ttfamily def from\+\_\+feet\+\_\+analytics (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{Dict}]{coordinates,  }\item[{int}]{index }\end{DoxyParamCaption})}
+
+
+
+Get the keypoints from the \mbox{\hyperlink{feet__analysis_8py}{feet\+\_\+analysis.\+py}} data transformed by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{feet\+\_\+analysis.\+preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} 
+
+
+\begin{DoxyParams}{Parameters}
+{\em coordinates} & All the skeleton data from a sequence given by \mbox{\hyperlink{namespacefeet__analysis_ab26f1bb0517facbfcad255588154f9dc}{feet\+\_\+analysis.\+preprocess\+\_\+data\+\_\+for\+\_\+walk\+\_\+analysis()}} \\
+\hline
+{\em index} & The index of the frame you want to access in the sequence\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+
+\begin{DoxyItemize}
+\item \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a9e2139dd8eb53578f7631ac474219387}{Human\+Skeleton.\+from\+\_\+tracker()}}
+\item \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a158ddee1f2100b957cb51da0d444e0b9}{Human\+Skeleton.\+from\+\_\+json()}} 
+\end{DoxyItemize}
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a158ddee1f2100b957cb51da0d444e0b9}\label{classhuman__skeleton_1_1HumanSkeleton_a158ddee1f2100b957cb51da0d444e0b9}} 
+\index{HumanSkeleton@{HumanSkeleton}!from\_json@{from\_json}}
+\index{from\_json@{from\_json}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{from\_json()}{from\_json()}}
+{\footnotesize\ttfamily def from\+\_\+json (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{data2D = {\ttfamily None},  }\item[{}]{data3D = {\ttfamily None},  }\item[{}]{specific\+\_\+timestamp = {\ttfamily None},  }\item[{}]{id = {\ttfamily None},  }\item[{}]{depth\+\_\+map = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Get the keypoints from a JSON file (mostly used when using Influx\+DB data) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data2D} & The 2D coordinates of the sequence \\
+\hline
+{\em data3D} & The 3D coordinates of the sequence \\
+\hline
+{\em specific\+\_\+timestamp} & The timestamp at which you want to extract the skeleton \\
+\hline
+{\em id} & Unused \\
+\hline
+{\em depth\+\_\+map} & Unused\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+
+\begin{DoxyItemize}
+\item \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a9e2139dd8eb53578f7631ac474219387}{Human\+Skeleton.\+from\+\_\+tracker()}}
+\item \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_aa4119ec9813b1e97cc89356ec4a7b90b}{Human\+Skeleton.\+from\+\_\+feet\+\_\+analytics()}} 
+\end{DoxyItemize}
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a9e2139dd8eb53578f7631ac474219387}\label{classhuman__skeleton_1_1HumanSkeleton_a9e2139dd8eb53578f7631ac474219387}} 
+\index{HumanSkeleton@{HumanSkeleton}!from\_tracker@{from\_tracker}}
+\index{from\_tracker@{from\_tracker}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{from\_tracker()}{from\_tracker()}}
+{\footnotesize\ttfamily def from\+\_\+tracker (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{\mbox{\hyperlink{classskeleton__tracker_1_1SkeletonTracker}{skeleton\+\_\+tracker.\+Skeleton\+Tracker}}}]{tracker,  }\item[{int}]{id,  }\item[{}]{depth\+\_\+map = {\ttfamily None} }\end{DoxyParamCaption})}
+
+
+
+Get the keypoints from the \mbox{\hyperlink{namespaceskeleton__tracker}{skeleton\+\_\+tracker}}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tracker} & The skeleton tracker that analysed the current frame. \\
+\hline
+{\em id} & The person\textquotesingle{}s ID in the frame \\
+\hline
+{\em depth\+\_\+map} & The depth map coming from the depth camera\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+
+\begin{DoxyItemize}
+\item \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_aa4119ec9813b1e97cc89356ec4a7b90b}{Human\+Skeleton.\+from\+\_\+feet\+\_\+analytics()}}
+\item \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a158ddee1f2100b957cb51da0d444e0b9}{Human\+Skeleton.\+from\+\_\+json()}} 
+\end{DoxyItemize}
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a0504dd65a95ff200a2321c1e3d514e3d}\label{classhuman__skeleton_1_1HumanSkeleton_a0504dd65a95ff200a2321c1e3d514e3d}} 
+\index{HumanSkeleton@{HumanSkeleton}!get\_body\_orientation@{get\_body\_orientation}}
+\index{get\_body\_orientation@{get\_body\_orientation}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{get\_body\_orientation()}{get\_body\_orientation()}}
+{\footnotesize\ttfamily  np.\+ndarray get\+\_\+body\+\_\+orientation (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Get a vector representing the orientation of the person in the 3D environment as a Euler rotation vector. 
+
+\begin{DoxyRemark}{Remarks}
+This algorithm uses the cross product between the lines drawn between the shoulders and the hips and do a mean of the 4 results. At least 3 of the joints are needed to compute the orientation
+\end{DoxyRemark}
+\begin{DoxyReturn}{Returns}
+An Euler rotation vector 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a7ce97e578c559efcd89d6bf82f69812c}\label{classhuman__skeleton_1_1HumanSkeleton_a7ce97e578c559efcd89d6bf82f69812c}} 
+\index{HumanSkeleton@{HumanSkeleton}!get\_bounding\_box\_2d@{get\_bounding\_box\_2d}}
+\index{get\_bounding\_box\_2d@{get\_bounding\_box\_2d}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{get\_bounding\_box\_2d()}{get\_bounding\_box\_2d()}}
+{\footnotesize\ttfamily  List\mbox{[}np.\+ndarray\mbox{]} get\+\_\+bounding\+\_\+box\+\_\+2d (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{float }]{expand = {\ttfamily 1.0} }\end{DoxyParamCaption})}
+
+
+
+Get the bounding box surrounding all the joints of the person. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em expand} & Change this value if you want to add or remove an offset around the joints.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A list containing the coordinates of the \mbox{[}lower left, upper left, lower right, upper right\mbox{]} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_aa1e5075ac552e722f02e711c8d2bde1b}\label{classhuman__skeleton_1_1HumanSkeleton_aa1e5075ac552e722f02e711c8d2bde1b}} 
+\index{HumanSkeleton@{HumanSkeleton}!get\_bounding\_box\_3d@{get\_bounding\_box\_3d}}
+\index{get\_bounding\_box\_3d@{get\_bounding\_box\_3d}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{get\_bounding\_box\_3d()}{get\_bounding\_box\_3d()}}
+{\footnotesize\ttfamily def get\+\_\+bounding\+\_\+box\+\_\+3d (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Get the bounding box surrounding all the joints of the person in the 3D environment. 
+
+\begin{DoxyVerb}   @return A list containing the coordinates of the [lower left front, lower left back,
+   upper left front, upper left back, lower right front, lower right back, upper right front, upper right back]
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a88c6e629cb6c964a18ab70f61ef1a72c}\label{classhuman__skeleton_1_1HumanSkeleton_a88c6e629cb6c964a18ab70f61ef1a72c}} 
+\index{HumanSkeleton@{HumanSkeleton}!get\_center\_of\_gravity@{get\_center\_of\_gravity}}
+\index{get\_center\_of\_gravity@{get\_center\_of\_gravity}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{get\_center\_of\_gravity()}{get\_center\_of\_gravity()}}
+{\footnotesize\ttfamily  np.\+ndarray get\+\_\+center\+\_\+of\+\_\+gravity (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+The center of gravity of the person in the 3D space. 
+
+\begin{DoxyReturn}{Returns}
+The 3D coordinates of the center of gravity 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a29570c2aebbc58fb93cb1b21c9ff11c6}\label{classhuman__skeleton_1_1HumanSkeleton_a29570c2aebbc58fb93cb1b21c9ff11c6}} 
+\index{HumanSkeleton@{HumanSkeleton}!get\_center\_of\_gravity\_2d@{get\_center\_of\_gravity\_2d}}
+\index{get\_center\_of\_gravity\_2d@{get\_center\_of\_gravity\_2d}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{get\_center\_of\_gravity\_2d()}{get\_center\_of\_gravity\_2d()}}
+{\footnotesize\ttfamily  np.\+ndarray get\+\_\+center\+\_\+of\+\_\+gravity\+\_\+2d (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+The center of gravity of the person in the 2D space. 
+
+\begin{DoxyReturn}{Returns}
+The 2D coordinates of the center of gravity 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a96a4f85a126a44d4cd993217b7687fc0}\label{classhuman__skeleton_1_1HumanSkeleton_a96a4f85a126a44d4cd993217b7687fc0}} 
+\index{HumanSkeleton@{HumanSkeleton}!get\_face\_location@{get\_face\_location}}
+\index{get\_face\_location@{get\_face\_location}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{get\_face\_location()}{get\_face\_location()}}
+{\footnotesize\ttfamily  Tuple\mbox{[}int, int, int, int\mbox{]} get\+\_\+face\+\_\+location (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Estimate the position of the face of the person on the screen. 
+
+\begin{DoxyReturn}{Returns}
+A tuple containing the (top value, the right value, the bottom value, the left value) of the position of the face 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_af42dcad728de1112207d49af3661d384}\label{classhuman__skeleton_1_1HumanSkeleton_af42dcad728de1112207d49af3661d384}} 
 \index{HumanSkeleton@{HumanSkeleton}!get\_keypoint2D@{get\_keypoint2D}}
 \index{get\_keypoint2D@{get\_keypoint2D}!HumanSkeleton@{HumanSkeleton}}
@@ -153,6 +373,50 @@ Get the position of a specific keypoint in the 3D environment.
 \begin{DoxyReturn}{Returns}
 An array containing the X, Y and Z coordinates of the desired keypoint 
 \end{DoxyReturn}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a238a7382d7f8d774aaef8da1149b6b1d}\label{classhuman__skeleton_1_1HumanSkeleton_a238a7382d7f8d774aaef8da1149b6b1d}} 
+\index{HumanSkeleton@{HumanSkeleton}!rotate\_bounding\_box\_with\_body\_orientation@{rotate\_bounding\_box\_with\_body\_orientation}}
+\index{rotate\_bounding\_box\_with\_body\_orientation@{rotate\_bounding\_box\_with\_body\_orientation}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{rotate\_bounding\_box\_with\_body\_orientation()}{rotate\_bounding\_box\_with\_body\_orientation()}}
+{\footnotesize\ttfamily def rotate\+\_\+bounding\+\_\+box\+\_\+with\+\_\+body\+\_\+orientation (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{Union\mbox{[}bool, float\mbox{]} }]{increase\+\_\+body\+\_\+height = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Compute the bounding box around the person and let it rotate according to the body orientation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em increase\+\_\+body\+\_\+height} & Add some offset on the Y-\/axis to try to capture the feet and the head (The extreme keypoints of the skeleton are the ankles and the neck)\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A list containing the coordinates of the \mbox{[}lower left front, lower left back, upper left front, upper left back, lower right front, lower right back, upper right front, upper right back\mbox{]}, oriented according to the person\textquotesingle{}s orientation
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_aa1e5075ac552e722f02e711c8d2bde1b}{get\+\_\+bounding\+\_\+box\+\_\+3d()}} and \mbox{\hyperlink{classhuman__skeleton_1_1HumanSkeleton_a0504dd65a95ff200a2321c1e3d514e3d}{get\+\_\+body\+\_\+orientation()}} 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classhuman__skeleton_1_1HumanSkeleton_a704eb70211c9ad8cd204b36710098780}\label{classhuman__skeleton_1_1HumanSkeleton_a704eb70211c9ad8cd204b36710098780}} 
+\index{HumanSkeleton@{HumanSkeleton}!to\_json@{to\_json}}
+\index{to\_json@{to\_json}!HumanSkeleton@{HumanSkeleton}}
+\doxysubsubsection{\texorpdfstring{to\_json()}{to\_json()}}
+{\footnotesize\ttfamily  Tuple\mbox{[}Dict, Dict\mbox{]} to\+\_\+json (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{ref\+\_\+center = {\ttfamily None},  }\item[{}]{ref\+\_\+x = {\ttfamily None},  }\item[{}]{ref\+\_\+y = {\ttfamily None},  }\item[{}]{ref\+\_\+z = {\ttfamily None},  }\item[{}]{scale = {\ttfamily 1.0} }\end{DoxyParamCaption})}
+
+
+
+Convert the coordinates of the skeleton into a JSON format that can be easily used to import it in the database. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ref\+\_\+center} & The coordinates (from the camera) of the center of the referential. By default it\textquotesingle{}s (0, 0, 0) =$>$ camera referential, but it can be changed to use the Aruco box\textquotesingle{}s referential \\
+\hline
+{\em ref\+\_\+x} & The coordinates (from the camera) of the point (1, 0, 0) of the referential \\
+\hline
+{\em ref\+\_\+y} & The coordinates (from the camera) of the point (0, 1, 0) of the referential \\
+\hline
+{\em ref\+\_\+z} & The coordinates (from the camera) of the point (0, 0, 1) of the referential \\
+\hline
+{\em scale} & The scale used on the 3 axis (ref\+\_\+x, ref\+\_\+y, ref\+\_\+z). For instance, if the X-\/axis is computed from the borders of the Aruco box (which is 21cm long), you need to provide a scale of 0.\+21. \\
+\hline
+\end{DoxyParams}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

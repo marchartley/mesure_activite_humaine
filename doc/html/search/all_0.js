@@ -22,7 +22,7 @@ var searchData=
   ['_5fdisplay_5fusers_19',['_display_users',['../classuser__position__in__world_1_1Map.html#ac9097f3bfd026c1502d931ca0bae26fb',1,'user_position_in_world::Map']]],
   ['_5fdraw_5farrow_20',['_draw_arrow',['../classuser__position__in__world_1_1Map.html#ab9fae1cf6d5ea00b3d31eb6af49249d3',1,'user_position_in_world::Map']]],
   ['_5fdraw_5fcross_21',['_draw_cross',['../classuser__position__in__world_1_1Map.html#a74db10a0ebd441f09ef6b3fce9a74618',1,'user_position_in_world::Map']]],
-  ['_5fget_5fline_5fintersection_22',['_get_line_intersection',['../classhuman__skeleton_1_1HumanSkeleton.html#a3e98247d57c4cfcd0d220fdef58ffc13',1,'human_skeleton::HumanSkeleton']]],
+  ['_5fget_5fline_5fintersection_22',['_get_line_intersection',['../classhuman__skeleton_1_1HumanSkeleton.html#ae21e68d425cadd136a01b8c57c09b0e0',1,'human_skeleton::HumanSkeleton']]],
   ['_5finit_5fmap_23',['_init_map',['../classposition__of__person__in__corridor_1_1Map.html#aa5cfaa38f5c3ddf514cf797363b51ef0',1,'position_of_person_in_corridor.Map._init_map()'],['../classuser__position__in__world_1_1Map.html#aa5cfaa38f5c3ddf514cf797363b51ef0',1,'user_position_in_world.Map._init_map()']]],
   ['_5flast_5fframe_5fchecked_24',['_last_frame_checked',['../classskeleton__tracker_1_1SkeletonTracker.html#ac0510052c9a40f2ac9085db809e01e2e',1,'skeleton_tracker::SkeletonTracker']]],
   ['_5flast_5fresults_25',['_last_results',['../classskeleton__tracker_1_1SkeletonTracker.html#a6ee8badb2eaeed93789d95c01dc0bd0c',1,'skeleton_tracker::SkeletonTracker']]],

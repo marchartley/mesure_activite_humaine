@@ -39,9 +39,9 @@ var searchData=
   ['frame_5fcount_305',['frame_count',['../namespacerecording.html#afd3bfa5add6477abed3eaa362c5702b4',1,'recording']]],
   ['frames_306',['frames',['../namespaceopenvino__sample1.html#a76a412a38642b618caf4a30f4cd2703c',1,'openvino_sample1.frames()'],['../namespaceperson__identification.html#a76a412a38642b618caf4a30f4cd2703c',1,'person_identification.frames()'],['../namespaceposition__of__person__in__corridor.html#a76a412a38642b618caf4a30f4cd2703c',1,'position_of_person_in_corridor.frames()'],['../namespacerecording.html#a76a412a38642b618caf4a30f4cd2703c',1,'recording.frames()'],['../namespaceuser__position__in__world.html#a76a412a38642b618caf4a30f4cd2703c',1,'user_position_in_world.frames()']]],
   ['frames_5fcount_307',['frames_count',['../classlabel__editor_1_1VideoPlayer.html#ac5a5bdb17de6f85b03c597e809cd0490',1,'label_editor::VideoPlayer']]],
-  ['from_5ffeet_5fanalytics_308',['from_feet_analytics',['../classhuman__skeleton_1_1HumanSkeleton.html#a29bfb56c5db634c4ceb795ede103f20d',1,'human_skeleton::HumanSkeleton']]],
+  ['from_5ffeet_5fanalytics_308',['from_feet_analytics',['../classhuman__skeleton_1_1HumanSkeleton.html#aa4119ec9813b1e97cc89356ec4a7b90b',1,'human_skeleton::HumanSkeleton']]],
   ['from_5fjson_309',['from_json',['../classhuman__skeleton_1_1HumanSkeleton.html#a158ddee1f2100b957cb51da0d444e0b9',1,'human_skeleton::HumanSkeleton']]],
-  ['from_5ftracker_310',['from_tracker',['../classhuman__skeleton_1_1HumanSkeleton.html#aecc15a3cd4866c04f31d5ca9da2736c5',1,'human_skeleton::HumanSkeleton']]],
+  ['from_5ftracker_310',['from_tracker',['../classhuman__skeleton_1_1HumanSkeleton.html#a9e2139dd8eb53578f7631ac474219387',1,'human_skeleton::HumanSkeleton']]],
   ['from_5fvideo_5fannotation_5fto_5faction_5flist_311',['from_video_annotation_to_action_list',['../namespacetrain__action__classifier.html#a509b7b30daace1328ca2cef54b45c84c',1,'train_action_classifier']]],
   ['full_5fdf_312',['full_df',['../namespacecreate__absence__pir__csv.html#a6057d3880fe5ed5493d3c95791d74943',1,'create_absence_pir_csv']]]
 ];

@@ -14,5 +14,5 @@ var searchData=
   ['resume_5frecording_1090',['resume_recording',['../namespacerecording.html#a91fd57819ea9f0aefa204fa3cce59398',1,'recording']]],
   ['retrieve_5fdata_1091',['retrieve_data',['../namespacesave__skeleton__to__server.html#af84eba449b30e737e2aaa662ca24791d',1,'save_skeleton_to_server']]],
   ['retrieve_5fskeleton_5fkeypoints_1092',['retrieve_skeleton_keypoints',['../classInfluxDB__connection_1_1ListicClientDB.html#a0d03067fe1ec7e0a08cbafabd6d93aec',1,'InfluxDB_connection::ListicClientDB']]],
-  ['rotate_5fbounding_5fbox_5fwith_5fbody_5forientation_1093',['rotate_bounding_box_with_body_orientation',['../classhuman__skeleton_1_1HumanSkeleton.html#a13d516f91d87e93abde6d3f9b4202634',1,'human_skeleton::HumanSkeleton']]]
+  ['rotate_5fbounding_5fbox_5fwith_5fbody_5forientation_1093',['rotate_bounding_box_with_body_orientation',['../classhuman__skeleton_1_1HumanSkeleton.html#a238a7382d7f8d774aaef8da1149b6b1d',1,'human_skeleton::HumanSkeleton']]]
 ];

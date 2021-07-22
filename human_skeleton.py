@@ -545,6 +545,7 @@ class HumanSkeleton:
 
     def display_BBox(self, frame: np.ndarray, pipeline, color: Tuple[int, int, int] = (0, 0, 0),
                      display_front: bool = True, display_back: bool = True):
+
         body_BBox = self.rotate_bounding_box_with_body_orientation(increase_body_height=True)
         # body_pos = self.get_center_of_gravity()
         min_z = np.min(body_BBox, axis=0)

@@ -1,0 +1,22 @@
+# If not done yet, install python3-venv
+python3 -m pip install python3-venv
+
+
+python3 -m venv test_env
+source test_env/bin/activate
+
+# Copy pyrealsense and openpose
+sudo cp -r /usr/lib/python3/dist-packages/pyrealsense2 test_env/lib/python3.6/site-packages/
+sudo cp /usr/lib/python3/dist-packages/*openpose* test_env/lib/python3.6/site-packages/
+
+
+python3 -m pip install --upgrade pip
+
+#required installs :
+sudo pip3 install opencv-contrib-python
+
+
+# /!\ You will get an "Illegal instruction (core dumped)" error when working with numpy >= 1.19.5
+python -m pip install numpy==1.19.4
+# Or run every python with :
+[sudo] OPENBLAS_CORETYPE=ARMV8 python3 [python file]
