@@ -1664,6 +1664,11 @@ def main():
     parser.add_argument('--parameter', dest='estimated_parameter', type=str,
                         help='Choose the parameter on which you want to train/display your models. Choice:\n\t- ' +
                              '\n\t- '.join(estimable_parameters.keys()))
+    parser.add_argument('--display-all', dest='display_all', help='Set this value to True if you want to see the '
+                                                                  'predictions and errors of each trained model '
+                                                                  'during the "display" part, or set to False to '
+                                                                  'see only the "best one".',
+                        action='store_true')
 
     args = parser.parse_args()
     do_training = args.train
@@ -1672,6 +1677,7 @@ def main():
     merge_files = args.merge_files
     clean_files = args.clean_files
     estimated_parameter = args.estimated_parameter
+    display_all_models = args.display_all
 
     if (do_training or do_display or clean_files or merge_files) and estimated_parameter is None:
         parser.print_help()
@@ -1684,9 +1690,6 @@ def main():
     ## Change this variable to change the dataset used (for now values are "ankles" or "hips")
     sensors_height = 'ankles'
 
-    ## Set this value to True if you want to see the predictions and errors of each trained model during the "display"
-    # part, or set to False to see only the "best one".
-    display_all_models = True
 
     # Path to save the binary files containing the data about our trained models
     root_to_cnn = f"trained_models/{device.type}_batch_normed_{sensors_height}_{estimated_parameter}/"

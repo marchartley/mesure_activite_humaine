@@ -97,6 +97,14 @@ python direct_camera_to_db.py --remote
 ```
 5) Marcher de la porte vitrée "Nord" jusqu'à l'extincteur "Sud" puis du "Sud" au "Nord" autant de fois que voulu.
 
+### Visualiser une scène
+Pour voir le dernier passage réalisé, vous pouvez jouer le script `display_skeleton.py`
+```cmd
+source virtual_env/bin/activate
+python display_skeleton.py
+```
+Ceci rejoue le dernier enregistrement en base de données. Pour jouer l'avant-dernier, remplacer l'ID de sequence de `-1` à `-2` (`-3` pour l'avant-avant-dernier, etc.).
+
 ### Création des datasets pour l'IA
 On utilise un dataset different selon le modèle de deep learning à utiliser. 
 Les données des datasets sont choisies selon le tag 'sensors_height' qui a été choisi lors de la collecte des données de capteurs (voir "Capture des données des capteurs"). 
@@ -145,3 +153,34 @@ Idem que pour l'entrainement, modifier uniquement l'argument "train" en "display
 source virtual_env/bin/activate
 python deep_neural_training.py --display --parameter all
 ```
+
+De cette manière un tableau rassemblant les résultats de tous les entrainements de modèles sera affiché, classé par ordre de corrélation des estimations avec la verité terrain. *Ce paramètre peut être modifié par la valeur de la variable `ordering` (`deep_neural_training.py`, ligne ~1491)*
+
+Pour le modèle avec les meilleurs résultats (critère de `ordering`), on affiche les résultats sur un jeu de test de 20% du dataset avec une comparaison entre l'estimation et la verité terrain et des statistiques de l'erreur (en erreur absolue et en pourcentage d'erreur).
+
+Pour visualiser ces affichages avec tous les modèles entrainés, ajouter l'argument `--display-all`
+```cmd
+source virtual_env/bin/activate
+python deep_neural_training.py --display --parameter body_speed --display-all
+```
+
+## Quelques avancées (pas forcément fructueuses)
+### Capture automatique
+*Dans le temps, jadis*, les flux de la caméra étaient stockés en ROSbags (fichiers qui stockent la totalité des flux d'un appareil pour avoir des résultats totalement reproductibles). Ces fichiers sont très lourds, j'ai alors mis en place un système pour lancer le stockage uniquement lorsqu'une personne est dans le champ de vision.
+
+Malheureusement, le processus laisse une latence d'environ une seconde entre la detection et l'enregistrement de la personne, ce qui est trop long pour l'experimentation actuelle.
+
+Dans le doute, je laisse le code du système dans le fichier `automatic_capture.py`, ainsi qu'une démonstration de son utilisation dans le même fichier.
+
+### Reconnaissance faciale
+Un petit algorithme de reconnaissance faciale a été utilisé (mais jamais testé...) dans le fichier `person_identification.py`. Une demonstration est disponible en lançant le script `draw_skeleton.py`
+
+Pour information, l'identification se fait par la transformation d'une photo de visage en histogramme HOG. Des SVM sont entrainés pour classifier le HOG d'un nouveau visage parmi le dataset.
+
+### Classification d'actions
+Une classifieur d'actions est disponible dans le fichier `train_action_classifier.py`
+
+##  Pour plus de détails sur le travail
+Le rapport de stage associé à ce travail est disponible sous le nom de `Rapport_fin_de_stage_Nantes_LISTIC.pdf`.
+
+Pour encore plus d'informations, ne pas hésiter à me contacter.

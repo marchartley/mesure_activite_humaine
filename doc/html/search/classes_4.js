@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['listicclientdb_786',['ListicClientDB',['../classInfluxDB__connection_1_1ListicClientDB.html',1,'InfluxDB_connection']]]
+  ['listicclientdb_792',['ListicClientDB',['../classInfluxDB__connection_1_1ListicClientDB.html',1,'InfluxDB_connection']]]
 ];

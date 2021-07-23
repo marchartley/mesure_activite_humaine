@@ -1,1 +1,178 @@
-Link to datasets\+: \href{https://drive.google.com/drive/folders/1ruuit4PpnR_DXcTkf8YM3IeuRo0xYCVZ?usp=sharing}{\texttt{ https\+://drive.\+google.\+com/drive/folders/1ruuit4\+Ppn\+R\+\_\+\+DXc\+Tkf8\+YM3\+Ieu\+Ro0x\+YCVZ?usp=sharing}} 
+Link to datasets\+: \href{https://drive.google.com/drive/folders/1ruuit4PpnR_DXcTkf8YM3IeuRo0xYCVZ?usp=sharing}{\texttt{ https\+://drive.\+google.\+com/drive/folders/1ruuit4\+Ppn\+R\+\_\+\+DXc\+Tkf8\+YM3\+Ieu\+Ro0x\+YCVZ?usp=sharing}}\hypertarget{md_README_autotoc_md1}{}\doxysection{Authors}\label{md_README_autotoc_md1}
+Hartley Marc -\/ LISTIC (\href{mailto:marc.hartley@hotmail.com}{\texttt{ marc.\+hartley@hotmail.\+com}})\hypertarget{md_README_autotoc_md2}{}\doxysection{Documentation complète}\label{md_README_autotoc_md2}
+Après avoir cloné le projet, ouvrez le fichier \char`\"{}doc/html/index.\+html\char`\"{} dans un navigateur.\hypertarget{md_README_autotoc_md3}{}\doxysection{Processus classique\+:}\label{md_README_autotoc_md3}
+Ce projet est utilisé dans le but d\textquotesingle{}enregistrer de manière automatique une scene à l\textquotesingle{}aide d\textquotesingle{}une caméra de profondeur.
+
+Cela permet d\textquotesingle{}extraire le squelette d\textquotesingle{}une personne dans une sequence, de les stocker dans une base de données Influx\+DB et d\textquotesingle{}analyser la démarche de la personne.
+
+Les caractéristiques extraites sont\+:
+\begin{DoxyItemize}
+\item La vitesse de la marche,
+\item La longueur des pas,
+\item La largeur des pas,
+\item Le ratio \char`\"{}double-\/support\char`\"{},
+\item Le ratio \char`\"{}stance/swing\char`\"{} sur chaque jambe.
+\end{DoxyItemize}
+
+Un Raspberry Pi s\textquotesingle{}occupe d\textquotesingle{}enregistrer les signaux de plusieurs capteurs sur lequel il est branché, et de stocker cela dans une base de données Influx\+DB.
+
+Avec les données des capteurs qui vont servir d\textquotesingle{}entrée et les caractéristiques de la caméra pour la \char`\"{}verité terrain\char`\"{}, nous pouvons entrainer des réseaux de neurones.
+
+Plusieurs types de réseaux de neurones sont proposés ici\+:
+\begin{DoxyItemize}
+\item Un réseau de type MLP (Multi-\/\+Layer Perceptron)
+\item Des réseaux convolutifs\+:
+\begin{DoxyItemize}
+\item CNN (Convolutional Neural Network) \char`\"{}classique\char`\"{}
+\item Res\+Net (CNN avec l\textquotesingle{}utilisation de \char`\"{}résidus\char`\"{})
+\item Modèles prédéfinis de type Alex\+Net, Google\+Net, VGG, etc...
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{md_README_autotoc_md4}{}\doxysection{Programmes requis}\label{md_README_autotoc_md4}
+
+\begin{DoxyItemize}
+\item Python 3.\+6 ou 3.\+7 (pas en-\/dessous pour pouvoir utiliser la skeletisation, pas au-\/dessus pour pouvoir utiliser le SDK des caméras de profondeur)
+\item R Studio
+\item Arduino IDE (ou n\textquotesingle{}importe quel IDE pour coder sur un Arduino)
+\item Un GPU compatible CUDA
+\end{DoxyItemize}\hypertarget{md_README_autotoc_md5}{}\doxysection{Installation du projet}\label{md_README_autotoc_md5}
+\hypertarget{md_README_autotoc_md6}{}\doxysubsection{Sous Linux}\label{md_README_autotoc_md6}
+
+\begin{DoxyItemize}
+\item Attention\+: Le mieux c\textquotesingle{}est d\textquotesingle{}utiliser Ubuntu18 car c\textquotesingle{}est \char`\"{}sûr\char`\"{} de fonctionner. Ubuntu 20.\+0 est incompatible (à cause de la skeletisation Cubemos).
+\item Cloner ce repertoire\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{cd \string~/Documents}
+\DoxyCodeLine{git clone https://github.com/kemar74/mesure\_activite\_humaine.git}
+\DoxyCodeLine{\# Renseigner votre GitHub username et password avec lequel vous avez un accès dans ce répertoire}
+
+\end{DoxyCode}
+
+\item Lancer le script d\textquotesingle{}installation en suivant les indications affichées\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{sudo bash \string~/Documents/mesure\_activite\_humaine/project\_installation.sh}
+
+\end{DoxyCode}
+
+\end{DoxyItemize}\hypertarget{md_README_autotoc_md7}{}\doxysubsection{Sous Windows}\label{md_README_autotoc_md7}
+
+\begin{DoxyItemize}
+\item Cloner ce repertoire\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{cd \string~/Documents}
+\DoxyCodeLine{git clone https://github.com/kemar74/mesure\_activite\_humaine.git}
+\DoxyCodeLine{\# Renseigner votre GitHub username et password avec lequel vous avez un accès dans ce répertoire}
+
+\end{DoxyCode}
+
+\item Après, essayez d\textquotesingle{}installer Py\+Real\+Sense2 et Cubemos Skeleton Tracker SDK comme vous pouvez
+\end{DoxyItemize}\hypertarget{md_README_autotoc_md8}{}\doxysection{Utilisation du programme\+:}\label{md_README_autotoc_md8}
+\hypertarget{md_README_autotoc_md9}{}\doxysubsection{Programmation des capteurs}\label{md_README_autotoc_md9}
+Un programme doit être compilé sur chaque capteur pour être utilisables\+: 1) Ouvrir un IDE pour coder les Arduino, et ouvrir le fichier \char`\"{}pir\+\_\+sensors\+\_\+program.\+c\char`\"{} 2) Brancher un capteur via la prise USB-\/C vers l\textquotesingle{}ordinateur 3) Modifier la variable \char`\"{}\`{}nom\+\_\+variable\`{}\char`\"{} pour qu\textquotesingle{}elle s\textquotesingle{}accorde au numéro indiqué sur le capteur (0x20, 0x21, 0x22 ou 0x23) 4) Compiler vers la carte Arduino.\hypertarget{md_README_autotoc_md10}{}\doxysubsection{Capture des données des capteurs}\label{md_README_autotoc_md10}
+1) Placer les capteurs tels que vous le souhaitez dans le couloir. 2) Les brancher au Raspberry Pi (par I2C pour l\textquotesingle{}instant). 3) (Si vous commencez de zéro \+:) Placer les fichiers du dossier {\ttfamily files\+\_\+for\+\_\+raspberry} ({\ttfamily xiaopir.\+py}, {\ttfamily continuous\+\_\+experiment.\+py} et {\ttfamily hamming\+\_\+coding.\+py}) dans le Raspberry (peu importe où, tant qu\textquotesingle{}ils sont ensemble). 4) {\bfseries{Verifier que la variable {\ttfamily sensors\+\_\+height} dans le fichier {\ttfamily continuous\+\_\+experiment.\+py} soit en accord avec la disposition de vos capteurs (Pour les PIRs, nous avons utilisé \char`\"{}\`{}hips\`{}\char`\"{} lorsque à hauteur de hanches et \char`\"{}\`{}ankles\`{}\char`\"{} lorsque ils sont placés au sol). Cette variable permet d\textquotesingle{}ajouter un \char`\"{}tag\char`\"{} aux données pour les filtrer/trier par la suite.}} 5) Lancer le script {\ttfamily continuous\+\_\+experiment.\+py} sur le Raspberry Pi. En cas d\textquotesingle{}erreur \char`\"{}\+OSError\+: 121\char`\"{}, verifier que tous les capteurs sont bien branchés (débrancher/rebrancher plusieurs fois). 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{python3 continuous\_experiment.py}
+
+\end{DoxyCode}
+
+
+Conditions d\textquotesingle{}utilisation\+:
+\begin{DoxyItemize}
+\item Le Raspberry doit avoir un accès au serveur Listic (192.\+168.\+143.\+29)
+\item Dans l\textquotesingle{}état actuel, il est indispensable de brancher 4 capteurs avec les adresses esclaves \char`\"{}0x20\char`\"{}, \char`\"{}0x21\char`\"{}, \char`\"{}0x22\char`\"{} et \char`\"{}0x23\char`\"{}. (voir \char`\"{}\+Programmation des capteurs\char`\"{})
+\end{DoxyItemize}
+
+Indications\+:
+\begin{DoxyItemize}
+\item À l\textquotesingle{}heure actuelle, les données transmises des capteurs au Raspberry sont encodées par un codage de Hamming. Le code d\textquotesingle{}encodage compilé sur les capteurs doit être compatible avec le code de décodage codé sur le Raspberry (fichier {\ttfamily hamming\+\_\+coding.\+py})
+\end{DoxyItemize}\hypertarget{md_README_autotoc_md11}{}\doxysubsection{Capture des squelettes par camera de profondeur}\label{md_README_autotoc_md11}
+1) Placer le cube \char`\"{}\+Aruco Box\char`\"{} dans le couloir. 2) Placer la caméra dans un coin du dispositif (chercher une croix de scotch en dessous d\textquotesingle{}un extincteur). 3) Brancher la caméra à l\textquotesingle{}ordinateur. {\bfseries{Utiliser un cable certifié USB3.\+0 et brancher sur un port USB 3.\+0}}. 4) Utiliser un environnement virtuel python (voir {\ttfamily create\+\_\+new\+\_\+env.\+txt}) 4) Depuis l\textquotesingle{}ordinateur, lancer le script {\ttfamily \mbox{\hyperlink{direct__camera__to__db_8py}{direct\+\_\+camera\+\_\+to\+\_\+db.\+py}}} avec la commande CMD suivante \+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{source virtual\_env/bin/activate}
+\DoxyCodeLine{python direct\_camera\_to\_db.py -\/-\/remote}
+
+\end{DoxyCode}
+ 5) Marcher de la porte vitrée \char`\"{}\+Nord\char`\"{} jusqu\textquotesingle{}à l\textquotesingle{}extincteur \char`\"{}\+Sud\char`\"{} puis du \char`\"{}\+Sud\char`\"{} au \char`\"{}\+Nord\char`\"{} autant de fois que voulu.\hypertarget{md_README_autotoc_md12}{}\doxysubsection{Visualiser une scène}\label{md_README_autotoc_md12}
+Pour voir le dernier passage réalisé, vous pouvez jouer le script {\ttfamily \mbox{\hyperlink{display__skeleton_8py}{display\+\_\+skeleton.\+py}}} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{source virtual\_env/bin/activate}
+\DoxyCodeLine{python display\_skeleton.py}
+
+\end{DoxyCode}
+ Ceci rejoue le dernier enregistrement en base de données. Pour jouer l\textquotesingle{}avant-\/dernier, remplacer l\textquotesingle{}ID de sequence de {\ttfamily -\/1} à {\ttfamily -\/2} ({\ttfamily -\/3} pour l\textquotesingle{}avant-\/avant-\/dernier, etc.).\hypertarget{md_README_autotoc_md13}{}\doxysubsection{Création des datasets pour l\textquotesingle{}\+IA}\label{md_README_autotoc_md13}
+On utilise un dataset different selon le modèle de deep learning à utiliser. Les données des datasets sont choisies selon le tag \textquotesingle{}sensors\+\_\+height\textquotesingle{} qui a été choisi lors de la collecte des données de capteurs (voir \char`\"{}\+Capture des données des capteurs\char`\"{}).
+
+{\bfseries{Dans le script {\ttfamily \mbox{\hyperlink{create__pir__csv_8py}{create\+\_\+pir\+\_\+csv.\+py}}} ET {\ttfamily create\+\_\+dataset\+\_\+mlp.\+R}, modifier la variable {\ttfamily sensors\+\_\+height} afin qu\textquotesingle{}elle corresponde aux experimentations que vous souhaitez (ex \+: \char`\"{}hips\char`\"{} pour les capteurs PIRs à hauteur de hanche, \char`\"{}ankles\char`\"{} quand ils sont au sol, etc.)}} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{source virtual\_env/bin/activate}
+\DoxyCodeLine{python create\_pir\_csv.py}
+\DoxyCodeLine{R -\/-\/vanilla < create\_dataset\_mlp.R}
+
+\end{DoxyCode}
+
+
+Le script Python {\ttfamily \mbox{\hyperlink{create__pir__csv_8py}{create\+\_\+pir\+\_\+csv.\+py}}} extrait toutes les informations à partir de la base de données et construit un CSV \char`\"{}gait\+\_\+values\+\_\+\mbox{[}sensors\+\_\+height\mbox{]}.\+csv\char`\"{} (avec \mbox{[}sensors\+\_\+height\mbox{]} celui que vous avez indiqué dans le script). Il crée aussi les données \char`\"{}image\char`\"{} en enregistrant la representation de la Transformée d\textquotesingle{}Ondelettes Continues (CWT) en image PIL.\+Image de taille 128×128 dans un fichier \char`\"{}all\+\_\+pirs\+\_\+transformed\+\_\+\mbox{[}sensors\+\_\+height\mbox{]}.\+data\char`\"{}, qui est un object python sauvegardé par \char`\"{}pickle\char`\"{}.
+
+Le script R \char`\"{}create\+\_\+dataset\+\_\+mlp.\+R\char`\"{} va créer le fichier CSV \char`\"{}sequences\+\_\+resumed\+\_\+\mbox{[}sensors\+\_\+height\mbox{]}.\+csv\char`\"{}, qui est utilisé par les réseaux de neurones MLP.\hypertarget{md_README_autotoc_md14}{}\doxysubsection{Entrainement de réseaux de neurones}\label{md_README_autotoc_md14}
+\hypertarget{md_README_autotoc_md15}{}\doxysubsubsection{Pour entrainer un réseau de type MLP\+:}\label{md_README_autotoc_md15}
+
+\begin{DoxyItemize}
+\item Changer la variable {\ttfamily sensors\+\_\+height} du fichier {\ttfamily \mbox{\hyperlink{MLP__training_8py}{MLP\+\_\+training.\+py}}} pour être en accord avec le dataset créé ({\ttfamily sequences\+\_\+resumed\+\_\+\mbox{[}sensors\+\_\+height\mbox{]}.csv}).
+\item Modifier la variable {\ttfamily dependent\+\_\+variables} pour entrainer le MLP sur la caractéristique désirée.
+\item Modifier les paramètres d\textquotesingle{}entrainement du modèle MLP comme vous le souhaitez (lignes $\sim$114)
+\item Lancer le script d\textquotesingle{}entrainement \+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{source virtual\_env/bin/activate}
+\DoxyCodeLine{python MLP\_training.py}
+
+\end{DoxyCode}
+
+\end{DoxyItemize}\hypertarget{md_README_autotoc_md16}{}\doxysubsubsection{Pour entrainer un réseau convolutif}\label{md_README_autotoc_md16}
+
+\begin{DoxyItemize}
+\item Modifier les paramètres permettant de tester plusieurs structures differentes des CNN avec la variable {\ttfamily models\+\_\+hyperparameters} (ligne $\sim$1381) (nombre de couches convolutives, taille des kernels utilisés, structure des couches cachées finales, fonctions d\textquotesingle{}activation, etc.)
+\item Modifier les paramètres d\textquotesingle{}entrainement (learning rate, optimiseur, type de modèles entrainés) avec la variable {\ttfamily training\+\_\+parameters} (ligne $\sim$1407)
+\item Lancer le script d\textquotesingle{}entrainement \+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{source virtual\_env/bin/activate}
+\DoxyCodeLine{python deep\_neural\_training.py -\/-\/train -\/-\/parameter all}
+
+\end{DoxyCode}
+ Cela entraine des réseaux sur tous les paramètres possibles, mais il est possible d\textquotesingle{}en choisir un spécifique \+:
+\item \textquotesingle{}body\+\_\+speed\textquotesingle{} = vitesse de marche
+\item \textquotesingle{}footstep\+\_\+width\textquotesingle{} = largeur de pas
+\item \textquotesingle{}cycle\+\_\+time\textquotesingle{} = durée d\textquotesingle{}un cycle de marche
+\item \textquotesingle{}stride\+\_\+length\textquotesingle{} = longueur des pas
+\item \textquotesingle{}corridor\+\_\+distance\textquotesingle{} = distance de la personne par rapport au mur (mur Est)
+\end{DoxyItemize}\hypertarget{md_README_autotoc_md17}{}\doxysubsubsection{Comparer les modèles entrainés}\label{md_README_autotoc_md17}
+Idem que pour l\textquotesingle{}entrainement, modifier uniquement l\textquotesingle{}argument \char`\"{}train\char`\"{} en \char`\"{}display\char`\"{} \+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{source virtual\_env/bin/activate}
+\DoxyCodeLine{python deep\_neural\_training.py -\/-\/display -\/-\/parameter all}
+
+\end{DoxyCode}
+
+
+De cette manière un tableau rassemblant les résultats de tous les entrainements de modèles sera affiché, classé par ordre de corrélation des estimations avec la verité terrain. $\ast$\+Ce paramètre peut être modifié par la valeur de la variable {\ttfamily ordering} ({\ttfamily \mbox{\hyperlink{deep__neural__training_8py}{deep\+\_\+neural\+\_\+training.\+py}}}, ligne $\sim$1491)$\ast$
+
+Pour le modèle avec les meilleurs résultats (critère de {\ttfamily ordering}), on affiche les résultats sur un jeu de test de 20\% du dataset avec une comparaison entre l\textquotesingle{}estimation et la verité terrain et des statistiques de l\textquotesingle{}erreur (en erreur absolue et en pourcentage d\textquotesingle{}erreur).
+
+Pour visualiser ces affichages avec tous les modèles entrainés, ajouter l\textquotesingle{}argument {\ttfamily -\/-\/display-\/all} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{source virtual\_env/bin/activate}
+\DoxyCodeLine{python deep\_neural\_training.py -\/-\/display -\/-\/parameter body\_speed -\/-\/display-\/all}
+
+\end{DoxyCode}
+\hypertarget{md_README_autotoc_md18}{}\doxysection{Quelques avancées (pas forcément fructueuses)}\label{md_README_autotoc_md18}
+\hypertarget{md_README_autotoc_md19}{}\doxysubsection{Capture automatique}\label{md_README_autotoc_md19}
+{\itshape Dans le temps, jadis}, les flux de la caméra étaient stockés en ROSbags (fichiers qui stockent la totalité des flux d\textquotesingle{}un appareil pour avoir des résultats totalement reproductibles). Ces fichiers sont très lourds, j\textquotesingle{}ai alors mis en place un système pour lancer le stockage uniquement lorsqu\textquotesingle{}une personne est dans le champ de vision.
+
+Malheureusement, le processus laisse une latence d\textquotesingle{}environ une seconde entre la detection et l\textquotesingle{}enregistrement de la personne, ce qui est trop long pour l\textquotesingle{}experimentation actuelle.
+
+Dans le doute, je laisse le code du système dans le fichier {\ttfamily \mbox{\hyperlink{automatic__capture_8py}{automatic\+\_\+capture.\+py}}}, ainsi qu\textquotesingle{}une démonstration de son utilisation dans le même fichier.\hypertarget{md_README_autotoc_md20}{}\doxysubsection{Reconnaissance faciale}\label{md_README_autotoc_md20}
+Un petit algorithme de reconnaissance faciale a été utilisé (mais jamais testé...) dans le fichier {\ttfamily \mbox{\hyperlink{person__identification_8py}{person\+\_\+identification.\+py}}}. Une demonstration est disponible en lançant le script {\ttfamily \mbox{\hyperlink{draw__skeleton_8py}{draw\+\_\+skeleton.\+py}}}
+
+Pour information, l\textquotesingle{}identification se fait par la transformation d\textquotesingle{}une photo de visage en histogramme HOG. Des SVM sont entrainés pour classifier le HOG d\textquotesingle{}un nouveau visage parmi le dataset.\hypertarget{md_README_autotoc_md21}{}\doxysubsection{Classification d\textquotesingle{}actions}\label{md_README_autotoc_md21}
+Une classifieur d\textquotesingle{}actions est disponible dans le fichier {\ttfamily \mbox{\hyperlink{train__action__classifier_8py}{train\+\_\+action\+\_\+classifier.\+py}}}\hypertarget{md_README_autotoc_md22}{}\doxysection{Pour plus de détails sur le travail}\label{md_README_autotoc_md22}
+Le rapport de stage associé à ce travail est disponible sous le nom de {\ttfamily Rapport\+\_\+fin\+\_\+de\+\_\+stage\+\_\+\+Nantes\+\_\+\+LISTIC.\+pdf}.
+
+Pour encore plus d\textquotesingle{}informations, ne pas hésiter à me contacter. 

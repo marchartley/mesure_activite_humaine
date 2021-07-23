@@ -57,7 +57,7 @@ def main():
 
     We use a background substation technic to draw the box behind and in front of a person to give an illusion of 3D.
     """
-
+    # from moviepy.editor import concatenate_videoclips, ImageClip
     import argparse
 
     parser = argparse.ArgumentParser(description='Display the skeleton of a person on the screen and tries to'
@@ -129,6 +129,8 @@ def main():
     playing = True
 
     recognition_thread = None
+
+    # frames_list = []
 
     while True:
         if playing:
@@ -230,6 +232,7 @@ def main():
                 raise e
 
             cv2.imshow("Camera", cv2.cvtColor(color_frame, cv2.COLOR_BGR2RGB))
+            # frames_list.append(cv2.cvtColor(color_frame, cv2.COLOR_BGR2RGB))
             # cv2.imshow("Camera", cv2.resize(cv2.cvtColor(depth_image, cv2.COLOR_BGR2RGB), (800, 600)))
 
         k = cv2.waitKey(1) & 0xFF
@@ -245,6 +248,8 @@ def main():
 
     cv2.destroyAllWindows()
     pipeline = recording.stop_playback(pipeline)
+    # video_clip = concatenate_videoclips([ImageClip(m).set_duration(1 / 20) for m in frames_list])
+    # video_clip.write_videofile('passage2.mp4', fps = 20)
 
 
 if __name__ == "__main__":

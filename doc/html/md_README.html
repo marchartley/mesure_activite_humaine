@@ -66,7 +66,150 @@ $(function() {
   <div class="headertitle"><div class="title">mesure_activite_humaine </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p >Link to datasets: <a href="https://drive.google.com/drive/folders/1ruuit4PpnR_DXcTkf8YM3IeuRo0xYCVZ?usp=sharing">https://drive.google.com/drive/folders/1ruuit4PpnR_DXcTkf8YM3IeuRo0xYCVZ?usp=sharing</a> </p>
+<div class="textblock"><p >Link to datasets: <a href="https://drive.google.com/drive/folders/1ruuit4PpnR_DXcTkf8YM3IeuRo0xYCVZ?usp=sharing">https://drive.google.com/drive/folders/1ruuit4PpnR_DXcTkf8YM3IeuRo0xYCVZ?usp=sharing</a></p>
+<h1><a class="anchor" id="autotoc_md1"></a>
+Authors</h1>
+<p >Hartley Marc - LISTIC (<a href="#" onclick="location.href='mai'+'lto:'+'mar'+'c.'+'har'+'tl'+'ey@'+'ho'+'tma'+'il'+'.co'+'m'; return false;">marc.<span style="display: none;">.nosp@m.</span>hart<span style="display: none;">.nosp@m.</span>ley@h<span style="display: none;">.nosp@m.</span>otma<span style="display: none;">.nosp@m.</span>il.co<span style="display: none;">.nosp@m.</span>m</a>)</p>
+<h1><a class="anchor" id="autotoc_md2"></a>
+Documentation complète</h1>
+<p >Après avoir cloné le projet, ouvrez le fichier "doc/html/index.html" dans un navigateur.</p>
+<h1><a class="anchor" id="autotoc_md3"></a>
+Processus classique:</h1>
+<p >Ce projet est utilisé dans le but d'enregistrer de manière automatique une scene à l'aide d'une caméra de profondeur.</p>
+<p >Cela permet d'extraire le squelette d'une personne dans une sequence, de les stocker dans une base de données InfluxDB et d'analyser la démarche de la personne.</p>
+<p >Les caractéristiques extraites sont:</p><ul>
+<li>La vitesse de la marche,</li>
+<li>La longueur des pas,</li>
+<li>La largeur des pas,</li>
+<li>Le ratio "double-support",</li>
+<li>Le ratio "stance/swing" sur chaque jambe.</li>
+</ul>
+<p >Un Raspberry Pi s'occupe d'enregistrer les signaux de plusieurs capteurs sur lequel il est branché, et de stocker cela dans une base de données InfluxDB.</p>
+<p >Avec les données des capteurs qui vont servir d'entrée et les caractéristiques de la caméra pour la "verité terrain", nous pouvons entrainer des réseaux de neurones.</p>
+<p >Plusieurs types de réseaux de neurones sont proposés ici:</p><ul>
+<li>Un réseau de type MLP (Multi-Layer Perceptron)</li>
+<li>Des réseaux convolutifs:<ul>
+<li>CNN (Convolutional Neural Network) "classique"</li>
+<li>ResNet (CNN avec l'utilisation de "résidus")</li>
+<li>Modèles prédéfinis de type AlexNet, GoogleNet, VGG, etc...</li>
+</ul>
+</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md4"></a>
+Programmes requis</h1>
+<ul>
+<li>Python 3.6 ou 3.7 (pas en-dessous pour pouvoir utiliser la skeletisation, pas au-dessus pour pouvoir utiliser le SDK des caméras de profondeur)</li>
+<li>R Studio</li>
+<li>Arduino IDE (ou n'importe quel IDE pour coder sur un Arduino)</li>
+<li>Un GPU compatible CUDA</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md5"></a>
+Installation du projet</h1>
+<h2><a class="anchor" id="autotoc_md6"></a>
+Sous Linux</h2>
+<ul>
+<li>Attention: Le mieux c'est d'utiliser Ubuntu18 car c'est "sûr" de fonctionner. Ubuntu 20.0 est incompatible (à cause de la skeletisation Cubemos).</li>
+<li>Cloner ce repertoire: <div class="fragment"><div class="line">cd ~/Documents</div>
+<div class="line">git clone https://github.com/kemar74/mesure_activite_humaine.git</div>
+<div class="line"># Renseigner votre GitHub username et password avec lequel vous avez un accès dans ce répertoire</div>
+</div><!-- fragment --></li>
+<li>Lancer le script d'installation en suivant les indications affichées: <div class="fragment"><div class="line">sudo bash ~/Documents/mesure_activite_humaine/project_installation.sh</div>
+</div><!-- fragment --></li>
+</ul>
+<h2><a class="anchor" id="autotoc_md7"></a>
+Sous Windows</h2>
+<ul>
+<li>Cloner ce repertoire: <div class="fragment"><div class="line">cd ~/Documents</div>
+<div class="line">git clone https://github.com/kemar74/mesure_activite_humaine.git</div>
+<div class="line"># Renseigner votre GitHub username et password avec lequel vous avez un accès dans ce répertoire</div>
+</div><!-- fragment --></li>
+<li>Après, essayez d'installer PyRealSense2 et Cubemos Skeleton Tracker SDK comme vous pouvez</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md8"></a>
+Utilisation du programme:</h1>
+<h2><a class="anchor" id="autotoc_md9"></a>
+Programmation des capteurs</h2>
+<p >Un programme doit être compilé sur chaque capteur pour être utilisables: 1) Ouvrir un IDE pour coder les Arduino, et ouvrir le fichier "pir_sensors_program.c" 2) Brancher un capteur via la prise USB-C vers l'ordinateur 3) Modifier la variable "`nom_variable`" pour qu'elle s'accorde au numéro indiqué sur le capteur (0x20, 0x21, 0x22 ou 0x23) 4) Compiler vers la carte Arduino.</p>
+<h2><a class="anchor" id="autotoc_md10"></a>
+Capture des données des capteurs</h2>
+<p >1) Placer les capteurs tels que vous le souhaitez dans le couloir. 2) Les brancher au Raspberry Pi (par I2C pour l'instant). 3) (Si vous commencez de zéro :) Placer les fichiers du dossier <code>files_for_raspberry</code> (<code>xiaopir.py</code>, <code>continuous_experiment.py</code> et <code>hamming_coding.py</code>) dans le Raspberry (peu importe où, tant qu'ils sont ensemble). 4) <b>Verifier que la variable <code>sensors_height</code> dans le fichier <code>continuous_experiment.py</code> soit en accord avec la disposition de vos capteurs (Pour les PIRs, nous avons utilisé "`hips`" lorsque à hauteur de hanches et "`ankles`" lorsque ils sont placés au sol). Cette variable permet d'ajouter un "tag" aux données pour les filtrer/trier par la suite.</b> 5) Lancer le script <code>continuous_experiment.py</code> sur le Raspberry Pi. En cas d'erreur "OSError: 121", verifier que tous les capteurs sont bien branchés (débrancher/rebrancher plusieurs fois). </p><div class="fragment"><div class="line">python3 continuous_experiment.py</div>
+</div><!-- fragment --><p >Conditions d'utilisation:</p><ul>
+<li>Le Raspberry doit avoir un accès au serveur Listic (192.168.143.29)</li>
+<li>Dans l'état actuel, il est indispensable de brancher 4 capteurs avec les adresses esclaves "0x20", "0x21", "0x22" et "0x23". (voir "Programmation des capteurs")</li>
+</ul>
+<p >Indications:</p><ul>
+<li>À l'heure actuelle, les données transmises des capteurs au Raspberry sont encodées par un codage de Hamming. Le code d'encodage compilé sur les capteurs doit être compatible avec le code de décodage codé sur le Raspberry (fichier <code>hamming_coding.py</code>)</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md11"></a>
+Capture des squelettes par camera de profondeur</h2>
+<p >1) Placer le cube "Aruco Box" dans le couloir. 2) Placer la caméra dans un coin du dispositif (chercher une croix de scotch en dessous d'un extincteur). 3) Brancher la caméra à l'ordinateur. <b>Utiliser un cable certifié USB3.0 et brancher sur un port USB 3.0</b>. 4) Utiliser un environnement virtuel python (voir <code>create_new_env.txt</code>) 4) Depuis l'ordinateur, lancer le script <code><a class="el" href="direct__camera__to__db_8py.html">direct_camera_to_db.py</a></code> avec la commande CMD suivante : </p><div class="fragment"><div class="line">source virtual_env/bin/activate</div>
+<div class="line">python direct_camera_to_db.py --remote</div>
+</div><!-- fragment --><p> 5) Marcher de la porte vitrée "Nord" jusqu'à l'extincteur "Sud" puis du "Sud" au "Nord" autant de fois que voulu.</p>
+<h2><a class="anchor" id="autotoc_md12"></a>
+Visualiser une scène</h2>
+<p >Pour voir le dernier passage réalisé, vous pouvez jouer le script <code><a class="el" href="display__skeleton_8py.html">display_skeleton.py</a></code> </p><div class="fragment"><div class="line">source virtual_env/bin/activate</div>
+<div class="line">python display_skeleton.py</div>
+</div><!-- fragment --><p> Ceci rejoue le dernier enregistrement en base de données. Pour jouer l'avant-dernier, remplacer l'ID de sequence de <code>-1</code> à <code>-2</code> (<code>-3</code> pour l'avant-avant-dernier, etc.).</p>
+<h2><a class="anchor" id="autotoc_md13"></a>
+Création des datasets pour l'IA</h2>
+<p >On utilise un dataset different selon le modèle de deep learning à utiliser. Les données des datasets sont choisies selon le tag 'sensors_height' qui a été choisi lors de la collecte des données de capteurs (voir "Capture des données des capteurs").</p>
+<p ><b>Dans le script <code><a class="el" href="create__pir__csv_8py.html">create_pir_csv.py</a></code> ET <code>create_dataset_mlp.R</code>, modifier la variable <code>sensors_height</code> afin qu'elle corresponde aux experimentations que vous souhaitez (ex : "hips" pour les capteurs PIRs à hauteur de hanche, "ankles" quand ils sont au sol, etc.)</b> </p><div class="fragment"><div class="line">source virtual_env/bin/activate</div>
+<div class="line">python create_pir_csv.py</div>
+<div class="line">R --vanilla &lt; create_dataset_mlp.R</div>
+</div><!-- fragment --><p >Le script Python <code><a class="el" href="create__pir__csv_8py.html">create_pir_csv.py</a></code> extrait toutes les informations à partir de la base de données et construit un CSV "gait_values_[sensors_height].csv" (avec [sensors_height] celui que vous avez indiqué dans le script). Il crée aussi les données "image" en enregistrant la representation de la Transformée d'Ondelettes Continues (CWT) en image PIL.Image de taille 128×128 dans un fichier "all_pirs_transformed_[sensors_height].data", qui est un object python sauvegardé par "pickle".</p>
+<p >Le script R "create_dataset_mlp.R" va créer le fichier CSV "sequences_resumed_[sensors_height].csv", qui est utilisé par les réseaux de neurones MLP.</p>
+<h2><a class="anchor" id="autotoc_md14"></a>
+Entrainement de réseaux de neurones</h2>
+<h3><a class="anchor" id="autotoc_md15"></a>
+Pour entrainer un réseau de type MLP:</h3>
+<ul>
+<li>Changer la variable <code>sensors_height</code> du fichier <code><a class="el" href="MLP__training_8py.html">MLP_training.py</a></code> pour être en accord avec le dataset créé (<code>sequences_resumed_[sensors_height].csv</code>).</li>
+<li>Modifier la variable <code>dependent_variables</code> pour entrainer le MLP sur la caractéristique désirée.</li>
+<li>Modifier les paramètres d'entrainement du modèle MLP comme vous le souhaitez (lignes ~114)</li>
+<li>Lancer le script d'entrainement : <div class="fragment"><div class="line">source virtual_env/bin/activate</div>
+<div class="line">python MLP_training.py</div>
+</div><!-- fragment --></li>
+</ul>
+<h3><a class="anchor" id="autotoc_md16"></a>
+Pour entrainer un réseau convolutif</h3>
+<ul>
+<li>Modifier les paramètres permettant de tester plusieurs structures differentes des CNN avec la variable <code>models_hyperparameters</code> (ligne ~1381) (nombre de couches convolutives, taille des kernels utilisés, structure des couches cachées finales, fonctions d'activation, etc.)</li>
+<li>Modifier les paramètres d'entrainement (learning rate, optimiseur, type de modèles entrainés) avec la variable <code>training_parameters</code> (ligne ~1407)</li>
+<li>Lancer le script d'entrainement : <div class="fragment"><div class="line">source virtual_env/bin/activate</div>
+<div class="line">python deep_neural_training.py --train --parameter all</div>
+</div><!-- fragment --> Cela entraine des réseaux sur tous les paramètres possibles, mais il est possible d'en choisir un spécifique :</li>
+<li>'body_speed' = vitesse de marche</li>
+<li>'footstep_width' = largeur de pas</li>
+<li>'cycle_time' = durée d'un cycle de marche</li>
+<li>'stride_length' = longueur des pas</li>
+<li>'corridor_distance' = distance de la personne par rapport au mur (mur Est)</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md17"></a>
+Comparer les modèles entrainés</h3>
+<p >Idem que pour l'entrainement, modifier uniquement l'argument "train" en "display" : </p><div class="fragment"><div class="line">source virtual_env/bin/activate</div>
+<div class="line">python deep_neural_training.py --display --parameter all</div>
+</div><!-- fragment --><p >De cette manière un tableau rassemblant les résultats de tous les entrainements de modèles sera affiché, classé par ordre de corrélation des estimations avec la verité terrain. *Ce paramètre peut être modifié par la valeur de la variable <code>ordering</code> (<code><a class="el" href="deep__neural__training_8py.html">deep_neural_training.py</a></code>, ligne ~1491)*</p>
+<p >Pour le modèle avec les meilleurs résultats (critère de <code>ordering</code>), on affiche les résultats sur un jeu de test de 20% du dataset avec une comparaison entre l'estimation et la verité terrain et des statistiques de l'erreur (en erreur absolue et en pourcentage d'erreur).</p>
+<p >Pour visualiser ces affichages avec tous les modèles entrainés, ajouter l'argument <code>--display-all</code> </p><div class="fragment"><div class="line">source virtual_env/bin/activate</div>
+<div class="line">python deep_neural_training.py --display --parameter body_speed --display-all</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md18"></a>
+Quelques avancées (pas forcément fructueuses)</h1>
+<h2><a class="anchor" id="autotoc_md19"></a>
+Capture automatique</h2>
+<p ><em>Dans le temps, jadis</em>, les flux de la caméra étaient stockés en ROSbags (fichiers qui stockent la totalité des flux d'un appareil pour avoir des résultats totalement reproductibles). Ces fichiers sont très lourds, j'ai alors mis en place un système pour lancer le stockage uniquement lorsqu'une personne est dans le champ de vision.</p>
+<p >Malheureusement, le processus laisse une latence d'environ une seconde entre la detection et l'enregistrement de la personne, ce qui est trop long pour l'experimentation actuelle.</p>
+<p >Dans le doute, je laisse le code du système dans le fichier <code><a class="el" href="automatic__capture_8py.html">automatic_capture.py</a></code>, ainsi qu'une démonstration de son utilisation dans le même fichier.</p>
+<h2><a class="anchor" id="autotoc_md20"></a>
+Reconnaissance faciale</h2>
+<p >Un petit algorithme de reconnaissance faciale a été utilisé (mais jamais testé...) dans le fichier <code><a class="el" href="person__identification_8py.html">person_identification.py</a></code>. Une demonstration est disponible en lançant le script <code><a class="el" href="draw__skeleton_8py.html">draw_skeleton.py</a></code></p>
+<p >Pour information, l'identification se fait par la transformation d'une photo de visage en histogramme HOG. Des SVM sont entrainés pour classifier le HOG d'un nouveau visage parmi le dataset.</p>
+<h2><a class="anchor" id="autotoc_md21"></a>
+Classification d'actions</h2>
+<p >Une classifieur d'actions est disponible dans le fichier <code><a class="el" href="train__action__classifier_8py.html">train_action_classifier.py</a></code></p>
+<h1><a class="anchor" id="autotoc_md22"></a>
+Pour plus de détails sur le travail</h1>
+<p >Le rapport de stage associé à ce travail est disponible sous le nom de <code>Rapport_fin_de_stage_Nantes_LISTIC.pdf</code>.</p>
+<p >Pour encore plus d'informations, ne pas hésiter à me contacter. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->
